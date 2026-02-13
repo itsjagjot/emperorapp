@@ -1,0 +1,7 @@
+{
+  "name": "emperorapp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
