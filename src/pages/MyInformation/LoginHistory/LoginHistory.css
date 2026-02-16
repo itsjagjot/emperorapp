@@ -1,0 +1,215 @@
+/* Premium Colors & Background */
+.premium-bg {
+    --background: #fcfdfe;
+}
+
+/* Custom Header Styling */
+.custom-app-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: white;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.custom-app-header h2 {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a3a5f;
+    margin: 0;
+    margin-left: -24px;
+    /* Back icon balance */
+}
+
+.back-icon {
+    font-size: 24px;
+    color: #1a3a5f;
+}
+
+.filter-card-container {
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-icon-box {
+    width: 48px;
+    height: 48px;
+    background: #eff6ff;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    font-size: 22px;
+}
+
+.period-select {
+    --padding-start: 0;
+    font-weight: 800;
+    font-size: 16px;
+    color: #111827;
+}
+
+.date-range-subtitle {
+    display: block;
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+/* Search Wrapper */
+.lh-search-wrapper {
+    margin-bottom: 15px;
+}
+
+.search-inner {
+    background: white;
+    border-radius: 16px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #f0f2f5;
+}
+
+.search-inner input {
+    border: none;
+    outline: none;
+    width: 100%;
+    margin-left: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    background: transparent;
+}
+
+/* Buttons */
+.action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.btn-secondary {
+    background: white;
+    color: #1a3a5f;
+    border: 1.5px solid #1a3a5f;
+    border-radius: 12px;
+    height: 48px;
+    font-weight: 800;
+}
+
+.btn-primary {
+    background: #002147;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    height: 48px;
+    font-weight: 800;
+}
+
+/* Premium Cards */
+.history-premium-card {
+    background: white;
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #f1f5f9;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.user-profile {
+    display: flex;
+    gap: 12px;
+}
+
+.avatar-circle {
+    width: 44px;
+    height: 44px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.user-name-info h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.role-tag {
+    font-size: 10px;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #4b5563;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.timestamp-info {
+    text-align: right;
+}
+
+.main-date {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.main-time {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+.card-divider-dash {
+    border-top: 1px dashed #e5e7eb;
+    margin: 18px 0;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #4b5563;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Device ID */
+.id-badge-container {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    padding: 10px 14px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.id-badge-container span {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.status-pill-success {
+    background: #ecfdf5;
+    color: #10b981;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 800;
+}

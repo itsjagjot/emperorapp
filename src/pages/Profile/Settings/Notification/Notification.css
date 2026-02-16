@@ -1,0 +1,63 @@
+.notif-bg {
+    --background: #fdfdfd;
+}
+
+.notif-wrapper {
+    margin-top: 8px;
+}
+
+.clean-list {
+    background: transparent !important;
+}
+
+.notif-row {
+    --padding-start: 20px;
+    --inner-padding-end: 15px;
+    --min-height: 65px;
+    --border-color: #f0f0f0;
+}
+
+.setting-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Toggle Styling */
+ion-toggle {
+    --handle-width: 22px;
+    --handle-height: 22px;
+    --track-background: #e0e6ed;
+    --track-background-checked: #002b49;
+    /* Theme Navy Blue */
+    padding-right: 5px;
+}
+
+ion-toggle[color="success"] {
+    --track-background-checked: #34c759;
+    /* Standard iOS Green */
+}
+
+/* Update Button */
+.btn-area {
+    padding: 30px 20px;
+}
+
+.update-btn-pro {
+    width: 100%;
+    height: 52px;
+    background: #002b49;
+    /* Matching your primary theme */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 43, 73, 0.25);
+    transition: 0.2s;
+}
+
+.update-btn-pro:active {
+    transform: translateY(2px);
+    box-shadow: none;
+}

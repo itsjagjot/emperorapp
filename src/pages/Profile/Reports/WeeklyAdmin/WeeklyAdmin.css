@@ -1,0 +1,253 @@
+/* Custom Green Color Theme */
+:root {
+    --theme-green: #015d28;
+    --dark-summary-bg: #2d3e4f;
+    --light-bg: #f5f7f9;
+}
+
+.admin-bg {
+    --background: var(--light-bg);
+}
+
+/* Filter Header Spacing Fix */
+.admin-filter-container {
+    display: flex;
+    padding: 10px 14px;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.dropdown-flex-grow {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    height: 40px;
+}
+
+.icon-actions-group {
+    display: flex;
+    gap: 6px;
+    padding-top: 2px;
+}
+
+/* Rounded Action Buttons */
+.action-circle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-bg {
+    background: var(--theme-green);
+    color: white;
+}
+
+.reset-outline-btn {
+    border: 1.5px solid var(--theme-green);
+    color: var(--theme-green);
+    background: white;
+}
+
+/* Premium Searchbar */
+.search-wrapper {
+    padding: 0 14px;
+    margin-bottom: 5px;
+}
+
+.custom-search {
+    --background: white;
+    --border-radius: 10px;
+    --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    height: 44px;
+    padding: 0;
+}
+
+.summary-card-premium {
+    background: linear-gradient(0deg, #002719, #056643);
+    /* Dark Navy/Blue-Grey background */
+    margin: 12px 14px;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    /* Subtle shadow for depth */
+    color: #ffffff;
+}
+
+.summary-header {
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    /* Light divider */
+    padding-bottom: 8px;
+}
+
+.summary-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    /* Professional look */
+    color: #f8f9fa;
+}
+
+.summary-body {
+    display: flex;
+    justify-content: space-between;
+    /* Space items evenly */
+    align-items: flex-start;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    flex: 1;
+    /* Equal width for all items */
+}
+
+.summary-label {
+    font-size: 10px;
+    color: #a0aec0;
+    /* Light grey labels */
+    font-weight: 500;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.summary-value {
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Tuhada Brand Green Color */
+.green-text {
+    color: #2ecc71 !important;
+    /* Visual contrast layi light green use kitta hai dark background te */
+}
+
+/* Je tusi exact dark green (#015d28) hi chahunde ho */
+.theme-green-text {
+    color: #015d28 !important;
+}
+
+/* Alignment for the last item to prevent overflow */
+.last-item {
+    text-align: right;
+}
+
+.label-grid-row IonCol {
+    font-size: 10px;
+    color: #a0aec0;
+    text-transform: uppercase;
+}
+
+.theme-green-text {
+    color: #2ecc71 !important;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.theme-green2-text {
+    color: #015d28 !important;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Sort Pills */
+.sort-section-compact {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.sort-hint {
+    font-size: 12px;
+    color: #718096;
+}
+
+.sort-pill-green {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: #4a5568;
+}
+
+.sort-pill-green.active {
+    border-color: var(--theme-green);
+    color: var(--theme-green);
+    font-weight: 600;
+}
+
+/* User Card Premium */
+.user-report-card-premium {
+    background: white;
+    margin: 10px 12px;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.user-header-flex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.user-avatar-green {
+    width: 36px;
+    height: 36px;
+    background: #e6fffa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-green);
+    font-weight: bold;
+}
+
+.id-txt {
+    font-weight: bold;
+    font-size: 15px;
+    display: block;
+    color: #1a202c;
+}
+
+.sub-id-txt {
+    font-size: 11px;
+    color: #718096;
+}
+
+.stats-label {
+    font-size: 11px;
+    color: #a0aec0;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.footer-stats-strip {
+    display: flex;
+    justify-content: space-between;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.f-item label {
+    display: block;
+    font-size: 9px;
+    color: #718096;
+    margin-bottom: 2px;
+}

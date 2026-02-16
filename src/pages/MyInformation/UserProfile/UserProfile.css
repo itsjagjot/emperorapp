@@ -1,0 +1,172 @@
+/* Background */
+.custom-body-bg {
+    --background: #f9fbff;
+    /* Very light blue tint */
+}
+
+/* Header Adjustments */
+.profile-hero-layout {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0;
+}
+
+.avatar-main {
+    width: 70px;
+    height: 70px;
+    background: #f47e20;
+    border-radius: 20px;
+    color: white;
+    font-size: 24px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 20px rgba(244, 126, 32, 0.2);
+}
+
+.active-tag {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* Stats Cards */
+.stats-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 10px 0 30px;
+}
+
+.stat-pill {
+    background: white;
+    padding: 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.stat-icon-bg {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.green-tint {
+    background: #e8f5e9;
+    color: #1a8354;
+}
+
+.red-tint {
+    background: #fdf2f2;
+    color: #cf3c3c;
+}
+
+.stat-content label {
+    font-size: 10px;
+    color: #888;
+    display: block;
+}
+
+.stat-content p {
+    font-size: 14px;
+    font-weight: 800;
+    color: #222;
+    margin: 0;
+}
+
+/* Unified Detail List */
+.section-heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.unified-settings-card {
+    background: white;
+    border-radius: 28px;
+    padding: 5px 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    position: relative;
+}
+
+.settings-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+.settings-text label {
+    font-size: 10px;
+    color: #999;
+    font-weight: 600;
+    margin: 0;
+}
+
+.settings-text p {
+    font-size: 14px;
+    color: #1a1a1a;
+    font-weight: 700;
+    margin: 0;
+}
+
+.settings-arrow {
+    margin-left: auto;
+    color: #d1d1d1;
+    font-size: 16px;
+}
+
+.settings-divider {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 52px;
+    height: 1px;
+    background: #f3f4f6;
+}
+
+/* Footer Action */
+.footer-action {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.minimal-delete-btn {
+    background: #ff4d4d;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    padding: 10px 20px;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    border-radius: 20px;
+}

@@ -1,0 +1,128 @@
+/* Reuse ClientPnL styles or import them */
+.script-pnl-wrapper {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-card {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    height: 42px;
+}
+
+.half-width {
+    width: 50%;
+}
+
+.flex-grow {
+    flex: 1;
+}
+
+.btn-view {
+    background: #00263e;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    height: 42px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.btn-reset {
+    background: white;
+    color: #00263e;
+    border: 1px solid #00263e;
+    padding: 0 20px;
+    height: 42px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.total-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    font-size: 13px;
+    gap: 4px;
+}
+
+.val-green {
+    color: #10b981;
+    /* Green value */
+    font-weight: 700;
+}
+
+/* Container for the table to allow scrolling */
+.scrollable-table-container {
+    overflow-x: auto;
+    margin-top: 10px;
+    border-radius: 4px;
+    background: white;
+}
+
+/* Minimum width to ensure columns don't squash */
+.table-min-width {
+    min-width: 600px;
+    /* Adjust based on column count */
+}
+
+.table-header-row {
+    background: #e2e8f0;
+    display: flex;
+    padding: 10px 0;
+}
+
+.table-data-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.th-item,
+.td-item {
+    flex: 1;
+    font-size: 12px;
+    text-align: center;
+    padding: 0 5px;
+    white-space: nowrap;
+}
+
+.th-item {
+    font-weight: 700;
+    color: #00263e;
+}
+
+.td-item {
+    color: #475569;
+}
+
+/* Description column thoda vadda hona chahida hai */
+.desc-col {
+    flex: 1.5;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.val-blue {
+    color: #3182ce;
+    font-weight: 500;
+}
+
+/* Rest of your styles (script-total-bar, buttons, etc.) */
+.script-total-bar {
+    background: #334155;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin-top: 8px;
+}

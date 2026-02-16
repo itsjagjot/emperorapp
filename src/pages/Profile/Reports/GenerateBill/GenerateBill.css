@@ -1,0 +1,45 @@
+/* Container spacing */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Pehlan 12 ਸੀ, hun 8 kitta spacing ghataun layi */
+}
+
+/* Input Boxes - Smaller height */
+.custom-input-box.compact {
+    background: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    height: 42px;
+    /* Pehlan 50 ਸੀ, hun 42 kitta */
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.custom-input-box.compact IonSelect {
+    font-size: 14px;
+    /* Text thoda chota */
+    width: 100%;
+}
+
+.compact-date-row {
+    margin-top: 4px;
+}
+
+/* View Button Inline - Jive arrow naal show kitta si */
+.view-btn-inline {
+    --background: #002e36;
+    --border-radius: 6px;
+    height: 44px;
+    margin: 8px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* Area below button for content */
+.result-area {
+    margin-top: 10px;
+    min-height: 200px;
+}

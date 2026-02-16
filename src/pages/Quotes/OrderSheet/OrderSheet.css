@@ -1,0 +1,206 @@
+.canvas-wrapper {
+    font-family: inherit;
+}
+
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.header-top-row h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0b2a47;
+}
+
+.price-details {
+    text-align: right;
+}
+
+.bold-val {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.small-hl {
+    font-size: 11px;
+    color: #888;
+}
+
+.price-change-row {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.order-tabs {
+    display: flex;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: white;
+    font-weight: 600;
+    color: #666;
+}
+
+.tab.active {
+    color: #136603;
+    background: #caffd4;
+}
+
+.input-grid {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.input-container,
+.counter-container {
+    flex: 1;
+    background: #f7f7f7;
+    border-radius: 6px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lot-select {
+    width: 100%;
+    --padding-start: 0;
+    font-weight: 600;
+}
+
+.qty-val {
+    font-weight: 700;
+}
+
+.cnt-btn {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #333;
+}
+
+.data-info-grid {
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.data-info-grid span {
+    font-size: 11px;
+    color: #777;
+    display: block;
+    text-align: center;
+}
+
+.data-info-grid p {
+    margin: 4px 0;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+}
+
+.divider {
+    height: 1px;
+    background: #eee;
+    margin: 10px 0;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.stat strong {
+    font-size: 13px;
+}
+
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+
+.utility-row {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+}
+
+/* Pehla purana border hata deo */
+ion-row.stats-row {
+    border-top: none;
+    padding-top: 5px;
+    margin-top: 5px;
+    position: relative;
+}
+
+/* Nawa Gradient Divider */
+ion-row.stats-row::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    /* Sides white/transparent and center grey */
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgb(200 200 200) 50%, rgba(255, 255, 255, 0) 100%);
+}
+
+.price-input-row {
+    background: #f7f7f7;
+    border-radius: 6px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.counter-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.price-details-wrapper {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.rate-boxes {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.rate-box {
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    min-width: 80px;
+    text-align: center;
+    color: #000;
+}
+
+.hl-info {
+    font-size: 11px;
+    color: #888;
+    font-weight: 500;
+}

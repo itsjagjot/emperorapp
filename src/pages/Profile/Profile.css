@@ -1,0 +1,145 @@
+/* Page Background with a subtle gradient */
+.profile-bg {
+    --background: #fdfdfd linear-gradient(180deg, #f8fafd 0%, #ffffff 100%);
+}
+
+.profile-container {
+    padding: 10px 18px;
+}
+
+/* Header Refinement */
+.profile-nav {
+    --background: #ffffff;
+    --border-width: 0;
+    padding: 8px 0;
+}
+
+.profile-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.user-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #0F3D2E;
+    /* Emperor Theme Green */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(15, 61, 46, 0.2);
+}
+
+.brand-details h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+    letter-spacing: -0.5px;
+}
+
+.brand-details span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Section Labels */
+.profile-section-label {
+    margin: 25px 0 12px 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Premium Card Design */
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Rest of the styles from previous premium version */
+.premium-card {
+    background: #ffffff;
+    border: 1px solid #f0f2f5;
+    padding: 14px 16px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.premium-card:active {
+    transform: scale(0.98);
+    background: #f9f9f9;
+}
+
+.card-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.icon-wrapper {
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 14px;
+    /* Reduced for readability in long list */
+    font-weight: 600;
+    color: #333;
+}
+
+.arrow-box {
+    background: #f1f3f5;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrow-icon {
+    color: #495057;
+    font-size: 14px;
+}
+
+/* Logout Design */
+.logout-wrapper {
+    margin-top: 40px;
+    padding-bottom: 30px;
+}
+
+.logout-action {
+    width: 100%;
+    background: #fff0f0;
+    border: 1.5px solid #ffebeb;
+    padding: 14px;
+    border-radius: 14px;
+    color: #e53e3e;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 15px;
+}

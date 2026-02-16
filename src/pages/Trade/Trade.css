@@ -1,0 +1,122 @@
+/* Header Styling */
+.trade-title {
+    font-weight: 800;
+    color: #004040;
+    /* Dark green tone from image */
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* Professional Marquee Animation */
+.trade-ticker {
+    background-color: #fffafa;
+    color: #d32f2f;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ticker-icon {
+    font-size: 1.1rem;
+    margin-right: 10px;
+}
+
+.marquee-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 1.2rem;
+}
+
+.marquee-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    line-height: 1.2rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 13px;
+    /* Animation call */
+    transform: translateX(100%);
+    animation: scroll-left 12s linear infinite;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Segment/Tabs Styling */
+.segment-toolbar {
+    --padding-top: 0;
+    --padding-bottom: 0;
+}
+
+ion-segment {
+    background: transparent;
+}
+
+ion-segment-button {
+    --indicator-color: #003366;
+    --color: #888;
+    --color-checked: #003366;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    min-height: 45px;
+    font-size: 12px;
+}
+
+/* Search & Filter Bar */
+.search-filter-row {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background: #fff;
+}
+
+.trade-search {
+    --background: #f4f4f4;
+    --border-radius: 4px;
+    --box-shadow: none;
+    padding: 0;
+}
+
+.filter-btn {
+    --color: #666;
+    margin-left: 5px;
+    height: 38px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Empty State */
+.trade-content {
+    --background: #f9f9f9;
+}
+
+.empty-state-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80%;
+}
+
+.empty-img {
+    width: 120px;
+    opacity: 0.5;
+    margin-bottom: 20px;
+}
+
+.empty-text {
+    color: #a0a0a0;
+    font-size: 1.2rem;
+    font-weight: 700;
+}

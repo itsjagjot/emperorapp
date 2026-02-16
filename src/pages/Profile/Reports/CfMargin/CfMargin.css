@@ -1,0 +1,59 @@
+.warning-container {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.warning-text {
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    /* Bold text as seen in image_6123db */
+    line-height: 1.5;
+    margin: 0;
+}
+
+.positions-wrapper {
+    padding: 0 10px;
+}
+
+.empty-state-margin {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Reusing your table styles for consistency */
+.scrollable-table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table-min-width {
+    min-width: 650px;
+}
+
+.table-header-row {
+    background: #f8fafc;
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.th-item {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
+}
+
+.desc-col {
+    flex: 1.5;
+    text-align: left;
+    padding-left: 15px;
+}

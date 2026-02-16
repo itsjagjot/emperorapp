@@ -1,0 +1,87 @@
+.open-pos-wrapper {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.filter-card {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    height: 42px;
+}
+
+.half-width {
+    width: 50%;
+}
+
+.flex-grow {
+    flex: 1;
+}
+
+/* Square Icon Buttons Styling */
+.action-btns-only {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    /* Square size */
+    height: 42px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.view-bg {
+    background: #004d31;
+    /* Dark Green jive image ch hai */
+    color: white;
+    border: none;
+}
+
+.reset-border {
+    background: white;
+    color: #004d31;
+    border: 1px solid #d1d5db;
+}
+
+.btn-icon-square IonIcon {
+    font-size: 20px;
+}
+
+/* Table Styles */
+.scrollable-table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+    background: white;
+    border-radius: 4px;
+}
+
+.table-min-width {
+    min-width: 600px;
+}
+
+.table-header-row {
+    background: #e2e8f0;
+    display: flex;
+    padding: 10px 0;
+}
+
+.th-item {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 700;
+    color: #00263e;
+    text-align: center;
+}

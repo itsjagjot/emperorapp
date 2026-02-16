@@ -1,0 +1,241 @@
+/* 1. Global Reset for the page */
+.oryx-login-page {
+    --background: #fff;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    background: #fff;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* 2. AUTOFILL FIX: Forces white background even when prefilled */
+ion-input input:-webkit-autofill,
+ion-input input:-webkit-autofill:hover,
+ion-input input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #000 !important;
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* 3. Error Popup Style */
+.error-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.error-bubble {
+    background: #d32f2f;
+    color: white;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.error-arrow {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #d32f2f;
+    margin-top: -1px;
+}
+
+/* 4. Logo & Heading */
+.logo-section {
+    margin: 10px 0 0;
+}
+
+.main-logo {
+    height: 80px;
+    object-fit: contain;
+}
+
+.login-heading {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* 5. Input Boxes */
+.form-area {
+    width: 100%;
+    max-width: 350px;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.floating-label {
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    background: white;
+    padding: 0 5px;
+    font-size: 12px;
+    color: #888;
+    z-index: 5;
+}
+
+.input-box {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 5px 15px;
+    height: 55px;
+}
+
+.red-icon {
+    color: #d32f2f;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.server-icon {
+    background: #f4511e;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* 6. Button & Footer Links */
+.btn-login {
+    width: 100%;
+    color: var(--emperor-gold);
+    background: var(--emperor-btn) !important;
+    border: none;
+    height: 55px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
+}
+
+.links-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    font-weight: 500;
+    padding: 0 5px;
+}
+
+.links-row span {
+    font-weight: 700;
+}
+
+.training-msg {
+    text-align: center;
+    color: #7e7e7e;
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+/* 7. Bottom Version Bar */
+.footer-version {
+    background: #dadada;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 35px 35px 0 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4d4d4d;
+}
+
+/* Ionic Specific Overrides */
+ion-input {
+    --padding-start: 0;
+}
+
+/* Parent container nu relative rakho */
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* Suggestion list nu input de upar dikhaun layi */
+.suggestion-container {
+    position: absolute;
+    width: 100%;
+    z-index: 1000;
+    /* Taaki eh baaki inputs de upar dikhe */
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: -2px;
+    /* Input box naal join karn layi */
+}
+
+/* Ionic list di default padding khatam karo */
+.suggestion-list {
+    padding: 0;
+    margin: 0;
+}
+
+.suggestion-item {
+    --min-height: 45px;
+    --padding-start: 10px;
+    font-size: 14px;
+}
+
+.srv-avatar-letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    /* Circle banon layi */
+    width: 36px;
+    height: 36px;
+}
+
+.srv-logo {
+    width: 25px;
+    height: 25px;
+}
+
+.srv-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #003d4d;
+    /* Dark teal color */
+}
+
+.srv-arrow {
+    font-size: 18px;
+    color: #cbd5e0;
+}
+
+/* Remove bottom rounding from input when list is open */
+.no-bottom-radius {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-bottom-color: transparent !important;
+}

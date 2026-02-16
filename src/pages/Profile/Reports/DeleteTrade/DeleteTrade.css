@@ -1,0 +1,60 @@
+.delete-trades-wrapper {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-card {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+}
+
+.half-width {
+    width: 50%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* Action Buttons */
+.btn-view-full {
+    flex: 1;
+    height: 45px;
+    background: #00263e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-reset-full {
+    flex: 1;
+    height: 45px;
+    background: white;
+    color: #00263e;
+    border: 1px solid #00263e;
+    border-radius: 6px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-gap {
+    margin-right: 8px;
+    font-size: 18px;
+}

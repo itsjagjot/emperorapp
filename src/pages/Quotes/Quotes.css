@@ -1,0 +1,189 @@
+.white-content {
+    --background: #ffffff;
+}
+
+/* Header & Search Position Fix */
+.minimal-toolbar {
+    --background: var(--emperor-green);
+    --color: var(--emperor-gold);
+    --border-width: 0;
+    text-align: center;
+}
+
+.minimal-search-row {
+    background: var(--emperor-green);
+    padding: 8px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 227, 126, 0.2);
+}
+
+.search-input-container {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+}
+
+.search-input-container ion-icon {
+    color: var(--emperor-gold);
+}
+
+.search-input-container input {
+    background: transparent;
+    border: none;
+    color: white;
+    margin-left: 8px;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+}
+
+.count-badge {
+    color: var(--emperor-gold);
+    font-size: 12px;
+}
+
+/* Thin Alert Bar */
+.thin-alert {
+    background: #FFF9F9;
+    color: #C0392B;
+    font-size: 11px;
+    padding: 6px 16px;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+/* Minimal List Items */
+.minimal-item {
+    padding: 8px 16px;
+    border-bottom: 1px solid #F5F5F5;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+}
+
+.item-price {
+    font-weight: 700;
+    color: #000;
+    font-size: 15px;
+}
+
+.item-row.sub {
+    margin-top: 2px;
+}
+
+.item-hl {
+    color: #888;
+    font-size: 11px;
+}
+
+.up {
+    color: #27AE60;
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.down {
+    color: #E74C3C;
+    font-weight: 500;
+    font-size: 11px;
+}
+
+/* Premium Canvas / Bottom Sheet */
+.canvas-header h3 {
+    color: var(--emperor-green);
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.canvas-main-price {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: baseline;
+    margin-bottom: 20px;
+}
+
+.price-big {
+    font-size: 20px;
+    color: #000;
+}
+
+.minimal-btn,
+.premium-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.sell {
+    background: #E74C3C;
+    color: white;
+}
+
+.buy {
+    background: var(--emperor-btn);
+    color: var(--emperor-gold);
+    box-shadow: 0 4px 12px rgba(23, 55, 0, 0.3);
+}
+
+
+.u-item {
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.u-item ion-icon {
+    font-size: 18px;
+    color: var(--emperor-green);
+}
+
+
+/* Rates Layout */
+.rate-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.price-bid,
+.price-ask {
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 2px;
+    min-width: 75px;
+    text-align: right;
+    color: #000;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Fluctuation Classes */
+.tick-up {
+    color: #ffffff !important;
+    background-color: #27AE60 !important;
+}
+
+.tick-down {
+    color: #ffffff !important;
+    background-color: #E74C3C !important;
+}
