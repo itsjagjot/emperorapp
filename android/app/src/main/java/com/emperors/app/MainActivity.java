@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.emperors.app;
 
 import com.getcapacitor.BridgeActivity;
 
