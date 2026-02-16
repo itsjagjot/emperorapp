@@ -15,18 +15,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ✅ FIXED: Use Node 22 (Required by Capacitor)
+      # Node 22 (Required by Capacitor)
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
 
-      - name: Setup Java 17
+      # ✅ FIXED: Java 21 (Important)
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
