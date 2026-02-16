@@ -98,10 +98,12 @@
 }
 
 .data-info-grid span {
-    font-size: 11px;
-    color: #777;
+    font-size: 12px;
+    color: #124200;
     display: block;
     text-align: center;
+    font-weight: 700;
+
 }
 
 .data-info-grid p {
@@ -203,4 +205,20 @@ ion-row.stats-row::before {
     font-size: 11px;
     color: #888;
     font-weight: 500;
+}
+
+.data-info-grid ion-row {
+    position: relative;
+    border: none;
+    /* Remove any existing solid border */
+}
+
+.data-info-grid ion-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e3e3e3, transparent);
+    top: -5px;
 }

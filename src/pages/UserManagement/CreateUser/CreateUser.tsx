@@ -40,8 +40,8 @@ const CreateUser: React.FC = () => {
                             <IonLabel>Enable Account Creation</IonLabel>
                         </IonItem>
                         <div className="custom-dropdown">
-                            <IonSelect value="HRT90" interface="popover">
-                                <IonSelectOption value="HRT90">HRT90 (Master)</IonSelectOption>
+                            <IonSelect value="SuperAdmin" interface="popover">
+                                <IonSelectOption value="SuperAdmin">SuperAdmin (Master)</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="info-tag">

@@ -55,9 +55,9 @@ const LoginHistory: React.FC = () => {
                         <div className="history-premium-card" key={i}>
                             <div className="card-header">
                                 <div className="user-profile">
-                                    <div className="avatar-circle">H</div>
+                                    <div className="avatar-circle">S</div>
                                     <div className="user-name-info">
-                                        <h4>HRT90</h4>
+                                        <h4>SuperAdmin</h4>
                                         <span className="role-tag">MASTER</span>
                                     </div>
                                 </div>

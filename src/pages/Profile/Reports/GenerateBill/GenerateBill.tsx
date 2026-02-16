@@ -18,7 +18,7 @@ const GenerateBill: React.FC = () => {
                     {/* 2. Select User Section */}
                     <div className="custom-input-box compact">
                         <IonSelect placeholder="Select User" toggleIcon={swapVerticalOutline}>
-                            <IonSelectOption value="HRT90">HRT90</IonSelectOption>
+                            <IonSelectOption value="SuperAdmin">SuperAdmin</IonSelectOption>
                         </IonSelect>
                     </div>
 

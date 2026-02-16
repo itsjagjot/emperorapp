@@ -177,13 +177,10 @@
     transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-/* Fluctuation Classes */
-.tick-up {
-    color: #ffffff !important;
-    background-color: #27AE60 !important;
+.tick-down {
+    background-color: #fe8c8c;
 }
 
-.tick-down {
-    color: #ffffff !important;
-    background-color: #E74C3C !important;
+.tick-up {
+    background-color: #7cff90;
 }

@@ -7,3 +7,9 @@ export const SOCKET_URL = 'http://localhost:8787';
 
 // Default exchange for API routes
 export const DEFAULT_EXCHANGE = 'demo';
+
+// App Mode: 'dev' or 'prod'
+export const APP_MODE: 'dev' | 'prod' = 'dev';
+
+// Market Data Display Strategy: 'ALL' or 'FCFS' (First Come First Served)
+export const SHOW_STRATEGY: 'ALL' | 'FCFS' = 'FCFS';

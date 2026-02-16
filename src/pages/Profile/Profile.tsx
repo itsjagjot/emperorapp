@@ -86,8 +86,8 @@ const Profile: React.FC = () => {
                                 <img src="/assets/logo_icon.png" alt="E" />
                             </div>
                             <div className="brand-details">
-                                <h2>HRT90</h2>
-                                <span>ELEX</span>
+                                <h2>Super Admin</h2>
+                                <span>Emperor</span>
                             </div>
                         </div>
                         <button className="header-icon-btn">

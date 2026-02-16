@@ -11,7 +11,8 @@
 .profile-nav {
     --background: #ffffff;
     --border-width: 0;
-    padding: 8px 0;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: 8px;
 }
 
 .profile-header-content {

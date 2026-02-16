@@ -54,7 +54,21 @@ const Login: React.FC = () => {
             setError('Please select a valid server from the list');
             return;
         }
-        // ... your existing login logic using selectedServer.name
+
+        if (username === 'superadmin' && password === 'Emperor@2026!') {
+            setLoading(true);
+            setError('');
+            // Simulate API delay
+            setTimeout(() => {
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('user', JSON.stringify({ username, server: selectedServer.name }));
+                setLoading(false);
+                history.push('/app/quotes');
+                window.location.reload(); // To trigger AppRoutes update
+            }, 1000);
+        } else {
+            setError('Invalid username or password');
+        }
     };
 
     const getAvatarColor = (name: string) => {
@@ -158,7 +172,13 @@ const Login: React.FC = () => {
                                 </div>
                             </div>
 
-                            <button className="btn-login" onClick={handleLogin}>Login</button>
+                            <button
+                                className="btn-login"
+                                onClick={handleLogin}
+                                disabled={loading}
+                            >
+                                {loading ? 'Logging in...' : 'Login'}
+                            </button>
 
                             <div className="links-row">
                                 <span>Register</span>
@@ -166,7 +186,7 @@ const Login: React.FC = () => {
                             </div>
                         </div>
                     </main>
-                    <footer className="footer-version">Version 2.1.5</footer>
+                    <footer className="footer-version">Version 1.0.0</footer>
                 </div>
             </IonContent>
         </IonPage>

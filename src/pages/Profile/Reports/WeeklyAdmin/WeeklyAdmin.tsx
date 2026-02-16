@@ -24,7 +24,7 @@ const WeeklyAdmin: React.FC = () => {
                             className="right-icon-select theme-green-text"
                         >
                             <IonSelectOption value="all">All User</IonSelectOption>
-                            <IonSelectOption value="hrt90">HRT90</IonSelectOption>
+                            <IonSelectOption value="SuperAdmin">SuperAdmin</IonSelectOption>
                         </IonSelect>
                     </div>
 
@@ -86,7 +86,7 @@ const WeeklyAdmin: React.FC = () => {
                         <div className="user-avatar-green">K</div>
                         <div className="user-text-meta">
                             <span className="id-txt">Ks01</span>
-                            <span className="sub-id-txt">Parent: Hrt90</span>
+                            <span className="sub-id-txt">Parent: SuperAdmin</span>
                         </div>
                     </div>
 

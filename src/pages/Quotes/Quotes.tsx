@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { liveRateService } from '../../services/LiveRate';
+import { SHOW_STRATEGY } from '../../services/config';
 import {
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
     IonModal, IonIcon, IonGrid, IonRow, IonCol
@@ -19,23 +20,31 @@ const Quotes: React.FC = () => {
 
     useEffect(() => {
         liveRateService.onMarketData((data) => {
-            // Deduplicate data to prevent key warnings and ref collisions
+            // Deduplicate data based on SHOW_STRATEGY config
             const uniqueItems = new Map();
             data.forEach((item: any) => {
-                const uniqueKey = `${item.instrument}-${item.commodity}-${item.expiry_date}`;
-                // Keep the last occurrence or first, doesn't matter much if they are identical.
-                // Using set will keep the last one encountered.
-                uniqueItems.set(uniqueKey, item);
+                // Determine key based on strategy
+                const key = SHOW_STRATEGY === 'FCFS'
+                    ? item.commodity
+                    : `${item.instrument}-${item.commodity}-${item.expiry}`;
+
+                // FCFS: only keep the first occurrence of each commodity
+                if (!uniqueItems.has(key)) {
+                    uniqueItems.set(key, item);
+                }
             });
 
             const formattedQuotes = Array.from(uniqueItems.values()).map((item: any) => {
-                // Format Date: 02APR2026 -> Apr 02
-                const day = item.expiry_date.substring(0, 2);
-                const month = item.expiry_date.substring(2, 5); // APR
-                const formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
+                // Safety check for expiry_date to avoid substring errors
+                let formattedDate = '';
+                if (item.expiry && item.expiry.length >= 5) {
+                    const day = item.expiry.substring(0, 2);
+                    const month = item.expiry.substring(2, 5); // APR
+                    formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
+                }
 
-                const uniqueKey = `${item.instrument}-${item.commodity}-${item.expiry_date}`;
-                const currentPrice = parseFloat(item.ltp);
+                const uniqueKey = `${item.instrument}-${item.commodity}-${item.expiry}`;
+                const currentPrice = parseFloat(item.ltp || '0');
                 const prevPrice = prevPricesRef.current[uniqueKey];
 
                 let tickClass = '';
@@ -48,20 +57,20 @@ const Quotes: React.FC = () => {
                 prevPricesRef.current[uniqueKey] = currentPrice;
 
                 return {
-                    id: uniqueKey, // Using uniqueKey as ID for stability
-                    name: `${item.commodity} ${formattedDate}`,
-                    price: parseFloat(item.ltp),
-                    high: parseFloat(item.high),
-                    low: parseFloat(item.low),
-                    change: parseFloat(item.abs_change),
-                    changePercent: parseFloat(item.change_percent),
-                    open: parseFloat(item.open), // Assuming data has open
-                    close: parseFloat(item.close), // Assuming data has close
-                    // Keep original for details if needed
+                    id: uniqueKey,
+                    name: `${item.commodity}${formattedDate ? ' ' + formattedDate : ''}`,
+                    price: currentPrice,
+                    high: parseFloat(item.high || '0'),
+                    low: parseFloat(item.low || '0'),
+                    change: parseFloat(item.change || '0'),
+                    changePercent: parseFloat(item.change_percent || '0'),
+                    open: parseFloat(item.open || '0'),
+                    close: parseFloat(item.close || '0'),
                     original: item,
                     tickClass: tickClass
                 };
             });
+            console.log("FQ: ======> ", formattedQuotes);
             setQuotes(formattedQuotes);
         });
 

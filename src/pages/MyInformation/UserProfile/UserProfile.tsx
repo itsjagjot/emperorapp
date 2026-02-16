@@ -35,7 +35,7 @@ const UserProfile: React.FC = () => {
                         <div className="status-dot"></div>
                     </div>
                     <div className="hero-info">
-                        <h2>HRT90</h2>
+                        <h2>SuperAdmin</h2>
                         <span className="active-tag">● ACTIVE MEMBER</span>
                     </div>
                 </div>
@@ -66,10 +66,10 @@ const UserProfile: React.FC = () => {
                 <h3 className="section-heading">Personal Details</h3>
                 <div className="unified-settings-card">
                     {[
-                        { label: 'Full Name', value: 'HRT90', icon: person, color: '#3b82f6' },
-                        { label: 'Display Name', value: 'HRT90', icon: idCard, color: '#f97316' },
+                        { label: 'Full Name', value: 'SuperAdmin', icon: person, color: '#3b82f6' },
+                        { label: 'Display Name', value: 'SuperAdmin', icon: idCard, color: '#f97316' },
                         { label: 'Device Name', value: 'CPH2599', icon: phonePortrait, color: '#10b981' },
-                        { label: 'App Version', value: '2.1.5', icon: informationCircle, color: '#8b5cf6' },
+                        { label: 'App Version', value: '1.0.0', icon: informationCircle, color: '#8b5cf6' },
                     ].map((item, index) => (
                         <div className="settings-row" key={index}>
                             <div className="settings-icon" style={{ backgroundColor: `${item.color}15`, color: item.color }}>

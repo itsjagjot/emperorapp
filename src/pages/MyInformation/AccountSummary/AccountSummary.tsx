@@ -71,9 +71,9 @@ const AccountSummary: React.FC = () => {
                 {/* 3. User Select + Search/Reset Icons Row */}
                 <div className="action-row-compact">
                     <IonItem lines="none" className="slim-input user-flex">
-                        <IonSelect placeholder="Select User" value="HRT90">
-                            <IonSelectOption value="HRT90">HRT90</IonSelectOption>
-                            <IonSelectOption value="Ks01">Ks01</IonSelectOption>
+                        <IonSelect placeholder="Select User" value="SuperAdmin">
+                            <IonSelectOption value="SuperAdmin">SuperAdmin</IonSelectOption>
+                            <IonSelectOption value="KS01">KS01</IonSelectOption>
                         </IonSelect>
                     </IonItem>
 

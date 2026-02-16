@@ -31,8 +31,8 @@ const OpenPositionUserwise: React.FC = () => {
                     {/* Row 2: User Select and Action Buttons */}
                     <div className="filter-row">
                         <div className="filter-card flex-grow">
-                            <IonSelect value="HRT90" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="HRT90">HRT90</IonSelectOption>
+                            <IonSelect value="SuperAdmin" interface="action-sheet" className="brand-select">
+                                <IonSelectOption value="SuperAdmin">SuperAdmin</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="action-btns">
