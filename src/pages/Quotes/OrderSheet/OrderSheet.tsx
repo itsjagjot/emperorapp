@@ -66,9 +66,9 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
                             {/* Nawa Rate Section (Dono rates de naal) */}
                             <div className="price-details-wrapper">
                                 <div className="rate-boxes">
-                                    <span className="rate-box">{quote.price.toFixed(1)}</span>
-                                    {/* Using Close as the second price to match list view, as Bid/Ask is not available */}
-                                    <span className="rate-box">{quote.close ? quote.close.toFixed(1) : (quote.price).toFixed(1)}</span>
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.price.toFixed(1)}</span>
+                                    {/* Using Close as the second price to match list view */}
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.close ? quote.close.toFixed(1) : (quote.price).toFixed(1)}</span>
                                 </div>
                                 <div className="hl-info">
                                     L: {quote.low.toFixed(1)} H: {quote.high.toFixed(1)}

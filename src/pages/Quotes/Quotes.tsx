@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { liveRateService } from '../../services/LiveRate';
+// import { liveRateService } from '../../services/LiveRate';
+import { liveRateV2Service as liveRateService } from '../../services/ExiSoc/LiveRateV2';
 import { SHOW_STRATEGY } from '../../services/config';
 import {
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
@@ -49,8 +50,11 @@ const Quotes: React.FC = () => {
 
                 let tickClass = '';
                 if (prevPrice !== undefined) {
-                    if (currentPrice > prevPrice) tickClass = 'tick-up high';
-                    else if (currentPrice < prevPrice) tickClass = 'tick-down low';
+                    const diff = Math.abs(currentPrice - prevPrice);
+                    if (diff >= 5) { // Only show color if change is 10 or more
+                        if (currentPrice > prevPrice) tickClass = 'tick-up high';
+                        else if (currentPrice < prevPrice) tickClass = 'tick-down low';
+                    }
                 }
 
                 // Update ref
@@ -70,7 +74,6 @@ const Quotes: React.FC = () => {
                     tickClass: tickClass
                 };
             });
-            console.log("FQ: ======> ", formattedQuotes);
             setQuotes(formattedQuotes);
         });
 
