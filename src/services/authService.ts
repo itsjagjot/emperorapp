@@ -10,7 +10,7 @@ export interface LoginResponse {
             UserId: number;
             Username: string;
             FullName: string;
-            RoleName: string;
+            UserRoleName: string;
             [key: string]: any;
         };
     };

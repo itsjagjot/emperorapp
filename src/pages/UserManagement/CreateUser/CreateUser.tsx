@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     IonContent, IonPage, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption,
-    IonToggle, IonCheckbox, IonButton, IonIcon, IonList
+    IonToggle, IonCheckbox, IonButton, IonIcon, IonList, useIonToast
 } from '@ionic/react';
 import {
     personCircleOutline, personOutline, lockClosedOutline, globeOutline,
@@ -9,10 +9,25 @@ import {
     shieldCheckmarkOutline, chevronDownOutline
 } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
+import { API_BASE_URL } from '../../../services/config';
 import './CreateUser.css';
 
 const CreateUser: React.FC = () => {
-    const exchanges = [
+    const [present] = useIonToast();
+
+    // Form State
+    const [formData, setFormData] = useState({
+        username: '',
+        fullName: '',
+        password: '',
+        credit: '',
+        contactNumber: ''
+    });
+
+    const [loading, setLoading] = useState(false);
+
+    // Exchange State
+    const [exchanges, setExchanges] = useState([
         { name: 'MCX', turnover: true, lot: false, group: 'MCX 2 LOT' },
         { name: 'NSE', turnover: true, lot: false, group: 'NSE defc' },
         { name: 'SGX', turnover: true, lot: false, group: 'sgx 500' },
@@ -20,14 +35,122 @@ const CreateUser: React.FC = () => {
         { name: 'MINI', turnover: true, lot: false, group: 'MINI - 2' },
         { name: 'CDS', turnover: true, lot: false, group: 'Default' },
         { name: 'CALLPUT', turnover: false, lot: true, group: 'CALLPUT' },
-    ];
+    ]);
+
+    const handleInputChange = (key: string, value: string) => {
+        setFormData(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleExchangeChange = (index: number, field: string, value: any) => {
+        const newExchanges = [...exchanges];
+        newExchanges[index] = { ...newExchanges[index], [field]: value };
+        setExchanges(newExchanges);
+    };
+
+    const handleSubmit = async () => {
+        if (!formData.username || !formData.fullName || !formData.password) {
+            present({
+                message: 'Please fill in all required fields (Name, Username, Password)',
+                duration: 2000,
+                color: 'warning'
+            });
+            return;
+        }
+
+        if (formData.credit) {
+            const creditVal = parseFloat(formData.credit);
+            if (isNaN(creditVal)) {
+                present({
+                    message: 'Credit must be a valid number',
+                    duration: 2000,
+                    color: 'warning'
+                });
+                return;
+            }
+            if (creditVal < 0) {
+                present({
+                    message: 'Credit cannot be negative',
+                    duration: 2000,
+                    color: 'warning'
+                });
+                return;
+            }
+        }
+
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('accessToken');
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+
+            if (!token) {
+                present({
+                    message: 'You are not logged in.',
+                    duration: 2000,
+                    color: 'danger'
+                });
+                return;
+            }
+
+            const payload = {
+                Username: formData.username,
+                FirstName: formData.fullName,
+                Password: formData.password,
+                Credit: formData.credit ? Math.abs(parseFloat(formData.credit)) : 0,
+                ContactNumber: formData.contactNumber,
+                Exchanges: exchanges
+            };
+
+            const response = await fetch(`${API_BASE_URL}/User`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                present({
+                    message: 'User created successfully!',
+                    duration: 2000,
+                    color: 'success'
+                });
+                // Reset form
+                setFormData({
+                    username: '',
+                    fullName: '',
+                    password: '',
+                    credit: '',
+                    contactNumber: ''
+                });
+            } else {
+                present({
+                    message: data.message || 'Failed to create user',
+                    duration: 3000,
+                    color: 'danger'
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            present({
+                message: 'Network error occurred',
+                duration: 3000,
+                color: 'danger'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <IonPage className="create-user-page">
             <CommonHeader title="Create New User" />
             <IonContent className="ion-padding emperor-bg">
 
-                {/* --- User Identity (Current Design) --- */}
+                {/* --- User Identity --- */}
                 <div className="modern-card">
                     <div className="card-accent-bar"></div>
                     <div className="card-inner">
@@ -36,22 +159,22 @@ const CreateUser: React.FC = () => {
                             <h3>User Identity</h3>
                         </div>
                         <IonItem lines="none" className="modern-toggle-item">
-                            <IonCheckbox slot="start" mode="md" />
+                            <IonCheckbox slot="start" mode="md" checked={true} />
                             <IonLabel>Enable Account Creation</IonLabel>
                         </IonItem>
                         <div className="custom-dropdown">
-                            <IonSelect value="SuperAdmin" interface="popover">
+                            <IonSelect value="SuperAdmin" interface="popover" disabled>
                                 <IonSelectOption value="SuperAdmin">SuperAdmin (Master)</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="info-tag">
                             <IonIcon icon={personOutline} />
-                            <span>User Type: <strong>Client</strong></span>
+                            <span>This user will be created based on your role hierarchy.</span>
                         </div>
                     </div>
                 </div>
 
-                {/* --- Profile Details (Current Design) --- */}
+                {/* --- Profile Details --- */}
                 <div className="modern-card">
                     <div className="card-accent-bar gold"></div>
                     <div className="card-inner">
@@ -59,16 +182,65 @@ const CreateUser: React.FC = () => {
                             <IonIcon icon={personCircleOutline} className="accent-icon" />
                             <h3>Profile Details</h3>
                         </div>
-                        <div className="floating-input"><IonInput label="Full Name*" labelPlacement="stacked" placeholder="John Doe" fill="outline" /></div>
-                        <div className="floating-input"><IonInput label="Username*" labelPlacement="stacked" placeholder="@username" fill="outline" /></div>
+                        <div className="floating-input">
+                            <IonInput
+                                label="Full Name*"
+                                labelPlacement="stacked"
+                                placeholder="John Doe"
+                                fill="outline"
+                                value={formData.fullName}
+                                onIonInput={e => handleInputChange('fullName', e.detail.value!)}
+                            />
+                        </div>
+                        <div className="floating-input">
+                            <IonInput
+                                label="Username*"
+                                labelPlacement="stacked"
+                                placeholder="@username"
+                                fill="outline"
+                                value={formData.username}
+                                onIonInput={e => handleInputChange('username', e.detail.value!)}
+                            />
+                        </div>
                         <div className="input-row">
-                            <div className="floating-input"><IonInput type="password" label="Password*" labelPlacement="stacked" value="********" fill="outline" /></div>
-                            <div className="floating-input"><IonInput label="Credit*" labelPlacement="stacked" placeholder="0.00" fill="outline" type="number" /></div>
+                            <div className="floating-input">
+                                <IonInput
+                                    type="password"
+                                    label="Password*"
+                                    labelPlacement="stacked"
+                                    value={formData.password}
+                                    fill="outline"
+                                    onIonInput={e => handleInputChange('password', e.detail.value!)}
+                                />
+                            </div>
+                            <div className="floating-input">
+                                <IonInput
+                                    label="Credit"
+                                    labelPlacement="stacked"
+                                    placeholder="0.00"
+                                    fill="outline"
+                                    type="number"
+                                    min={0}
+                                    value={formData.credit}
+                                    onIonInput={e => handleInputChange('credit', e.detail.value!)}
+                                />
+                            </div>
+                        </div>
+                        <div className="floating-input" style={{ marginTop: '10px' }}>
+                            <IonInput
+                                label="Contact Number"
+                                labelPlacement="stacked"
+                                placeholder="+91..."
+                                fill="outline"
+                                type="tel"
+                                value={formData.contactNumber}
+                                onIonInput={e => handleInputChange('contactNumber', e.detail.value!)}
+                            />
                         </div>
                     </div>
                 </div>
 
-                {/* --- Exchange Access (Fixed Table Layout) --- */}
+                {/* --- Exchange Access --- */}
                 <div className="modern-card">
                     <div className="card-accent-bar"></div>
                     <div className="card-inner no-padding-sides">
@@ -93,18 +265,32 @@ const CreateUser: React.FC = () => {
                             {exchanges.map((ex, i) => (
                                 <div className="table-row" key={i}>
                                     <div className="col-ex cell">
-                                        <IonCheckbox mode="md" />
+                                        <IonCheckbox mode="md" checked={true} disabled />
                                         <span className="ex-text">{ex.name}</span>
                                     </div>
                                     <div className="col-br cell dual-check">
-                                        <IonCheckbox mode="md" checked={ex.turnover} />
+                                        <IonCheckbox
+                                            mode="md"
+                                            checked={ex.turnover}
+                                            onIonChange={e => handleExchangeChange(i, 'turnover', e.detail.checked)}
+                                        />
                                     </div>
                                     <div className="col-br cell dual-check">
-                                        <IonCheckbox mode="md" checked={ex.lot} />
+                                        <IonCheckbox
+                                            mode="md"
+                                            checked={ex.lot}
+                                            onIonChange={e => handleExchangeChange(i, 'lot', e.detail.checked)}
+                                        />
                                     </div>
                                     <div className="col-gr cell">
-                                        <IonSelect interface="popover" value={ex.group} toggleIcon={chevronDownOutline}>
+                                        <IonSelect
+                                            interface="popover"
+                                            value={ex.group}
+                                            toggleIcon={chevronDownOutline}
+                                            onIonChange={e => handleExchangeChange(i, 'group', e.detail.value)}
+                                        >
                                             <IonSelectOption value={ex.group}>{ex.group}</IonSelectOption>
+                                            <IonSelectOption value="Default">Default</IonSelectOption>
                                         </IonSelect>
                                     </div>
                                 </div>
@@ -128,7 +314,7 @@ const CreateUser: React.FC = () => {
                     </div>
                 </div>
 
-                {/* --- Account Settings (Current Design) --- */}
+                {/* --- Account Settings --- */}
                 <div className="modern-card">
                     <div className="card-inner">
                         <div className="card-top">
@@ -151,7 +337,14 @@ const CreateUser: React.FC = () => {
                 </div>
 
                 <div className="btn-container">
-                    <IonButton expand="block" className="emperor-btn-luxury">CONFIRM & CREATE USER</IonButton>
+                    <IonButton
+                        expand="block"
+                        className="emperor-btn-luxury"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                    >
+                        {loading ? 'CREATING...' : 'CONFIRM & CREATE USER'}
+                    </IonButton>
                 </div>
 
             </IonContent>

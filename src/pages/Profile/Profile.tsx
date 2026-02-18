@@ -24,16 +24,29 @@ const Profile: React.FC = () => {
         router.push('/login', 'root', 'replace');
     };
 
-    // Updated sections to include the Settings list from your images
+    const [userRole, setUserRole] = React.useState<string>('');
+
+    React.useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                setUserRole(user.UserRoleName || '');
+            } catch (e) {
+                console.error("Error parsing user data");
+            }
+        }
+    }, []);
+
     const sections = [
-        {
+        // Only show User Management for Admins
+        ...((userRole === 'SuperAdmin' || userRole === 'Admin') ? [{
             label: "User Management",
             items: [
                 { title: 'Create New User', icon: personAddOutline, color: '#4a90e2', path: '/app/user-management/create' },
                 { title: 'User List', icon: listOutline, color: '#f5a623', path: '/app/user-management/list' },
-                // { title: 'Search User', icon: searchOutline, color: '#7ed321', path: '/app/user-management/search' },
             ]
-        },
+        }] : []),
         {
             label: "My Information",
             items: [
@@ -42,7 +55,6 @@ const Profile: React.FC = () => {
                 { title: 'Change Password', icon: lockClosedOutline, color: '#2c3e50', path: '/app/my-information/change-password' },
                 { title: 'Invite Friends', icon: peopleOutline, color: '#2c3e50', path: '/app/my-information/invite-friends' },
                 { title: 'Login History', icon: documentTextOutline, color: '#2c3e50', path: '/app/my-information/login-history' },
-                // { title: 'Search User', icon: searchOutline, color: '#7ed321', path: '/app/user-management/search' },
             ]
         },
         {

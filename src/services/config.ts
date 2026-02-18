@@ -1,6 +1,6 @@
 // API Configuration
 // Backend is running on php artisan serve (default port 8000)
-export const API_BASE_URL = 'http://127.0.0.1:8000/api';
+export const API_BASE_URL = 'http://192.168.0.105/emperorbackend/public/api';
 
 // Socket.io Configuration
 // export const SOCKET_URL = 'https://socketv2.anshjewellers.com';

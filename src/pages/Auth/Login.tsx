@@ -55,19 +55,28 @@ const Login: React.FC = () => {
             return;
         }
 
-        if (username === 'superadmin' && password === 'Emperor@2026!') {
+        try {
             setLoading(true);
             setError('');
-            // Simulate API delay
-            setTimeout(() => {
+
+            const response = await loginUser(username, password, selectedServer.name);
+
+            if (response.success && response.data) {
                 localStorage.setItem('isAuthenticated', 'true');
-                localStorage.setItem('user', JSON.stringify({ username, server: selectedServer.name }));
+                localStorage.setItem('accessToken', response.data.accessToken);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+
                 setLoading(false);
                 history.push('/app/quotes');
-                window.location.reload(); // To trigger AppRoutes update
-            }, 1000);
-        } else {
-            setError('Invalid username or password');
+                window.location.reload();
+            } else {
+                setError(response.message || 'Login failed');
+                setLoading(false);
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Network error or server unavailable');
+            setLoading(false);
         }
     };
 
