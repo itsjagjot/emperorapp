@@ -24,19 +24,22 @@ const Profile: React.FC = () => {
         router.push('/login', 'root', 'replace');
     };
 
-    const [userRole, setUserRole] = React.useState<string>('');
+    const [userData, setUserData] = React.useState<any>(null);
 
     React.useEffect(() => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
-                setUserRole(user.UserRoleName || '');
+                setUserData(user);
             } catch (e) {
                 console.error("Error parsing user data");
             }
         }
     }, []);
+
+    // Derived state for role check
+    const userRole = userData?.UserRoleName || '';
 
     const sections = [
         // Only show User Management for Admins
@@ -55,6 +58,7 @@ const Profile: React.FC = () => {
                 { title: 'Change Password', icon: lockClosedOutline, color: '#2c3e50', path: '/app/my-information/change-password' },
                 { title: 'Invite Friends', icon: peopleOutline, color: '#2c3e50', path: '/app/my-information/invite-friends' },
                 { title: 'Login History', icon: documentTextOutline, color: '#2c3e50', path: '/app/my-information/login-history' },
+                { title: 'Messages', icon: mailOutline, color: '#897e06ff', path: '/app/settings/message' },
             ]
         },
         {
@@ -80,7 +84,7 @@ const Profile: React.FC = () => {
             items: [
                 { title: 'Market Timings', icon: timeOutline, color: '#7a0f38ff', path: '/app/settings/market-timing' },
                 { title: 'Set Quantity Values', icon: settingsOutline, color: '#12a275ff', path: '/app/settings/quantity-value' },
-                { title: 'Message', icon: mailOutline, color: '#897e06ff', path: '/app/settings/message' },
+
                 { title: 'Notification Settings', icon: notificationsOutline, color: '#be02cbff', path: '/app/settings/notification' },
                 // { title: 'Biometrics', icon: fingerPrintOutline, color: '#2c3e50' },
                 { title: 'Privacy Policy', icon: shieldCheckmarkOutline, color: '#52cc6aff', path: '/app/settings/privacy-policy' },
@@ -98,8 +102,8 @@ const Profile: React.FC = () => {
                                 <img src="/assets/logo_icon.png" alt="E" />
                             </div>
                             <div className="brand-details">
-                                <h2>Super Admin</h2>
-                                <span>Emperor</span>
+                                <h2>{userData ? (userData.FirstName + ' ' + (userData.LastName || '')).trim() || userData.Username : 'User'}</h2>
+                                <span>{userData?.UserRoleName || 'Member'}</span>
                             </div>
                         </div>
                         <button className="header-icon-btn">

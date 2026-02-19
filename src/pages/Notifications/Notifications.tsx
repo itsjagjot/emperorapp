@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
-    IonContent, IonPage, IonRefresher, IonRefresherContent, IonIcon, IonSpinner, useIonToast
+    IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonBackButton,
+    IonRefresher, IonRefresherContent, IonIcon, IonSpinner
 } from '@ionic/react';
 import { notificationsOutline, checkmarkDoneOutline, chatboxEllipsesOutline } from 'ionicons/icons';
-import { getNotifications, markNotificationRead, Notification } from '../../../../services/notificationService';
-import CommonHeader from '../../../../components/CommonHeader';
-import './Message.css';
+import { getNotifications, markNotificationRead, Notification } from '../../services/notificationService';
+import './Notifications.css';
 
-const Message: React.FC = () => {
+const Notifications: React.FC = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
-    const [present] = useIonToast();
 
     const loadNotifications = async (event?: CustomEvent) => {
         try {
@@ -44,7 +43,14 @@ const Message: React.FC = () => {
 
     return (
         <IonPage>
-            <CommonHeader title="Messages" backLink="/app/profile" />
+            <IonHeader>
+                <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonBackButton defaultHref="/app/home" />
+                    </IonButtons>
+                    <IonTitle>Notifications</IonTitle>
+                </IonToolbar>
+            </IonHeader>
             <IonContent className="notifications-content">
                 <IonRefresher slot="fixed" onIonRefresh={loadNotifications}>
                     <IonRefresherContent />
@@ -57,7 +63,7 @@ const Message: React.FC = () => {
                 ) : notifications.length === 0 ? (
                     <div className="empty-state">
                         <IonIcon icon={notificationsOutline} />
-                        <p>No messages yet</p>
+                        <p>No notifications yet</p>
                     </div>
                 ) : (
                     <div className="notification-list">
@@ -93,4 +99,4 @@ const Message: React.FC = () => {
     );
 };
 
-export default Message;
+export default Notifications;
