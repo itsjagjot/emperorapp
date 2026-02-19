@@ -11,13 +11,6 @@
     align-items: center;
 }
 
-/* Row 1 DateFilter Customization */
-.date-filter-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
 /* Card Styling for Selects - Matching image_605608 */
 .filter-card,
 .custom-input-box.compact {
@@ -75,12 +68,4 @@
     border-radius: 6px;
     font-weight: 600;
     font-size: 15px;
-}
-
-/* Pill Date Box Styling (for DateFilter) */
-.pill-date-box.small {
-    background: #f1f3f5;
-    border-radius: 20px;
-    padding: 2px 8px;
-    border: 1px solid #e2e8f0;
 }

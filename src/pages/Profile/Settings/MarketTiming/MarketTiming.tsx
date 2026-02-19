@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     IonContent, IonPage, IonSelect, IonSelectOption, IonIcon, IonButton
 } from '@ionic/react';
-import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { chevronBackOutline, chevronForwardOutline, searchOutline } from 'ionicons/icons';
 import CommonHeader from '../../../../components/CommonHeader';
 import './MarketTiming.css';
 
@@ -52,7 +52,9 @@ const MarketTiming: React.FC = () => {
                                 <IonSelectOption value="MCX">MCX</IonSelectOption>
                             </IonSelect>
                         </div>
-                        <button className="btn-view-small">View</button>
+                        <button className="btn-view-small theme-btn">
+                            <IonIcon icon={searchOutline} />
+                        </button>
                     </div>
 
                     <div className="calendar-card">

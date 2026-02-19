@@ -1,0 +1,91 @@
+.order-details-header {
+    --background: #fff;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-details-header ion-toolbar {
+    --padding-start: 8px;
+    --padding-end: 8px;
+}
+
+.order-details-content {
+    --background: #f9f9f9;
+}
+
+.details-container {
+    padding: 16px;
+}
+
+.table-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    border: 1px solid #eee;
+}
+
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+    /* Force scroll on mobile for all columns */
+}
+
+.details-table th {
+    background: #f8f9fa;
+    color: #666;
+    font-weight: 600;
+    text-align: left;
+    padding: 16px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eee;
+}
+
+.details-table td {
+    padding: 20px 16px;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 1px solid #f9f9f9;
+    vertical-align: middle;
+}
+
+.details-table tr:last-child td {
+    border-bottom: none;
+}
+
+.type-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.type-badge.buy {
+    background: rgba(46, 125, 50, 0.1);
+    color: #2e7d32;
+}
+
+.type-badge.sell {
+    background: rgba(211, 47, 47, 0.1);
+    color: #d32f2f;
+}
+
+.deal-val {
+    font-weight: 700;
+}
+
+.deal-val.up {
+    color: #2e7d32;
+}
+
+.deal-val.down {
+    color: #d32f2f;
+}
+
+.no-trade {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}

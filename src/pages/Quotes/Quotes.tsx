@@ -24,18 +24,28 @@ const Quotes: React.FC = () => {
             // Deduplicate data based on SHOW_STRATEGY config
             const uniqueItems = new Map();
             data.forEach((item: any) => {
+                let commodity = item?.commodity ?? item?.symbol;
                 // Determine key based on strategy
                 const key = SHOW_STRATEGY === 'FCFS'
-                    ? item.commodity
-                    : `${item.instrument}-${item.commodity}-${item.expiry}`;
+                    ? commodity
+                    : `${item.instrument}-${commodity}-${item.expiry}`;
 
-                // FCFS: only keep the first occurrence of each commodity
-                if (!uniqueItems.has(key)) {
-                    uniqueItems.set(key, item);
+                if (SHOW_STRATEGY === 'FCFS') {
+                    const existing = uniqueItems.get(key);
+                    // Priority: Keep item if it has expiry data, or if no item exists yet
+                    if (!existing || (!existing.expiry && item.expiry)) {
+                        uniqueItems.set(key, item);
+                    }
+                } else {
+                    // Original logic for non-FCFS
+                    if (!uniqueItems.has(key)) {
+                        uniqueItems.set(key, item);
+                    }
                 }
             });
 
             const formattedQuotes = Array.from(uniqueItems.values()).map((item: any) => {
+                let commodity = item?.commodity ?? item?.symbol;
                 // Safety check for expiry_date to avoid substring errors
                 let formattedDate = '';
                 if (item.expiry && item.expiry.length >= 5) {
@@ -44,7 +54,7 @@ const Quotes: React.FC = () => {
                     formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
                 }
 
-                const uniqueKey = `${item.instrument}-${item.commodity}-${item.expiry}`;
+                const uniqueKey = `${item.instrument}-${commodity}-${item.expiry}`;
                 const currentPrice = parseFloat(item.ltp || '0');
                 const prevPrice = prevPricesRef.current[uniqueKey];
 
@@ -62,7 +72,7 @@ const Quotes: React.FC = () => {
 
                 return {
                     id: uniqueKey,
-                    name: `${item.commodity}${formattedDate ? ' ' + formattedDate : ''}`,
+                    name: `${commodity}${formattedDate ? ' ' + formattedDate : ''}`,
                     price: currentPrice,
                     high: parseFloat(item.high || '0'),
                     low: parseFloat(item.low || '0'),
@@ -150,9 +160,9 @@ const Quotes: React.FC = () => {
 
                             <div className="item-row sub">
                                 <span className={quote.change >= 0 ? 'up' : 'down'}>
-                                    {quote.change > 0 ? '+' : ''}{quote.change.toFixed(1)} ({quote.changePercent}%)
+                                    {quote.change > 0 ? '+' : ''}{quote.change.toFixed(0)} ({quote.changePercent}%)
                                 </span>
-                                <span className="item-hl">L: {quote.low.toFixed(1)} H: {quote.high.toFixed(1)}</span>
+                                <span className="item-hl">L: {quote.low.toFixed(0)} H: {quote.high.toFixed(0)}</span>
                             </div>
                         </div>
                     ))}

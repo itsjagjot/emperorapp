@@ -29,6 +29,8 @@ import './theme/variables.css';
 import { useEffect } from 'react';
 import { liveRateService } from './services/LiveRate';
 
+import { ToastProvider } from './components/Toast/Toast';
+
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -53,9 +55,11 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <IonReactRouter>
-        <AppRoutes />
-      </IonReactRouter>
+      <ToastProvider>
+        <IonReactRouter>
+          <AppRoutes />
+        </IonReactRouter>
+      </ToastProvider>
     </IonApp>
   );
 };

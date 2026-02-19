@@ -34,20 +34,20 @@ class LiveRateV2Service {
         volume: number,
         oi: number
     }> = {
-            "gold_next": {
-                name: "GOLD", expiry: "02APR2026", instrument: "FUTCOM",
-                open: 153551, close: 154760, change: -2891, change_percent: -1.87, volume: 1307, oi: 7577
-            },
+            // "gold_next": {
+            //     name: "GOLD", expiry: "02APR2026", instrument: "FUTCOM",
+            //     open: 153551, close: 154760, change: -2891, change_percent: -1.87, volume: 1307, oi: 7577
+            // },
             "gold_future": {
-                name: "GOLDM", expiry: "05MAR2026", instrument: "FUTCOM",
-                open: 151900, close: 152877, change: -2976, change_percent: -1.95, volume: 8183, oi: 42285
+                name: "GOLD", expiry: "02APR2026", instrument: "FUTCOM",
+                open: 151900, close: 152877, change: -2976, change_percent: -1.95, volume: 8183, oi: 42285,
             },
-            "silver_next": {
-                name: "SILVER", expiry: "30APR2026", instrument: "FUTCOM",
-                open: 235207, close: 239891, change: -9696, change_percent: -4.04, volume: 2260, oi: 5893
-            },
+            // "silver_next": {
+            //     name: "SILVER", expiry: "30APR2026", instrument: "FUTCOM",
+            //     open: 235207, close: 239891, change: -9696, change_percent: -4.04, volume: 2260, oi: 5893
+            // },
             "silver_future": {
-                name: "SILVERM", expiry: "05MAR2026", instrument: "FUTCOM",
+                name: "SILVER", expiry: "05MAR2026", instrument: "FUTCOM",
                 open: 245941, close: 250177, change: -9766, change_percent: -3.90, volume: 2343, oi: 6558
             },
         };

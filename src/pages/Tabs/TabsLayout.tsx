@@ -13,6 +13,7 @@ import Quotes from '../Quotes/Quotes';
 import Trade from '../Trade/Trade';
 import Position from '../Position/Position';
 import Profile from '../Profile/Profile';
+import OrderDetails from '../Trade/OrderDetails';
 
 // User Management Imports
 import CreateUser from '../UserManagement/CreateUser/CreateUser';
@@ -59,6 +60,7 @@ const TabsLayout: React.FC = () => {
                 <Route exact path="/app/profile">
                     <Profile />
                 </Route>
+                <Route exact path="/app/trade/details/:id" component={OrderDetails} />
 
                 {/* User Management Routes */}
                 <Route exact path="/app/user-management/create" component={CreateUser} />

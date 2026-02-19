@@ -10,10 +10,57 @@ import {
 } from '@ionic/react';
 import { lockClosed, eyeOutline, eyeOffOutline, shieldCheckmarkOutline } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
+import { changePassword } from '../../../services/authService';
+import { useToast } from '../../../components/Toast/Toast';
 import './ChangePassword.css';
 
 const ChangePassword: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const { showToast } = useToast();
+
+    const handleUpdatePassword = async () => {
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            showToast('Please fill all fields', 'error');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showToast('Passwords do not match', 'error');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            showToast('New password must be at least 6 characters', 'error');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await changePassword({
+                current_password: currentPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            });
+
+            if (response.success) {
+                showToast('Password updated successfully', 'success');
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                showToast(response.message || 'Failed to update password', 'error');
+            }
+        } catch (error) {
+            showToast('An error occurred. Please try again.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <IonPage className="change-password-page">
@@ -25,7 +72,11 @@ const ChangePassword: React.FC = () => {
                         <IonIcon icon={shieldCheckmarkOutline} />
                     </div>
                     <h2>Secure Your Account</h2>
-                    <p>Enter your current password and choose a strong new one.</p>
+                    <div className="password-hints">
+                        <p>Enter your current password and choose a strong new one.</p>
+                        <p>● Minimum 6 characters</p>
+                        <p>● Include a special character (@, #, $, %, !, ^, *, ?)</p>
+                    </div>
                 </div>
 
                 <div className="form-container">
@@ -37,6 +88,8 @@ const ChangePassword: React.FC = () => {
                             <IonInput
                                 type={showPassword ? 'text' : 'password'}
                                 placeholder="Enter current password"
+                                value={currentPassword}
+                                onIonInput={e => setCurrentPassword(e.detail.value!)}
                             />
                         </div>
                     </div>
@@ -48,7 +101,9 @@ const ChangePassword: React.FC = () => {
                             <IonIcon icon={lockClosed} className="input-icon-start" />
                             <IonInput
                                 type={showPassword ? 'text' : 'password'}
-                                placeholder="At least 8 characters"
+                                placeholder="At least 6 characters"
+                                value={newPassword}
+                                onIonInput={e => setNewPassword(e.detail.value!)}
                             />
                             <IonIcon
                                 icon={showPassword ? eyeOffOutline : eyeOutline}
@@ -66,19 +121,21 @@ const ChangePassword: React.FC = () => {
                             <IonInput
                                 type={showPassword ? 'text' : 'password'}
                                 placeholder="Re-type new password"
+                                value={confirmPassword}
+                                onIonInput={e => setConfirmPassword(e.detail.value!)}
                             />
                         </div>
-                    </div>
-
-                    <div className="password-hints">
-                        <p>● Minimum 8 characters</p>
-                        <p>● Include a special character (@, #, $)</p>
                     </div>
                 </div>
 
                 <div className="action-footer">
-                    <IonButton expand="block" className="premium-submit-btn">
-                        Update Password
+                    <IonButton
+                        expand="block"
+                        className="premium-submit-btn"
+                        onClick={handleUpdatePassword}
+                        disabled={loading}
+                    >
+                        {loading ? 'Updating...' : 'Update Password'}
                     </IonButton>
                 </div>
 

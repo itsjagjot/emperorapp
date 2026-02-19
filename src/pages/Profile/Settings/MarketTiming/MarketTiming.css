@@ -12,10 +12,8 @@
 }
 
 .btn-view-small {
-    background: #00263e;
-    color: white;
-    padding: 0 25px;
-    height: 42px;
+    padding: 0 15px;
+    height: 40px;
     border-radius: 6px;
     font-weight: 600;
     border: none;

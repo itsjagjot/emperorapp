@@ -20,7 +20,6 @@
     color: #1a3a5f;
     margin: 0;
     margin-left: -24px;
-    /* Back icon balance */
 }
 
 .back-icon {
@@ -60,31 +59,7 @@
     margin-top: 2px;
 }
 
-/* Search Wrapper */
-.lh-search-wrapper {
-    margin-bottom: 15px;
-}
-
-.search-inner {
-    background: white;
-    border-radius: 16px;
-    padding: 12px 18px;
-    display: flex;
-    align-items: center;
-    border: 1.5px solid #f0f2f5;
-}
-
-.search-inner input {
-    border: none;
-    outline: none;
-    width: 100%;
-    margin-left: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    background: transparent;
-}
-
-/* Buttons */
+/* Action Buttons */
 .action-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -110,53 +85,142 @@
     font-weight: 800;
 }
 
-/* Premium Cards */
+/* ===== Premium Cards ===== */
 .history-premium-card {
     background: white;
-    border-radius: 24px;
-    padding: 20px;
-    margin-bottom: 16px;
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
     border: 1px solid #f1f5f9;
+    border-left: 4px solid #e2e8f0;
+    transition: all 0.2s ease;
 }
 
+.history-premium-card.card-success {
+    border: 1px solid #10b98142;
+    border-left: 5px solid #10b981;
+}
+
+.history-premium-card.card-failed {
+    border: 1px solid #ef444442;
+    border-left: 5px solid #ef4444;
+
+}
+
+/* Card Header */
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .user-profile {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    align-items: center;
 }
 
 .avatar-circle {
-    width: 44px;
-    height: 44px;
-    background: #e0e7ff;
-    color: #4338ca;
-    border-radius: 14px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    background: #d1fae5;
+    color: #059669;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
+    font-size: 16px;
+}
+
+.avatar-failed {
+    background: #fee2e2;
+    color: #ef4444;
 }
 
 .user-name-info h4 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 800;
-}
-
-.role-tag {
-    font-size: 10px;
+    font-size: 14px;
     font-weight: 700;
-    background: #f3f4f6;
-    color: #4b5563;
-    padding: 2px 8px;
-    border-radius: 6px;
+    color: #1f2937;
 }
 
+.ip-text {
+    font-size: 11px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+/* Detail Chips Strip */
+.card-detail-strip {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.detail-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.detail-chip ion-icon {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* Status Pills */
+.status-pill-success {
+    background: #d1fae5;
+    color: #059669;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.status-pill-failed {
+    background: #fee2e2;
+    color: #ef4444;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* Failure Reason Box */
+.failure-reason-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 10px;
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+}
+
+.failure-reason-box ion-icon {
+    font-size: 16px;
+    min-width: 16px;
+    margin-top: 1px;
+}
+
+/* Legacy - keep for compatibility */
 .timestamp-info {
     text-align: right;
 }
@@ -174,7 +238,7 @@
 
 .card-divider-dash {
     border-top: 1px dashed #e5e7eb;
-    margin: 18px 0;
+    margin: 12px 0;
 }
 
 .info-row {
@@ -187,7 +251,19 @@
     margin-bottom: 8px;
 }
 
-/* Device ID */
+.error-text {
+    color: #ef4444;
+}
+
+.role-tag {
+    font-size: 10px;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #4b5563;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
 .id-badge-container {
     background: #f8fafc;
     border: 1px dashed #cbd5e1;
@@ -203,13 +279,4 @@
     font-family: 'Courier New', Courier, monospace;
     font-size: 11px;
     color: #64748b;
-}
-
-.status-pill-success {
-    background: #ecfdf5;
-    color: #10b981;
-    padding: 6px 16px;
-    border-radius: 100px;
-    font-size: 11px;
-    font-weight: 800;
 }

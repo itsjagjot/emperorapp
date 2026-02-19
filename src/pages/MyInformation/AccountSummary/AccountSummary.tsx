@@ -7,92 +7,50 @@ import {
 import { chevronDownOutline, searchOutline, refreshOutline } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
 import './AccountSummary.css';
+import DateFilter from '../../../components/DateFilter';
+import CommonSearch from '../../../components/CommonSearch';
+import UserFilter from '../../../components/UserFilter';
 
 const AccountSummary: React.FC = () => {
     const [selectedPeriod, setSelectedPeriod] = useState('Custom period');
     const today = new Date().toISOString().split('T')[0];
+    const [searchText, setSearchText] = useState('');
+    const [selectedUser, setSelectedUser] = useState('');
 
     return (
         <IonPage className="account-summary-page">
             <CommonHeader title="Account Summary" />
             <IonContent className="ion-padding compact-content">
 
-                {/* 1. Period Selector */}
-                <IonItem lines="none" className="slim-input">
-                    <IonSelect
-                        value={selectedPeriod}
-                        interface="action-sheet"
-                        onIonChange={e => setSelectedPeriod(e.detail.value)}
-                        toggleIcon={chevronDownOutline}
-                    >
-                        <IonSelectOption value="This Week">This Week</IonSelectOption>
-                        <IonSelectOption value="Previous Week">Previous Week</IonSelectOption>
-                        <IonSelectOption value="Custom period">Custom period</IonSelectOption>
-                    </IonSelect>
-                </IonItem>
+                <div className="mb-12">
+                    <DateFilter />
+                </div>
 
-                {/* Date Picker Row (Future disabled & Pill shape) */}
-                {selectedPeriod === 'Custom period' && (
-                    <IonRow className="date-row-tight">
-                        <IonCol size="6">
-                            <div className="pill-date-container">
-                                <IonDatetimeButton datetime="from" />
-                            </div>
-                        </IonCol>
-                        <IonCol size="6">
-                            <div className="pill-date-container">
-                                <IonDatetimeButton datetime="to" />
-                            </div>
-                        </IonCol>
-                    </IonRow>
-                )}
-
-                <IonModal keepContentsMounted={true}>
-                    <IonDatetime
-                        id="from"
-                        presentation="date"
-                        max={today}
-                        showDefaultButtons={true}
-                        doneText="Apply"
-                        cancelText="Cancel"
-                    ></IonDatetime>
-                </IonModal>
-                <IonModal keepContentsMounted={true}>
-                    <IonDatetime
-                        id="to"
-                        presentation="date"
-                        max={today}
-                        showDefaultButtons={true}
-                        doneText="Apply"
-                        cancelText="Cancel"
-                    ></IonDatetime>
-                </IonModal>
-
+                <div className="mb-12">
+                    <UserFilter
+                        onUserChange={setSelectedUser}
+                        includeSelf
+                        label="Select User"
+                    />
+                </div>
                 {/* 3. User Select + Search/Reset Icons Row */}
                 <div className="action-row-compact">
-                    <IonItem lines="none" className="slim-input user-flex">
-                        <IonSelect placeholder="Select User" value="SuperAdmin">
-                            <IonSelectOption value="SuperAdmin">SuperAdmin</IonSelectOption>
-                            <IonSelectOption value="KS01">KS01</IonSelectOption>
-                        </IonSelect>
-                    </IonItem>
-
+                    {/* 4. Grey Search Bar */}
+                    <CommonSearch
+                        value={searchText}
+                        onChange={setSearchText}
+                        placeholder="Search"
+                    />
                     {/* View/Search Icon Button */}
-                    <div className="icon-btn-box view-bg">
+                    <div className="filter-box">
                         <IonIcon icon={searchOutline} />
                     </div>
 
                     {/* Clear/Reset Icon Button */}
-                    <div className="icon-btn-box reset-border">
+                    <div className="reset-icon-box">
                         <IonIcon icon={refreshOutline} />
                     </div>
                 </div>
-
-                {/* 4. Grey Search Bar */}
-                <IonSearchbar
-                    placeholder="Search exchange or script"
-                    className="compact-grey-search"
-                ></IonSearchbar>
 
                 {/* 5. Opening Balance */}
                 <div className="balance-strip-compact">

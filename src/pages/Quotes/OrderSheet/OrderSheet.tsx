@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
     IonContent, IonModal, IonIcon, IonGrid, IonRow, IonCol, IonSelect, IonSelectOption
 } from '@ionic/react';
-import { statsChartOutline, informationCircleOutline, listOutline, addOutline, removeOutline } from 'ionicons/icons';
+import { statsChartOutline, informationCircleOutline, listOutline, addOutline, removeOutline, chevronUpOutline, chevronDownOutline } from 'ionicons/icons';
+import TradeService from '../../../services/TradeService';
 import './OrderSheet.css';
 
 interface OrderSheetProps {
@@ -12,17 +13,32 @@ interface OrderSheetProps {
 }
 
 const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
+    const lotSizeMap: { [key: string]: number } = {
+        'SILVER': 30,
+        'GOLD': 100,
+        'CRUDEOIL': 100,
+        'NATURALGAS': 1250,
+        'COPPER': 2500,
+        'ZINC': 5000,
+        'LEAD': 5000,
+        'ALUMINI': 5000,
+        'MCXBULLDEX': 50
+    };
+
     const [activeTab, setActiveTab] = useState<'Market' | 'Limit' | 'SL'>('Market');
     const [price, setPrice] = useState<number>(0);
     const [lotSize, setLotSize] = useState<number>(100);
     const [quantity, setQuantity] = useState<number>(1.0);
     const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
-
+    const [showLotGrid, setShowLotGrid] = useState<boolean>(false);
     const lotOptions = [5, 10, 50, 100, 250, 500, 1000, 2500];
 
     useEffect(() => {
         if (isOpen && quote) {
             setPrice(quote.price);
+            const symbol = quote.original?.commodity || quote.symbol || '';
+            const mappedLot = lotSizeMap[symbol.toUpperCase()] || quote.lotSize || quote.original?.lot_size || 100;
+            setLotSize(mappedLot);
         }
     }, [isOpen]);
 
@@ -43,6 +59,30 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
     const incrementQty = () => setQuantity((prev) => prev + 1);
     const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
 
+    const handleTrade = async (action: 'Buy' | 'Sell') => {
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            await TradeService.placeOrder({
+                name: quote.name,
+                symbol: quote.original?.commodity || quote.name,
+                symbol_instrument: quote.original?.instrument || 'FUTCOM',
+                symbol_expiry: quote.original?.expiry || '',
+                order_type: activeTab,
+                action: action,
+                quantity: quantity,
+                lot_size: lotSize,
+                price: activeTab === 'Market' ? quote.price : price,
+                username: user.userName || 'Unknown',
+                device: 'Mobile', // Hardcoded as this is a mobile app
+                // brokerage defaults handled on backend
+            });
+            alert('Order placed successfully!');
+            onClose();
+        } catch (error) {
+            alert('Failed to place order.');
+        }
+    };
+
     return (
         <IonModal
             isOpen={isOpen}
@@ -59,19 +99,19 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
                             <h3>
                                 MCX {quote.name}
                                 <div className={`price-change-row ${quote.change >= 0 ? 'up' : 'down'}`}>
-                                    {quote.change.toFixed(1)} ({quote.changePercent}%)
+                                    {quote.change.toFixed(0)} ({quote.changePercent.toFixed(2)}%)
                                 </div>
                             </h3>
 
                             {/* Nawa Rate Section (Dono rates de naal) */}
                             <div className="price-details-wrapper">
                                 <div className="rate-boxes">
-                                    <span className={`rate-box ${quote.tickClass}`}>{quote.price.toFixed(1)}</span>
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.price.toFixed(0)}</span>
                                     {/* Using Close as the second price to match list view */}
-                                    <span className={`rate-box ${quote.tickClass}`}>{quote.close ? quote.close.toFixed(1) : (quote.price).toFixed(1)}</span>
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.close ? quote.close.toFixed(0) : (quote.price).toFixed(0)}</span>
                                 </div>
                                 <div className="hl-info">
-                                    L: {quote.low.toFixed(1)} H: {quote.high.toFixed(1)}
+                                    L: {quote.low.toFixed(0)} H: {quote.high.toFixed(0)}
                                 </div>
                             </div>
                         </div>
@@ -105,30 +145,39 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
                         )}
 
                         <div className="input-grid">
-                            <div className="input-container">
-                                <IonSelect
-                                    interface="popover"
-                                    value={lotSize}
-                                    onIonChange={e => setLotSize(e.detail.value)}
-                                    className="lot-select"
-                                >
-                                    {lotOptions.map(opt => (
-                                        <IonSelectOption key={opt} value={opt}>Lot {opt.toFixed(1)}</IonSelectOption>
-                                    ))}
-                                </IonSelect>
+                            <div className="input-container lot-toggle" onClick={() => setShowLotGrid(!showLotGrid)}>
+                                <span className="lot-label">Lot {lotSize.toFixed(0)}</span>
+                                <IonIcon icon={showLotGrid ? chevronUpOutline : chevronDownOutline} className="lot-arrow" />
                             </div>
                             <div className="counter-container">
                                 <button className="cnt-btn" onClick={decrementQty}><IonIcon icon={removeOutline} /></button>
-                                <span className="qty-val">{quantity.toFixed(1)}</span>
+                                <span className="qty-val">{quantity.toFixed(0)}</span>
                                 <button className="cnt-btn" onClick={incrementQty}><IonIcon icon={addOutline} /></button>
                             </div>
                         </div>
+
+                        {/* LOT Preset Grid */}
+                        {showLotGrid && (
+                            <div className="lot-preset-grid">
+                                {lotOptions.map((opt) => (
+                                    <button
+                                        key={opt}
+                                        className={`preset-btn ${quantity === opt ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setQuantity(opt);
+                                        }}
+                                    >
+                                        {opt}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Trade Actions - Buy uses your premium gradient */}
                     <div className="button-group">
-                        <button className="minimal-btn sell">SELL</button>
-                        <button className="premium-btn buy">BUY</button>
+                        <button className="minimal-btn sell" onClick={() => handleTrade('Sell')}>SELL</button>
+                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')}>BUY</button>
                     </div>
 
                     {/* Utility Row */}
@@ -147,13 +196,13 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
                             <IonCol size="3"><span>Close</span><p>{quote.close}</p></IonCol>
                         </IonRow>
                         <IonRow className="stats-row">
-                            <IonCol size="6"><div className="stat"><span>LTP</span> <strong>{quote.price.toFixed(2)}</strong></div></IonCol>
+                            <IonCol size="6"><div className="stat"><span>LTP</span> <strong>{quote.price.toFixed(0)}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Time </span> <strong>{currentTime}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Volume</span> <strong>{quote.original?.vol_lots || '-'}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Avg. Price</span> <strong>{quote.original?.oi_lots || '-'}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Units</span> <strong>{quote.original?.unit || '1.0'}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Volume Step</span> <strong>1.0</strong></div></IonCol>
-                            <IonCol size="6"><div className="stat"><span>Lotsize</span> <strong>{lotSize.toFixed(1)}</strong></div></IonCol>
+                            <IonCol size="6"><div className="stat"><span>Lotsize</span> <strong>{lotSize.toFixed(0)}</strong></div></IonCol>
                         </IonRow>
                     </IonGrid>
                 </div>

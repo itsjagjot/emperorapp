@@ -4,6 +4,7 @@ import {
     useIonToast, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle
 } from '@ionic/react';
 import './Notification.css';
+import CommonHeader from '../../../../components/CommonHeader';
 
 const Notification: React.FC = () => {
     const [present] = useIonToast();
@@ -21,14 +22,7 @@ const Notification: React.FC = () => {
 
     return (
         <IonPage>
-            <IonHeader className="ion-no-border">
-                <IonToolbar className="notif-toolbar">
-                    <IonButtons slot="start">
-                        <IonBackButton defaultHref="/app/profile" text="" />
-                    </IonButtons>
-                    <IonTitle>Notification Settings</IonTitle>
-                </IonToolbar>
-            </IonHeader>
+            <CommonHeader title="Notification Settings" backLink="/app/profile" />
 
             <IonContent className="notif-bg">
                 <div className="notif-wrapper">

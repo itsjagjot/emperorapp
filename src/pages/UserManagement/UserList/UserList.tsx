@@ -16,6 +16,7 @@ import { funnel } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
 import { API_BASE_URL } from '../../../services/config';
 import './UserList.css';
+import CommonSearch from '../../../components/CommonSearch';
 
 interface User {
     UserId: number;
@@ -102,14 +103,13 @@ const UserList: React.FC = () => {
                 <IonLoading isOpen={loading} message="Loading users..." />
 
                 {/* Search and Filter Section */}
-                <div className="search-filter-wrapper">
-                    <IonSearchbar
+                <div className="action-row-compact">
+                    {/* <IonSearchbar placeholder="Search users..." className="custom-searchbar"></IonSearchbar> */}
+                    <CommonSearch
                         value={searchText}
-                        onIonInput={handleSearchChange}
+                        onChange={setSearchText}
                         placeholder="Search users..."
-                        className="custom-searchbar"
-                        debounce={0} // We handle debounce manually
-                    ></IonSearchbar>
+                    />
                     <div className="filter-box">
                         <IonIcon icon={funnel} />
                     </div>

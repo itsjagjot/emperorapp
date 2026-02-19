@@ -40,3 +40,98 @@ export const loginUser = async (
     const data = await response.json();
     return data;
 };
+
+/**
+ * Change Password API call
+ */
+export const changePassword = async (
+    passwords: { current_password: string; new_password: string; confirm_password: string },
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<any> => {
+    const url = `${API_BASE_URL}/${exchange}/auth/change-password`;
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(passwords),
+    });
+
+    const data = await response.json();
+    return data;
+};
+
+/**
+ * Get Login History API call
+ */
+export const getLoginHistory = async (
+    page: number = 1,
+    pageSize: number = 10,
+    startDate?: string,
+    endDate?: string,
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<any> => {
+    let url = `${API_BASE_URL}/${exchange}/auth/login-history?page=${page}&pageSize=${pageSize}`;
+    if (startDate) url += `&startDate=${startDate}`;
+    if (endDate) url += `&endDate=${endDate}`;
+
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    const data = await response.json();
+    return data;
+};
+
+/**
+ * Get User Quantities
+ */
+export const getQuantities = async (
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<any> => {
+    const url = `${API_BASE_URL}/${exchange}/auth/quantities`;
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    return await response.json();
+};
+
+/**
+ * Update User Quantities
+ */
+export const setQuantities = async (
+    quantities: number[],
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<any> => {
+    const url = `${API_BASE_URL}/${exchange}/auth/quantities`;
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ quantities }),
+    });
+
+    return await response.json();
+};

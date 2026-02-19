@@ -76,6 +76,24 @@
   --emperor-gold: #D4AF37;
   --emperor-teal: #1A535C;
   --emperor-btn: #013e2b;
+  --emperor-btn-bg: linear-gradient(0deg, #002719, #056643);
+  --emperor-btn-color: #f7b500;
+  --ion-toolbar-color: var(--emperor-btn-color);
+}
+
+.theme-btn {
+  background: var(--emperor-btn-bg);
+  color: var(--emperor-btn-color);
+  border-radius: 4px;
+}
+
+.custom-input-box.compact {
+  background: #fff !important;
+  border: 1px solid #dfe2e6 !important;
+  border-radius: 8px !important;
+  height: 45px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 /* Global Safe Area Support */
@@ -97,6 +115,108 @@ ion-tab-bar {
 
 .high {
   background-color: #7cff90;
+}
+
+/* Global Action Sheet Styles */
+.action-sheet-button.sc-ion-action-sheet-ios,
+.action-sheet-button.sc-ion-action-sheet-md {
+  min-height: 45px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+
+.user-select-simple {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 0px !important;
+  width: 100% !important;
+  background: white !important;
+  border: 1px solid #dfe2e6 !important;
+  border-radius: 8px !important;
+  height: 45px !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #333 !important;
+  --placeholder-color: #5f6368 !important;
+  --placeholder-opacity: 1 !important;
+}
+
+.user-select-simple::part(text) {
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+.user-select-simple::part(icon) {
+  color: #5f6368 !important;
+  font-size: 16px !important;
+  opacity: 0.7 !important;
+}
+
+.user-select-simple:focus-within {
+  border-color: #b5bcc7;
+}
+
+/* Global Action Sheet Styles */
+.action-sheet-button.sc-ion-action-sheet-ios,
+.action-sheet-button.sc-ion-action-sheet-md {
+  min-height: 45px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.mb-12 {
+  margin-bottom: 12px !important;
+}
+
+/* Action Row (User + Icons) */
+.action-row-compact {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+
+.filter-box {
+  background: var(--emperor-btn-bg);
+  width: 50px;
+  height: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--emperor-btn-color);
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.reset-icon-box {
+  background: #db0f0f;
+  width: 50px;
+  height: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.common-header ion-back-button {
+  color: var(--emperor-btn-color);
+  font-size: 14px;
+  padding: 0 8px;
+}
+
+.common-header .toolbar-title-default {
+  --background: var(--emperor-btn-bg);
+  --color: var(--emperor-btn-color);
 }
 
 /* @media (prefers-color-scheme: dark) {
