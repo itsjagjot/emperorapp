@@ -1,0 +1,238 @@
+.trade-bill-viewer {
+    background: #525659;
+    padding: 20px 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.bill-paper {
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 210mm;
+    /* A4 width */
+    min-height: 297mm;
+    /* A4 height */
+    padding: 10mm 15mm;
+    margin: 0 auto;
+    font-family: 'Arial', sans-serif;
+    color: #000;
+    font-size: 11px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Print Styles */
+@media print {
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .trade-bill-viewer {
+        background: #fff;
+        padding: 0;
+        display: block;
+    }
+
+    .bill-paper,
+    .bill-paper * {
+        visibility: visible;
+    }
+
+    .bill-paper {
+        position: absolute;
+        left: 0;
+        top: 0;
+        box-shadow: none;
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+        padding: 10mm 15mm;
+        border: none;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+
+.bill-header {
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    background: transparent;
+}
+
+.bill-header h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bill-header p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.script-section {
+    margin-bottom: 15px;
+    page-break-inside: avoid;
+}
+
+.script-name-header {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4a6fa5;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.tables-row {
+    display: flex;
+    border-top: 2px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.side-table {
+    flex: 1;
+    border-right: 1px solid #ccc;
+}
+
+.side-table:last-child {
+    border-right: none;
+}
+
+.side-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.side-table th {
+    background: #e6e6e6;
+    padding: 2px 4px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #ccc;
+    font-size: 10px;
+}
+
+.side-table td {
+    padding: 2px 4px;
+    font-size: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.side-table .ion-text-right {
+    text-align: right;
+}
+
+.side-table .total-row td {
+    border-top: 1px solid #000;
+    font-weight: 700;
+    border-bottom: none;
+    background: #fff;
+}
+
+/* Script specific summary block under the tables */
+.script-summary-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 2px;
+    padding-right: 0;
+    font-size: 11px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    width: 140px;
+    padding: 1px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.summary-line .lbl {
+    font-weight: 600;
+    color: #333;
+}
+
+.summary-line .val {
+    font-weight: 700;
+    text-align: right;
+    flex: 1;
+}
+
+.br-line {
+    border-bottom: 1px solid #000;
+}
+
+.result-line {
+    border-bottom: 2px solid #000;
+    color: #a00;
+}
+
+.summary-item.net-profit .val {
+    color: #008000;
+}
+
+.summary-item.net-loss .val {
+    color: #ff0000;
+}
+
+.final-summary-section {
+    margin-top: 20px;
+    page-break-before: auto;
+    /* Allow break */
+}
+
+.final-summary-section h3 {
+    font-size: 13px;
+    margin-bottom: 5px;
+    color: #333;
+    border-bottom: 1px solid #333;
+    display: inline-block;
+}
+
+.grand-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    border: 1px solid #ccc;
+}
+
+.grand-table th {
+    background: #e1e8ef;
+    color: #000;
+    padding: 6px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.grand-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #eee;
+    border-right: 1px solid #eee;
+}
+
+.grand-table .total-row {
+    background: #f0f0f0;
+    font-weight: 700;
+}
+
+.carry-forward {
+    margin-top: 20px;
+    page-break-before: auto;
+}

@@ -43,3 +43,17 @@
     margin-top: 10px;
     min-height: 200px;
 }
+
+.filter-box-btn {
+    --background: var(--emperor-btn-bg);
+    --color: var(--emperor-btn-color);
+    --border-radius: 8px;
+    height: 45px;
+    width: 50px;
+    margin: 0;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-box-btn IonIcon {
+    font-size: 20px;
+}

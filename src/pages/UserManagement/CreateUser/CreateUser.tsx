@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     IonContent, IonPage, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption,
     IonToggle, IonCheckbox, IonButton, IonIcon, IonList, useIonToast
@@ -8,6 +8,7 @@ import {
     settingsOutline, addCircleOutline, keyOutline, trendingUpOutline,
     shieldCheckmarkOutline, chevronDownOutline
 } from 'ionicons/icons';
+import { getMasterData } from '../../../services/scriptService';
 import CommonHeader from '../../../components/CommonHeader';
 import { API_BASE_URL } from '../../../services/config';
 import './CreateUser.css';
@@ -27,15 +28,28 @@ const CreateUser: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     // Exchange State
-    const [exchanges, setExchanges] = useState([
-        { name: 'MCX', turnover: true, lot: false, group: 'MCX 2 LOT' },
-        { name: 'NSE', turnover: true, lot: false, group: 'NSE defc' },
-        { name: 'SGX', turnover: true, lot: false, group: 'sgx 500' },
-        { name: 'OTHERS', turnover: true, lot: false, group: 'OTHERS' },
-        { name: 'MINI', turnover: true, lot: false, group: 'MINI - 2' },
-        { name: 'CDS', turnover: true, lot: false, group: 'Default' },
-        { name: 'CALLPUT', turnover: false, lot: true, group: 'CALLPUT' },
-    ]);
+    const [exchanges, setExchanges] = useState<any[]>([]);
+    const [masterExchanges, setMasterExchanges] = useState<any[]>([]);
+
+    // Fetch Master Data
+    useEffect(() => {
+        const fetchMasterData = async () => {
+            const result = await getMasterData();
+            if (result && result.Success && result.Data) {
+                setMasterExchanges(result.Data);
+                const initialExchanges = result.Data.map((ex: any) => ({
+                    name: ex.name,
+                    enabled: ex.name === 'EMPEROR', // Default enable EMPEROR if exists
+                    turnover: true,
+                    lot: false,
+                    group: ex.groups && ex.groups.length > 0 ? ex.groups[0].name : 'Default',
+                    groups: ex.groups || [] // Store available groups here
+                }));
+                setExchanges(initialExchanges);
+            }
+        };
+        fetchMasterData();
+    }, []);
 
     const handleInputChange = (key: string, value: string) => {
         setFormData(prev => ({ ...prev, [key]: value }));
@@ -92,13 +106,26 @@ const CreateUser: React.FC = () => {
                 return;
             }
 
+            // Transform exchanges array to object format for backend
+            const exchangesObj: any = {};
+            exchanges.forEach(ex => {
+                if (ex.enabled) {
+                    exchangesObj[ex.name] = {
+                        enabled: true,
+                        turnover: ex.turnover,
+                        lot: ex.lot,
+                        group: ex.group
+                    };
+                }
+            });
+
             const payload = {
                 Username: formData.username,
                 FirstName: formData.fullName,
                 Password: formData.password,
                 Credit: formData.credit ? Math.abs(parseFloat(formData.credit)) : 0,
                 ContactNumber: formData.contactNumber,
-                Exchanges: exchanges
+                Exchanges: exchangesObj
             };
 
             const response = await fetch(`${API_BASE_URL}/User`, {
@@ -265,7 +292,11 @@ const CreateUser: React.FC = () => {
                             {exchanges.map((ex, i) => (
                                 <div className="table-row" key={i}>
                                     <div className="col-ex cell">
-                                        <IonCheckbox mode="md" checked={true} disabled />
+                                        <IonCheckbox
+                                            mode="md"
+                                            checked={ex.enabled}
+                                            onIonChange={e => handleExchangeChange(i, 'enabled', e.detail.checked)}
+                                        />
                                         <span className="ex-text">{ex.name}</span>
                                     </div>
                                     <div className="col-br cell dual-check">
@@ -289,8 +320,12 @@ const CreateUser: React.FC = () => {
                                             toggleIcon={chevronDownOutline}
                                             onIonChange={e => handleExchangeChange(i, 'group', e.detail.value)}
                                         >
-                                            <IonSelectOption value={ex.group}>{ex.group}</IonSelectOption>
-                                            <IonSelectOption value="Default">Default</IonSelectOption>
+                                            {ex.groups && ex.groups.map((grp: any) => (
+                                                <IonSelectOption key={grp.id} value={grp.name}>{grp.name}</IonSelectOption>
+                                            ))}
+                                            {(!ex.groups || ex.groups.length === 0) && (
+                                                <IonSelectOption value="Default">Default</IonSelectOption>
+                                            )}
                                         </IonSelect>
                                     </div>
                                 </div>

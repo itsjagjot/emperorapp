@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     IonSelect,
     IonSelectOption,
@@ -28,6 +28,10 @@ const DateFilter: React.FC<DateFilterProps> = ({ onDateChange }) => {
 
     const [customFrom, setCustomFrom] = useState(today);
     const [customTo, setCustomTo] = useState(today);
+
+    useEffect(() => {
+        handlePeriodChange(selectedPeriod);
+    }, []);
 
     const handlePeriodChange = (val: string) => {
         setSelectedPeriod(val);

@@ -8,11 +8,12 @@ import {
 import { useHistory } from 'react-router-dom';
 import {
     optionsOutline, megaphoneOutline, briefcaseOutline,
-    personOutline, timeOutline, chevronDownOutline
+    personOutline, timeOutline, chevronDownOutline, documentTextOutline
 } from 'ionicons/icons';
 import './Trade.css';
 import CommonHeader from '../../components/CommonHeader';
 import TradeService, { TradeOrder } from '../../services/TradeService';
+import Loader from '../../components/Loader/Loader';
 
 const Trade: React.FC = () => {
     const history = useHistory();
@@ -20,8 +21,10 @@ const Trade: React.FC = () => {
     const [trades, setTrades] = useState<TradeOrder[]>([]);
     const [showDetail, setShowDetail] = useState(false);
     const [selectedTrade, setSelectedTrade] = useState<TradeOrder | null>(null);
+    const [loading, setLoading] = useState(false);
 
     const fetchTrades = async () => {
+        setLoading(true);
         try {
             // Mapping UI tabs to backend statuses
             const statusMap: any = {
@@ -33,6 +36,8 @@ const Trade: React.FC = () => {
             setTrades(data);
         } catch (error) {
             console.error('Failed to fetch trades', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -67,7 +72,12 @@ const Trade: React.FC = () => {
 
     return (
         <IonPage>
-            <CommonHeader title="Trade" backLink="back()" />
+            <CommonHeader
+                title="Trade"
+                backLink="back()"
+                actionIcon={documentTextOutline}
+                onAction={() => history.push('/app/reports/generate-bill')}
+            />
 
             <div className="trade-ticker">
                 <IonIcon icon={megaphoneOutline} className="ticker-icon" />
@@ -108,7 +118,9 @@ const Trade: React.FC = () => {
             </div>
 
             <IonContent className="trade-content">
-                {trades.length > 0 ? (
+                {loading ? (
+                    <Loader />
+                ) : trades.length > 0 ? (
                     <IonList className="trade-list">
                         {trades.map((trade) => (
                             <div key={trade.id} className="trade-card" onClick={() => handleTradeClick(trade)}>

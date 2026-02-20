@@ -1,7 +1,7 @@
+import React, { useState, useEffect } from 'react';
 import { IonSelect, IonSelectOption, IonIcon } from '@ionic/react';
 import { chevronDownOutline } from 'ionicons/icons';
 import './UserFilter.css';
-import { useState } from 'react';
 
 interface UserFilterProps {
     onUserChange: (userId: string) => void;
@@ -15,6 +15,10 @@ const UserFilter: React.FC<UserFilterProps> = ({
     label = "All User"
 }) => {
     const [selectedUser, setSelectedUser] = useState(includeSelf ? 'self' : '');
+
+    useEffect(() => {
+        onUserChange(selectedUser);
+    }, []);
 
     // Dummy users - in real app, these would come from an API or global state
     const users = [

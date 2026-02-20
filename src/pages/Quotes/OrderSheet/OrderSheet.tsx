@@ -78,8 +78,8 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
             });
             alert('Order placed successfully!');
             onClose();
-        } catch (error) {
-            alert('Failed to place order.');
+        } catch (error: any) {
+            alert(error.message || 'Failed to place order.');
         }
     };
 

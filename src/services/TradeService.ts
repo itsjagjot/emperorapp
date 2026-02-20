@@ -44,7 +44,11 @@ class TradeService {
                 headers: this.getHeaders(),
                 body: JSON.stringify(orderData)
             });
-            return await response.json();
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to place order');
+            }
+            return data;
         } catch (error) {
             console.error('Error placing order:', error);
             throw error;

@@ -1,7 +1,9 @@
 import { io, Socket } from 'socket.io-client';
-import { SOCKET_URL } from '../config';
+import { SOCKET_URL, API_BASE_URL } from '../config';
+import { MarketTiming, marketTimingService } from '../MarketTimingService';
 
 export interface LiveRateItem {
+    // ... rest of interface
     bid: number;
     ask: number;
     high: number;
@@ -21,6 +23,9 @@ class LiveRateV2Service {
     private socket: Socket | null = null;
     private marketDataCallback: ((data: any) => void) | null = null;
     private rateStore: Map<string, LiveRateItem> = new Map();
+
+    // Market Timing
+    private timingConfig: MarketTiming | null = null;
 
     // Configuration for target commodities and their expiries with static fallbacks
     private commodityConfig: Record<string, {
@@ -53,6 +58,9 @@ class LiveRateV2Service {
         };
 
     constructor() {
+        // Initialize timing
+        this.initializeTiming();
+
         console.log('Initializing ExiSoc (V2) with URL:', SOCKET_URL);
         this.socket = io(SOCKET_URL, {
             transports: ["websocket"],
@@ -79,6 +87,12 @@ class LiveRateV2Service {
             this.simulateFluctuation();
         }, 1000); // Increased interval to 3 seconds
     }
+
+    private async initializeTiming() {
+        this.timingConfig = await marketTimingService.getTiming();
+        console.log('LiveRateV2 using market timing:', this.timingConfig);
+    }
+
 
     private simulateFluctuation() {
         if (this.rateStore.size === 0) {
@@ -131,6 +145,7 @@ class LiveRateV2Service {
                 ask: item.ask
             }));
             this.marketDataCallback(results);
+            this.processIntradayData(results);
         }
     }
 
@@ -192,6 +207,7 @@ class LiveRateV2Service {
                 ask: item.ask
             }));
             this.marketDataCallback(results);
+            this.processIntradayData(results);
         }
     }
 
@@ -202,9 +218,130 @@ class LiveRateV2Service {
         }
     }
 
+
     public disconnect() {
         if (this.socket) {
             this.socket.disconnect();
+        }
+    }
+
+    // --- Intraday Aggregation Logic ---
+
+    private currentMinute: number = -1;
+    private candles: Record<string, {
+        symbol: string;
+        instrument: string;
+        expiry: string;
+        open: number;
+        high: number;
+        low: number;
+        close: number;
+        volume: number;
+        date: string;
+    }> = {};
+
+    private processIntradayData(data: any[]) {
+        if (!Array.isArray(data)) return;
+
+        const now = new Date();
+        const currentMinute = now.getMinutes();
+        const currentHour = now.getHours();
+        const currentTimeMinutes = currentHour * 60 + currentMinute;
+
+        // Use MarketTimingService
+        const startMinutes = this.timingConfig ? marketTimingService.timeToMinutes(this.timingConfig.start_time) : 540; // Default 04:00
+        const endMinutes = this.timingConfig ? marketTimingService.timeToMinutes(this.timingConfig.end_time) : 930; // Default 15:30
+
+        const isMarketOpen = currentTimeMinutes >= startMinutes && currentTimeMinutes <= endMinutes;
+
+        if (!isMarketOpen) {
+            // Respect dynamic timing config if loaded
+            if (this.timingConfig) return;
+
+            // Fallback hard check if config not yet loaded (though init calls it proactively)
+            if (currentHour >= 16 || (currentHour === 15 && currentMinute > 30) || currentHour < 4) {
+                // return; 
+            }
+        }
+
+        // Detect new minute
+        if (this.currentMinute !== -1 && this.currentMinute !== currentMinute) {
+            this.flushCandles();
+            this.candles = {}; // Reset for new minute
+        }
+        this.currentMinute = currentMinute;
+
+        data.forEach((packet: any) => {
+            const symbol = packet.commodity;
+            if (!symbol) return;
+
+            const ltp = parseFloat(packet.ltp || packet.bid); // specific to V2 structure
+            if (isNaN(ltp)) return;
+
+            if (!this.candles[symbol]) {
+                this.candles[symbol] = {
+                    symbol: symbol,
+                    instrument: packet.instrument || 'FUTCOM',
+                    expiry: packet.expiry || 'NEAR',
+                    open: ltp,
+                    high: ltp,
+                    low: ltp,
+                    close: ltp,
+                    volume: 0,
+                    date: now.toISOString()
+                };
+            } else {
+                const candle = this.candles[symbol];
+                if (ltp > candle.high) candle.high = ltp;
+                if (ltp < candle.low) candle.low = ltp;
+                candle.close = ltp;
+            }
+        });
+    }
+
+    private async flushCandles() {
+        const candlesToSend = Object.values(this.candles);
+        if (candlesToSend.length === 0) return;
+
+        console.log(`[V2] Sending ${candlesToSend.length} candles to backend at`, new Date().toLocaleTimeString());
+
+        for (const candle of candlesToSend) {
+            const dateObj = new Date(candle.date);
+            dateObj.setSeconds(0);
+
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const hours = String(dateObj.getHours()).padStart(2, '0');
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            const seconds = '00';
+
+            const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+            const payload = {
+                symbol: candle.symbol,
+                instrument: candle.instrument,
+                expiry: candle.expiry,
+                date: formattedDate,
+                open: candle.open,
+                high: candle.high,
+                low: candle.low,
+                close: candle.close,
+                volume: candle.volume,
+                change: 0
+            };
+
+            try {
+                await fetch(`${API_BASE_URL}/market-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } catch (error) {
+                console.error('[V2] Failed to store intraday data for', candle.symbol, error);
+            }
         }
     }
 }

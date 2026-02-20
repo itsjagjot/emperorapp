@@ -79,3 +79,69 @@
     color: #a0aec0;
     font-style: italic;
 }
+
+/* Table Styles */
+.history-table-container {
+    padding: 12px;
+    overflow-x: auto;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.history-table th,
+.history-table td {
+    padding: 8px 10px;
+    /* Compact padding */
+    text-align: center;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 13px;
+    color: #2d3748;
+}
+
+.history-table th {
+    background-color: #f7fafc;
+    color: #4a5568;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* Striped Rows */
+.history-table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+/* Prevent Time Wrapping */
+.history-table td:first-child {
+    white-space: nowrap;
+    font-weight: 500;
+    color: #1a202c;
+}
+
+.history-table tr:last-child td {
+    border-bottom: none;
+}
+
+.loading-text {
+    text-align: center;
+    padding: 20px;
+    color: #718096;
+    font-size: 14px;
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    color: #a0aec0;
+    font-style: italic;
+}

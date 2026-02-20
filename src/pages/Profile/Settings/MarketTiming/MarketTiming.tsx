@@ -47,8 +47,7 @@ const MarketTiming: React.FC = () => {
 
                     <div className="filter-row">
                         <div className="filter-card flex-grow">
-                            <IonSelect value="NSE" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="NSE">NSE</IonSelectOption>
+                            <IonSelect value="MCX" interface="action-sheet" className="brand-select">
                                 <IonSelectOption value="MCX">MCX</IonSelectOption>
                             </IonSelect>
                         </div>

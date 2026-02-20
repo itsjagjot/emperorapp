@@ -40,16 +40,19 @@ const Profile: React.FC = () => {
 
     // Derived state for role check
     const userRole = userData?.UserRoleName || '';
+    const isAdmin = userRole === 'SuperAdmin' || userRole === 'Admin';
 
     const sections = [
-        // Only show User Management for Admins
-        ...((userRole === 'SuperAdmin' || userRole === 'Admin') ? [{
+        // User Management: Only for Admins
+        ...(isAdmin ? [{
             label: "User Management",
             items: [
                 { title: 'Create New User', icon: personAddOutline, color: '#4a90e2', path: '/app/user-management/create' },
                 { title: 'User List', icon: listOutline, color: '#f5a623', path: '/app/user-management/list' },
             ]
         }] : []),
+
+        // My Information
         {
             label: "My Information",
             items: [
@@ -61,6 +64,8 @@ const Profile: React.FC = () => {
                 { title: 'Messages', icon: mailOutline, color: '#897e06ff', path: '/app/settings/message' },
             ]
         },
+
+        // Reports
         {
             label: "Reports",
             items: [
@@ -77,16 +82,23 @@ const Profile: React.FC = () => {
                 { title: 'Rejection Log', icon: alertCircleOutline, color: '#e1531fff', path: '/app/reports/rejection-log' },
                 { title: 'Delete Trade', icon: trashOutline, color: '#ce0000ff', path: '/app/reports/delete-trade' },
                 { title: 'Script Quantity', icon: cubeOutline, color: '#0ea985ff', path: '/app/reports/script-quantity' },
-            ]
+            ].filter(item => {
+                if (isAdmin) return true;
+                const allowed = [
+                    'Generate Bill', 'Intraday History', 'Settlements Report',
+                    'Cf Margin SquareOff', 'Rejection Log', 'Delete Trade', 'Script Quantity'
+                ];
+                return allowed.includes(item.title);
+            })
         },
+
+        // Settings
         {
             label: "Settings",
             items: [
                 { title: 'Market Timings', icon: timeOutline, color: '#7a0f38ff', path: '/app/settings/market-timing' },
                 { title: 'Set Quantity Values', icon: settingsOutline, color: '#12a275ff', path: '/app/settings/quantity-value' },
-
                 { title: 'Notification Settings', icon: notificationsOutline, color: '#be02cbff', path: '/app/settings/notification' },
-                // { title: 'Biometrics', icon: fingerPrintOutline, color: '#2c3e50' },
                 { title: 'Privacy Policy', icon: shieldCheckmarkOutline, color: '#52cc6aff', path: '/app/settings/privacy-policy' },
             ]
         }
