@@ -15,14 +15,17 @@ import {
     alertCircleOutline,
     cubeOutline
 } from 'ionicons/icons';
+import { logoutUser } from '../../services/authService';
 import './Profile.css';
 
 const Profile: React.FC = () => {
     const router = useIonRouter();
 
-    const handleLogout = () => {
-        router.push('/login', 'root', 'replace');
+    const handleLogout = async () => {
+        await logoutUser();
+        window.location.href = '/login';
     };
+
 
     const [userData, setUserData] = React.useState<any>(null);
 
@@ -118,11 +121,12 @@ const Profile: React.FC = () => {
                                 <span>{userData?.UserRoleName || 'Member'}</span>
                             </div>
                         </div>
-                        {/* <button className="header-icon-btn">
-                            <IonIcon icon={addOutline} />
-                        </button> */}
+                        <button className="header-icon-btn logout-header-btn" onClick={handleLogout} title="Logout">
+                            <IonIcon icon={powerOutline} />
+                        </button>
                     </div>
                 </IonToolbar>
+
             </IonHeader>
 
             <IonContent fullscreen className="profile-bg">

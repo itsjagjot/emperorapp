@@ -135,3 +135,32 @@ export const setQuantities = async (
 
     return await response.json();
 };
+
+/**
+ * Logout User
+ * Clears authentication data from localStorage and revokes token on server
+ */
+export const logoutUser = async (exchange: string = DEFAULT_EXCHANGE) => {
+    const url = `${API_BASE_URL}/${exchange}/auth/logout`;
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error during logout API call:', error);
+        }
+    }
+
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
+};
+
+

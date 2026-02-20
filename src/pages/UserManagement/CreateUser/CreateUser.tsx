@@ -259,7 +259,7 @@ const CreateUser: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        <div className="floating-input" style={{ marginTop: '10px' }}>
+                        {/* <div className="floating-input" style={{ marginTop: '10px' }}>
                             <IonInput
                                 label="Contact Number"
                                 labelPlacement="stacked"
@@ -269,7 +269,7 @@ const CreateUser: React.FC = () => {
                                 value={formData.contactNumber}
                                 onIonInput={e => handleInputChange('contactNumber', e.detail.value!)}
                             />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 

@@ -13,8 +13,8 @@ const Login: React.FC = () => {
     const [selectedServer, setSelectedServer] = useState<any>(null);
 
     // Form States
-    const [username, setUsername] = useState<string>('superadmin');
-    const [password, setPassword] = useState<string>('Emperor@2026!');
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);

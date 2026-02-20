@@ -79,14 +79,14 @@ const Trade: React.FC = () => {
                 onAction={() => history.push('/app/reports/generate-bill')}
             />
 
-            <div className="trade-ticker">
+            {/* <div className="trade-ticker">
                 <IonIcon icon={megaphoneOutline} className="ticker-icon" />
                 <div className="marquee-wrapper">
                     <div className="marquee-content">
                         NCDEX - CASTOR COCUDAKL GUARGUM5 GL ... LIVE RATES UPDATING ...
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <IonToolbar className="segment-toolbar">
                 <IonSegment

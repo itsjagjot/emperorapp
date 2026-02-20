@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     IonContent, IonPage, IonSearchbar, IonGrid, IonRow, IonCol, IonIcon,
     IonSelect,
@@ -8,8 +8,10 @@ import { searchOutline, refreshOutline, swapVerticalOutline } from 'ionicons/ico
 import CommonHeader from '../../../../components/CommonHeader';
 import DateFilter from '../../../../components/DateFilter';
 import './WeeklyAdmin.css';
+import UserFilter from '../../../../components/UserFilter';
 
 const WeeklyAdmin: React.FC = () => {
+    const [selectedUser, setSelectedUser] = useState('self');
     return (
         <IonPage>
             <CommonHeader title="Weekly Admin" />
@@ -18,14 +20,19 @@ const WeeklyAdmin: React.FC = () => {
                 {/* 1. Correct Header Filters (User Filter + Action Icons) */}
                 <div className="admin-filter-container">
                     <div className="dropdown-flex-grow custom-input-box compact">
-                        <IonSelect
+                        {/* <IonSelect
                             placeholder="All User"
                             interface="action-sheet"
                             className="right-icon-select theme-green-text"
                         >
                             <IonSelectOption value="all">All User</IonSelectOption>
                             <IonSelectOption value="SuperAdmin">SuperAdmin</IonSelectOption>
-                        </IonSelect>
+                        </IonSelect> */}
+                        <UserFilter
+                            onUserChange={setSelectedUser}
+                            includeSelf
+                            label="Select User"
+                        />
                     </div>
 
                     <div className="icon-actions-group">
@@ -81,7 +88,7 @@ const WeeklyAdmin: React.FC = () => {
                 </div>
 
                 {/* 5. User Detail Card */}
-                <div className="user-report-card-premium">
+                {/* <div className="user-report-card-premium">
                     <div className="user-header-flex">
                         <div className="user-avatar-green">K</div>
                         <div className="user-text-meta">
@@ -118,7 +125,7 @@ const WeeklyAdmin: React.FC = () => {
                         <div className="f-item"><label>Admin Profit</label><span className="theme-green2-text">0.00</span></div>
                         <div className="f-item"><label>Total Admin</label><span className="theme-green2-text">0.00</span></div>
                     </div>
-                </div>
+                </div> */}
 
             </IonContent>
         </IonPage>

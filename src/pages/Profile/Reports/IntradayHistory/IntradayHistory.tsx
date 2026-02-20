@@ -152,7 +152,6 @@ const IntradayHistory: React.FC = () => {
                                 {exchanges.length === 0 && (
                                     <>
                                         <IonSelectOption value="MCX">MCX</IonSelectOption>
-                                        <IonSelectOption value="NSE">NSE</IonSelectOption>
                                     </>
                                 )}
                             </IonSelect>

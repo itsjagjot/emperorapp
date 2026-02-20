@@ -144,3 +144,20 @@
     gap: 10px;
     font-size: 15px;
 }
+
+.header-icon-btn {
+    background: #f1f3f5;
+    border: none;
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-size: 20px;
+}
+
+.logout-header-btn {
+    color: #e53e3e;
+    background: #fff0f0;
+}

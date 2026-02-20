@@ -17,13 +17,13 @@ const OpenPositionUserwise: React.FC = () => {
                     <div className="filter-row">
                         <div className="filter-card half-width">
                             <IonSelect placeholder="Exchange" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="NSE">NSE</IonSelectOption>
                                 <IonSelectOption value="MCX">MCX</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="filter-card half-width">
                             <IonSelect placeholder="Select Script" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="all">Select Script</IonSelectOption>
+                                <IonSelectOption value="GOLD">GOLD</IonSelectOption>
+                                <IonSelectOption value="SILVER">SILVER</IonSelectOption>
                             </IonSelect>
                         </div>
                     </div>
