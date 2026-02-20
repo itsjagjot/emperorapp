@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     IonContent, IonPage, IonIcon, IonSelect,
-    IonSelectOption, IonDatetime, IonModal, IonSpinner
+    IonSelectOption, IonDatetime, IonModal
 } from '@ionic/react';
 import {
     timeOutline, locationOutline, desktopOutline,
@@ -13,6 +13,7 @@ import CommonHeader from '../../../components/CommonHeader';
 import DateFilter from '../../../components/DateFilter';
 import CommonSearch from '../../../components/CommonSearch';
 import { getLoginHistory } from '../../../services/authService';
+import Loader from '../../../components/Loader/Loader';
 
 interface HistoryItem {
     LoginTime: string;
@@ -112,9 +113,7 @@ const LoginHistory: React.FC = () => {
                 {/* 4. History List */}
                 <div className="history-timeline">
                     {loading ? (
-                        <div className="ion-text-center ion-padding">
-                            <IonSpinner name="crescent" />
-                        </div>
+                        <Loader />
                     ) : filteredHistory.length > 0 ? (
                         filteredHistory.map((item, i) => (
                             <div className={`history-premium-card ${item.Status === 'Success' ? 'card-success' : 'card-failed'}`} key={i}>

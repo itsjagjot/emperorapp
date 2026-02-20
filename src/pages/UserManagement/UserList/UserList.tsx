@@ -9,11 +9,11 @@ import {
     IonRow,
     IonCol,
     useIonViewWillEnter,
-    IonLoading,
     useIonToast
 } from '@ionic/react';
 import { funnel } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
+import Loader from '../../../components/Loader/Loader';
 import { API_BASE_URL } from '../../../services/config';
 import './UserList.css';
 import CommonSearch from '../../../components/CommonSearch';
@@ -99,8 +99,8 @@ const UserList: React.FC = () => {
         <IonPage className="user-list-page">
             <CommonHeader title="User List" />
 
-            <IonContent className="ion-padding">
-                <IonLoading isOpen={loading} message="Loading users..." />
+            <IonContent className="ion-padding relative">
+                {loading && <Loader />}
 
                 {/* Search and Filter Section */}
                 <div className="action-row-compact">

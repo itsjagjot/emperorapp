@@ -6,8 +6,10 @@ import { searchOutline, refreshOutline } from 'ionicons/icons';
 import CommonHeader from '../../../../components/CommonHeader';
 import DateFilter from '../../../../components/DateFilter'; // Path check kar lvo
 import './RejectionLog.css';
+import UserFilter from '../../../../components/UserFilter';
 
 const RejectionLogHistory: React.FC = () => {
+    const [selectedUser, setSelectedUser] = React.useState<string | null>(null);
     return (
         <IonPage>
             <CommonHeader title="Rejection Log History" />
@@ -19,13 +21,13 @@ const RejectionLogHistory: React.FC = () => {
                     <div className="filter-row">
                         <div className="filter-card half-width">
                             <IonSelect placeholder="Exchange" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="NSE">NSE</IonSelectOption>
                                 <IonSelectOption value="MCX">MCX</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="filter-card half-width">
                             <IonSelect placeholder="All Script" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="all">All Script</IonSelectOption>
+                                <IonSelectOption value="GOLD">GOLD</IonSelectOption>
+                                <IonSelectOption value="SILVER">SILVER</IonSelectOption>
                             </IonSelect>
                         </div>
                     </div>
@@ -36,11 +38,11 @@ const RejectionLogHistory: React.FC = () => {
                     </div>
 
                     {/* Row 3: All User Select */}
-                    <div className="filter-card full-width">
-                        <IonSelect placeholder="All User" interface="action-sheet" className="brand-select">
-                            <IonSelectOption value="all">All User</IonSelectOption>
-                        </IonSelect>
-                    </div>
+                    <UserFilter
+                        onUserChange={setSelectedUser}
+                        includeSelf
+                        label="Select User"
+                    />
 
                     {/* Row 4: Action Buttons */}
                     <div className="filter-row">

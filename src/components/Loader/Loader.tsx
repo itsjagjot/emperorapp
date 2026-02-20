@@ -1,9 +1,13 @@
 import React from 'react';
 import './Loader.css';
 
-const Loader: React.FC = () => {
+interface LoaderProps {
+    overlay?: boolean;
+}
+
+const Loader: React.FC<LoaderProps> = ({ overlay }) => {
     return (
-        <div className="loader-container">
+        <div className={`loader-container ${overlay ? 'overlay' : ''}`}>
             <div className="loader"></div>
         </div>
     );

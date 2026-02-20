@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { IonContent, IonPage, IonIcon, useIonLoading, IonButton, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonContent, IonPage, IonIcon, IonButton, IonSelect, IonSelectOption } from '@ionic/react';
 import { chevronDownOutline, searchOutline, shareOutline } from 'ionicons/icons';
+import Loader from '../../../../components/Loader/Loader';
 import CommonHeader from '../../../../components/CommonHeader';
 import DateFilter from '../../../../components/DateFilter';
 import './GenerateBill.css';
@@ -13,7 +14,7 @@ const GenerateBill: React.FC = () => {
     const [billType, setBillType] = useState<string>('default');
     const [trades, setTrades] = useState<TradeOrder[]>([]);
     const [showReport, setShowReport] = useState(false);
-    const [present, dismiss] = useIonLoading();
+    const [loading, setLoading] = useState(false);
 
     // Date range state
     const [dateRange, setDateRange] = useState<{ start: string | null, end: string | null }>({
@@ -22,9 +23,7 @@ const GenerateBill: React.FC = () => {
     });
 
     const handleSearch = async () => {
-        await present({
-            message: 'Generating Report...',
-        });
+        setLoading(true);
 
         try {
             const allTrades = await TradeService.getOrders('Success');
@@ -73,7 +72,7 @@ const GenerateBill: React.FC = () => {
             setTrades([]);
             setShowReport(true);
         } finally {
-            dismiss();
+            setLoading(false);
         }
     };
 
@@ -106,20 +105,19 @@ const GenerateBill: React.FC = () => {
                 onAction={showReport ? handleShare : undefined}
             />
 
-            <IonContent className={showReport ? "" : "ion-padding gray-bg"}>
+            <IonContent className={showReport ? "" : "ion-padding gray-bg relative"}>
+                {loading && <Loader overlay />}
                 {!showReport ? (
                     <div className="form-container">
                         <div className="mb-12">
                             <DateFilter onDateChange={(start, end) => setDateRange({ start, end })} />
                         </div>
 
-                        <div className="mb-12">
-                            <UserFilter
-                                onUserChange={setSelectedUser}
-                                includeSelf
-                                label="Select User"
-                            />
-                        </div>
+                        <UserFilter
+                            onUserChange={setSelectedUser}
+                            includeSelf
+                            label="Select User"
+                        />
 
                         <div className="action-row-compact">
                             <div className="user-filter-simple">

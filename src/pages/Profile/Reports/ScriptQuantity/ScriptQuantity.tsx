@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-    IonContent, IonPage, IonSelect, IonSelectOption, IonLoading
+    IonContent, IonPage, IonSelect, IonSelectOption
 } from '@ionic/react';
 import CommonHeader from '../../../../components/CommonHeader';
+import Loader from '../../../../components/Loader/Loader';
 import './ScriptQuantity.css';
 import { getMasterData } from '../../../../services/scriptService';
 
@@ -78,8 +79,8 @@ const ScriptQuantity: React.FC = () => {
     return (
         <IonPage>
             <CommonHeader title="Script Quantity" />
-            <IonContent className="admin-bg">
-                <IonLoading isOpen={loading} message="Loading..." />
+            <IonContent className="admin-bg relative">
+                {loading && <Loader overlay />}
 
                 <div className="script-qty-wrapper">
 

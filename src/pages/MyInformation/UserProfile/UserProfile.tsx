@@ -96,7 +96,6 @@ const UserProfile: React.FC = () => {
                                 <label>{item.label}</label>
                                 <p>{item.value}</p>
                             </div>
-                            <IonIcon icon={chevronForwardOutline} className="settings-arrow" />
                             {index < 3 && <div className="settings-divider" />}
                         </div>
                     ))}

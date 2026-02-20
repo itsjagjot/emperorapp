@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    IonContent, IonPage, IonRadioGroup, IonRadio, IonLabel, IonIcon, useIonLoading
+    IonContent, IonPage, IonRadioGroup, IonRadio, IonLabel, IonIcon
 } from '@ionic/react';
 import { downloadOutline, trendingUpOutline, trendingDownOutline, statsChartOutline } from 'ionicons/icons';
 import CommonHeader from '../../../../components/CommonHeader';
+import Loader from '../../../../components/Loader/Loader';
 import DateFilter from '../../../../components/DateFilter';
 import UserFilter from '../../../../components/UserFilter';
 import TradeService, { TradeOrder } from '../../../../services/TradeService';
@@ -27,7 +28,7 @@ const SettlementsReport: React.FC = () => {
         end: null
     });
 
-    const [present, dismiss] = useIonLoading();
+    const [loading, setLoading] = useState(false);
     const [settlementData, setSettlementData] = useState<{
         profitUsers: SettlementItem[],
         lossUsers: SettlementItem[],
@@ -44,9 +45,7 @@ const SettlementsReport: React.FC = () => {
     const [showBill, setShowBill] = useState(false);
 
     const handleSearch = async () => {
-        await present({
-            message: 'Generating Report...',
-        });
+        setLoading(true);
 
         try {
             const allTrades = await TradeService.getOrders('Success');
@@ -140,7 +139,7 @@ const SettlementsReport: React.FC = () => {
         } catch (error) {
             console.error('Failed to fetch trades', error);
         } finally {
-            dismiss();
+            setLoading(false);
         }
     };
 
@@ -198,23 +197,21 @@ const SettlementsReport: React.FC = () => {
         <IonPage>
             <CommonHeader title="Settlement Report" />
             <IonContent className="admin-bg">
-
+                {loading && <Loader overlay />}
                 <div className="settlement-wrapper">
 
                     {/* Row 1: Date Filter */}
                     <DateFilter onDateChange={(start, end) => setDateRange({ start, end })} />
 
                     {/* Row 2: Select User */}
-                    <div className="filter-card full-width">
-                        <UserFilter
-                            onUserChange={setSelectedUser}
-                            includeSelf
-                            label="Select User"
-                        />
-                    </div>
+                    <UserFilter
+                        onUserChange={setSelectedUser}
+                        includeSelf
+                        label="Select User"
+                    />
 
                     {/* Row 3: With Opening Radio Buttons */}
-                    <div className="opening-section">
+                    {/* <div className="opening-section">
                         <p className="section-label">With Opening:</p>
                         <IonRadioGroup value={withOpening} onIonChange={e => setWithOpening(e.detail.value)}>
                             <div className="radio-flex">
@@ -228,7 +225,7 @@ const SettlementsReport: React.FC = () => {
                                 </div>
                             </div>
                         </IonRadioGroup>
-                    </div>
+                    </div> */}
 
                     {/* Row 4: Action Buttons (Side by Side) */}
                     <div className="filter-row">

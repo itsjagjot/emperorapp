@@ -10,6 +10,7 @@ import {
 } from 'ionicons/icons';
 import { getMasterData } from '../../../services/scriptService';
 import CommonHeader from '../../../components/CommonHeader';
+import Loader from '../../../components/Loader/Loader';
 import { API_BASE_URL } from '../../../services/config';
 import './CreateUser.css';
 
@@ -179,7 +180,8 @@ const CreateUser: React.FC = () => {
     return (
         <IonPage className="create-user-page">
             <CommonHeader title="Create New User" />
-            <IonContent className="ion-padding emperor-bg">
+            <IonContent className="ion-padding emperor-bg relative">
+                {loading && <Loader overlay />}
 
                 {/* --- User Identity --- */}
                 <div className="modern-card">

@@ -1,51 +1,7 @@
-.compact-content {
-    --background: #ffffff;
-}
+.compact-content { --background: #f8f9fa; }
+.mb-12 { margin-bottom: 12px; }
+.mt-8 { margin-top: 8px; }
 
-/* Slim Input Styling */
-.slim-input {
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    min-height: 40px;
-    font-size: 13px;
-    --background: #ffffff;
-}
-
-.user-flex {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-/* View (Search) Button Style */
-.view-bg {
-    background: #002a4d;
-    color: #fbbf24;
-    /* Yellow icon color to match your theme */
-}
-
-/* Reset (Clear) Button Style */
-.reset-border {
-    border: 1px solid #002a4d;
-    color: #002a4d;
-    background: #ffffff;
-}
-
-/* Date Pill Styles */
-.date-row-tight {
-    margin: 0 -4px 8px -4px;
-}
-
-/* Search Bar Grey */
-.compact-grey-search {
-    --background: #f2f2f2;
-    --border-radius: 8px;
-    padding: 0;
-    min-height: 38px;
-    margin-bottom: 12px;
-}
-
-/* Balance Strip */
 .balance-strip-compact {
     background: #2a3439;
     padding: 12px 15px;
@@ -53,17 +9,68 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    margin: 10px 0;
+}
+.balance-label { color: white; font-size: 14px; font-weight: 600; }
+.balance-value { color: #4caf50; font-weight: bold; font-size: 15px; }
+
+.ledger-list { display: flex; flex-direction: column; gap: 8px; }
+.ledger-item-card {
+    background: #ffffff;
+    border: 1px solid #f1f1f1;
+    padding: 12px;
+    border-radius: 4px;
 }
 
-.balance-label {
-    color: white;
-    font-size: 14px;
+.ledger-top-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.script-name { font-size: 13px; font-weight: 700; color: #002a4d; }
+.amount-value { font-size: 14px; font-weight: 700; }
+
+.trade-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.trade-badge-group { display: flex; align-items: center; gap: 6px; }
+.qty-box {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 11px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
 }
+.type-badge {
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.type-badge.buy { background: #e8f5e9; color: #2e7d32; }
+.type-badge.sell { background: #ffebee; color: #c62828; }
+.price-flow { font-size: 12px; color: #002a4d; font-weight: 500; }
 
-.balance-value {
-    color: #4caf50;
-    font-weight: bold;
-    font-size: 15px;
+.ledger-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
 }
+.user-section { display: flex; flex-direction: column; gap: 2px; }
+.user-info-mini { display: flex; align-items: center; gap: 5px; color: #666; font-size: 12px; }
+.user-info-mini ion-icon { font-size: 14px; }
+.type-label-mini { color: #1976d2; font-size: 12px; font-weight: 500; padding-left: 19px; }
+
+.time-info-mini { display: flex; align-items: center; gap: 4px; color: #888; font-size: 11px; }
+.time-info-mini ion-icon { font-size: 13px; }
+
+.text-success { color: #2e7d32 !important; }
+.text-danger { color: #d32f2f !important; }
+.no-data-msg { text-align: center; color: #999; padding: 40px; font-size: 14px; }

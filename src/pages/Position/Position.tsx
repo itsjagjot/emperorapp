@@ -130,29 +130,6 @@ const Position: React.FC = () => {
             };
         });
 
-        // Only update positions state if values actually changed to prevent re-renders if needed, 
-        // but here we are mapping constantly. To avoid infinite loop since `positions` is in dependency array?
-        // Wait, `positions` IS in dependency array. If I `setPositions(updatedPositions)`, it will trigger effect again.
-        // I must ONLY update `positions` if `cmp` or `pnl` changed meaningfully.
-        // OR better: Don't setPositions here. Just calculate summary.
-        // AND have a separate derived state or just use `updatedPositions` for rendering? 
-        // Standard React pattern: 
-        // 1. `positions` is the source of truth (static data + live data).
-        // 2. Actually, `positions` state currently holds static API data + computed PNL.
-        // I should probably split it, but to fix quickly, I will just check if I need to update.
-        // actually `cmp` changes every tick.
-
-        // Let's just update `summary` here. For the list rendering, we can compute PNL on the fly or 
-        // update `positions` only when `liveRates` changes (which is already the dependency).
-        // But `positions` is also a dependency. 
-        // If I `setPositions` inside, I create a loop if `positions` ref changes.
-        // FIX: Remove `positions` from `setPositions` here OR remove `positions` from dependency.
-
-        // Actually, we need to update `positions` state to show P&L in the list. 
-        // To avoid loop: compare `updatedPositions` with `positions`. 
-        // Or simply remove `positions` from dependency array and rely on `liveRates` triggering updates.
-        // But we need `positions` to calculate.
-
     }, [liveRates, positions.length]); // Only re-run if liveRates change or number of positions change. NOT if values inside positions change.
 
     // Second effect to update the displayed list with live PnL without causing loops
@@ -188,10 +165,15 @@ const Position: React.FC = () => {
         if (!selectedQuoteId) return null;
         const rate = liveRates.find(r => r.commodity === selectedQuoteId);
         if (!rate) return null;
-
+        let formattedDate = '';
+        if (rate.expiry && rate.expiry.length >= 5) {
+            const day = rate.expiry.substring(0, 2);
+            const month = rate.expiry.substring(2, 5); // APR
+            formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
+        }
         return {
             id: rate.commodity,
-            name: rate.commodity,
+            name: `${rate.commodity}${formattedDate ? ' ' + formattedDate : ''}`,
             price: parseFloat(rate.ltp || '0'),
             high: parseFloat(rate.high || '0'),
             low: parseFloat(rate.low || '0'),
@@ -321,6 +303,7 @@ const Position: React.FC = () => {
                     quote={selectedQuote}
                     isOpen={!!selectedQuote}
                     onClose={() => setSelectedQuoteId(null)}
+                    onSuccess={fetchPositions}
                 />
             </IonContent>
         </IonPage>

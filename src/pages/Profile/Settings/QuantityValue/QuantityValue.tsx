@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-    IonContent, IonPage, IonInput, IonItem, IonList, IonSpinner
+    IonContent, IonPage, IonInput, IonItem, IonList
 } from '@ionic/react';
 import CommonHeader from '../../../../components/CommonHeader';
+import Loader from '../../../../components/Loader/Loader';
 import { getQuantities, setQuantities } from '../../../../services/authService';
 import { useToast } from '../../../../components/Toast/Toast';
 import './QuantityValue.css';
@@ -64,9 +65,7 @@ const QuantityValue: React.FC = () => {
                 <div className="qty-value-container">
 
                     {loading ? (
-                        <div className="ion-text-center ion-padding">
-                            <IonSpinner name="crescent" color="primary" />
-                        </div>
+                        <Loader />
                     ) : (
                         <IonList className="qty-input-list">
                             {values.map((val, index) => (

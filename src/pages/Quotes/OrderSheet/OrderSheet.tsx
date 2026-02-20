@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import {
-    IonContent, IonModal, IonIcon, IonGrid, IonRow, IonCol, IonSelect, IonSelectOption
+    IonContent, IonModal, IonIcon, IonGrid, IonRow, IonCol
 } from '@ionic/react';
 import { statsChartOutline, informationCircleOutline, listOutline, addOutline, removeOutline, chevronUpOutline, chevronDownOutline } from 'ionicons/icons';
 import TradeService from '../../../services/TradeService';
+import Loader from '../../../components/Loader/Loader';
+import { useToast } from '../../../components/Toast/Toast';
 import './OrderSheet.css';
 
 interface OrderSheetProps {
     quote: any;
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
+const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSuccess }) => {
+    const { showToast } = useToast();
+    const [processing, setProcessing] = useState(false);
     const lotSizeMap: { [key: string]: number } = {
         'SILVER': 30,
         'GOLD': 100,
@@ -40,7 +45,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
             const mappedLot = lotSizeMap[symbol.toUpperCase()] || quote.lotSize || quote.original?.lot_size || 100;
             setLotSize(mappedLot);
         }
-    }, [isOpen]);
+    }, [isOpen, quote]);
 
     // Timer to update time every 2 seconds
     useEffect(() => {
@@ -60,6 +65,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
     const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
 
     const handleTrade = async (action: 'Buy' | 'Sell') => {
+        setProcessing(true);
         try {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             await TradeService.placeOrder({
@@ -76,10 +82,13 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
                 device: 'Mobile', // Hardcoded as this is a mobile app
                 // brokerage defaults handled on backend
             });
-            alert('Order placed successfully!');
+            showToast('Order placed successfully!', 'success');
+            if (onSuccess) onSuccess();
             onClose();
         } catch (error: any) {
-            alert(error.message || 'Failed to place order.');
+            showToast(error.message || 'Failed to place order.', 'error');
+        } finally {
+            setProcessing(false);
         }
     };
 
@@ -92,6 +101,11 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
             className="minimal-canvas"
         >
             <IonContent className="ion-padding">
+                {processing && (
+                    <div className="processing-overlay">
+                        <Loader />
+                    </div>
+                )}
                 <div className="canvas-wrapper">
                     {/* Header Info from */}
                     <div className="canvas-header">
@@ -176,8 +190,8 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose }) => {
 
                     {/* Trade Actions - Buy uses your premium gradient */}
                     <div className="button-group">
-                        <button className="minimal-btn sell" onClick={() => handleTrade('Sell')}>SELL</button>
-                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')}>BUY</button>
+                        <button className="minimal-btn sell" onClick={() => handleTrade('Sell')} disabled={processing}>SELL</button>
+                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={processing}>BUY</button>
                     </div>
 
                     {/* Utility Row */}

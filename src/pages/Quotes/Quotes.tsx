@@ -154,6 +154,7 @@ const Quotes: React.FC = () => {
                     quote={selectedQuote}
                     isOpen={!!selectedQuote}
                     onClose={() => setSelectedQuoteId(null)}
+                    onSuccess={() => { /* Market data is live, no extra refresh needed here */ }}
                 />
             </IonContent>
         </IonPage>

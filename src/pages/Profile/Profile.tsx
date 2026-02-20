@@ -118,9 +118,9 @@ const Profile: React.FC = () => {
                                 <span>{userData?.UserRoleName || 'Member'}</span>
                             </div>
                         </div>
-                        <button className="header-icon-btn">
+                        {/* <button className="header-icon-btn">
                             <IonIcon icon={addOutline} />
-                        </button>
+                        </button> */}
                     </div>
                 </IonToolbar>
             </IonHeader>

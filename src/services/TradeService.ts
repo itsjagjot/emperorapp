@@ -86,6 +86,20 @@ class TradeService {
             throw error;
         }
     }
+
+    async getAccountSummary() {
+        try {
+            const exchange = this.getExchange();
+            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/account-summary`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching account summary:', error);
+            throw error;
+        }
+    }
 }
 
 export default new TradeService();

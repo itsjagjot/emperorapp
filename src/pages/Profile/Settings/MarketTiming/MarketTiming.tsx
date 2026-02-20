@@ -1,16 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     IonContent, IonPage, IonSelect, IonSelectOption, IonIcon, IonButton
 } from '@ionic/react';
 import { chevronBackOutline, chevronForwardOutline, searchOutline } from 'ionicons/icons';
 import CommonHeader from '../../../../components/CommonHeader';
+import { marketTimingService, MarketTiming as MarketTimingData } from '../../../../services/MarketTimingService';
+import Loader from '../../../../components/Loader/Loader';
 import './MarketTiming.css';
 
 const MarketTiming: React.FC = () => {
-    const [currentDate, setCurrentDate] = useState(new Date(2026, 1, 1)); // February 2026 default
-    const [selectedDay, setSelectedDay] = useState<number>(5);
+    const [currentDate, setCurrentDate] = useState(new Date()); // Use current date
+    const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate());
+    const [loading, setLoading] = useState(true);
+    const [timings, setTimings] = useState<MarketTimingData | null>(null);
 
-    // Get days in month
+    useEffect(() => {
+        const fetchTiming = async () => {
+            setLoading(true);
+            try {
+                const data = await marketTimingService.getTiming();
+                setTimings(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTiming();
+    }, []);
+
+    const formatToAMPM = (timeStr: string) => {
+        if (!timeStr) return '';
+        const [hours, minutes] = timeStr.split(':');
+        let h = parseInt(hours);
+        const m = minutes;
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        h = h ? h : 12; // the hour '0' should be '12'
+        return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
+    };
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
     const monthName = currentDate.toLocaleString('default', { month: 'long' });
     const year = currentDate.getFullYear();
@@ -42,7 +70,8 @@ const MarketTiming: React.FC = () => {
     return (
         <IonPage>
             <CommonHeader title="Market Timing" />
-            <IonContent className="admin-bg">
+            <IonContent className="admin-bg relative">
+                {loading && <Loader overlay />}
                 <div className="market-timing-wrapper">
 
                     <div className="filter-row">
@@ -92,7 +121,9 @@ const MarketTiming: React.FC = () => {
                                 <span className="day-val">{selectedDay}</span>
                             </div>
                             <div className={`time-strip ${isMarketOpen ? 'bg-open' : 'bg-closed'}`}>
-                                {isMarketOpen ? '09:16 AM - 03:30 PM' : '12:00 AM - 12:00 AM'}
+                                {isMarketOpen ? (
+                                    timings ? `${formatToAMPM(timings.start_time)} - ${formatToAMPM(timings.end_time)}` : '09:00 AM - 03:30 PM'
+                                ) : '12:00 AM - 12:00 AM'}
                             </div>
                         </div>
                     </div>

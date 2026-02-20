@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonBackButton,
-    IonRefresher, IonRefresherContent, IonIcon, IonSpinner
+    IonRefresher, IonRefresherContent, IonIcon
 } from '@ionic/react';
 import { notificationsOutline, checkmarkDoneOutline, chatboxEllipsesOutline } from 'ionicons/icons';
 import { getNotifications, markNotificationRead, Notification } from '../../services/notificationService';
+import Loader from '../../components/Loader/Loader';
 import './Notifications.css';
 
 const Notifications: React.FC = () => {
@@ -57,9 +58,7 @@ const Notifications: React.FC = () => {
                 </IonRefresher>
 
                 {loading && notifications.length === 0 ? (
-                    <div className="loading-state">
-                        <IonSpinner name="crescent" />
-                    </div>
+                    <Loader />
                 ) : notifications.length === 0 ? (
                     <div className="empty-state">
                         <IonIcon icon={notificationsOutline} />

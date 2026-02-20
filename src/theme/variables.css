@@ -158,6 +158,11 @@ ion-tab-bar {
   border-color: #b5bcc7;
 }
 
+.action-sheet-group {
+  max-height: 250px !important;
+  overflow-y: auto !important;
+}
+
 /* Global Action Sheet Styles */
 .action-sheet-button.sc-ion-action-sheet-ios,
 .action-sheet-button.sc-ion-action-sheet-md {

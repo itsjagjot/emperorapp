@@ -6,8 +6,10 @@ import { searchOutline, refreshOutline } from 'ionicons/icons';
 import CommonHeader from '../../../../components/CommonHeader';
 import DateFilter from '../../../../components/DateFilter';
 import './DeleteTrade.css';
+import UserFilter from '../../../../components/UserFilter';
 
 const DeleteTrade: React.FC = () => {
+    const [selectedUser, setSelectedUser] = React.useState<string | null>(null);
     return (
         <IonPage>
             <CommonHeader title="Delete Trades" />
@@ -19,13 +21,13 @@ const DeleteTrade: React.FC = () => {
                     <div className="filter-row">
                         <div className="filter-card half-width">
                             <IonSelect placeholder="Exchange" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="NSE">NSE</IonSelectOption>
                                 <IonSelectOption value="MCX">MCX</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="filter-card half-width">
                             <IonSelect placeholder="Select Script" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="all">All Script</IonSelectOption>
+                                <IonSelectOption value="GOLD">GOLD</IonSelectOption>
+                                <IonSelectOption value="SILVER">SILVER</IonSelectOption>
                             </IonSelect>
                         </div>
                     </div>
@@ -34,18 +36,18 @@ const DeleteTrade: React.FC = () => {
                     <div className="filter-row">
                         <div className="filter-card half-width">
                             <IonSelect placeholder="Select Status" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="delete_admin">Delete by admin</IonSelectOption>
-                                <IonSelectOption value="cancel_admin">Canceled by admin</IonSelectOption>
+                                {/* <IonSelectOption value="delete_admin">Delete by admin</IonSelectOption>
+                                <IonSelectOption value="cancel_admin">Canceled by admin</IonSelectOption> */}
                                 <IonSelectOption value="cancel_user">Canceled by user</IonSelectOption>
                                 <IonSelectOption value="expired">Expired</IonSelectOption>
                                 <IonSelectOption value="modified">Modified</IonSelectOption>
                             </IonSelect>
                         </div>
-                        <div className="filter-card half-width">
-                            <IonSelect placeholder="All User" interface="action-sheet" className="brand-select">
-                                <IonSelectOption value="all">All User</IonSelectOption>
-                            </IonSelect>
-                        </div>
+                        <UserFilter
+                            onUserChange={setSelectedUser}
+                            includeSelf
+                            label="Select User"
+                        />
                     </div>
 
                     {/* Row 3: Date Filter (Custom Component) */}
