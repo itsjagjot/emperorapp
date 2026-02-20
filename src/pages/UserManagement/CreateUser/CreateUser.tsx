@@ -38,11 +38,13 @@ const CreateUser: React.FC = () => {
             if (result && result.Success && result.Data) {
                 setMasterExchanges(result.Data);
                 const initialExchanges = result.Data.map((ex: any) => ({
+                    id: ex.id,
                     name: ex.name,
                     enabled: ex.name === 'EMPEROR', // Default enable EMPEROR if exists
                     turnover: true,
                     lot: false,
                     group: ex.groups && ex.groups.length > 0 ? ex.groups[0].name : 'Default',
+                    groupId: ex.groups && ex.groups.length > 0 ? ex.groups[0].id : null,
                     groups: ex.groups || [] // Store available groups here
                 }));
                 setExchanges(initialExchanges);
@@ -114,7 +116,9 @@ const CreateUser: React.FC = () => {
                         enabled: true,
                         turnover: ex.turnover,
                         lot: ex.lot,
-                        group: ex.group
+                        group: ex.group,
+                        exchangeId: ex.id,
+                        groupId: ex.groupId
                     };
                 }
             });
@@ -318,7 +322,13 @@ const CreateUser: React.FC = () => {
                                             interface="popover"
                                             value={ex.group}
                                             toggleIcon={chevronDownOutline}
-                                            onIonChange={e => handleExchangeChange(i, 'group', e.detail.value)}
+                                            onIonChange={e => {
+                                                const selectedGroup = ex.groups.find((g: any) => g.name === e.detail.value);
+                                                handleExchangeChange(i, 'group', e.detail.value);
+                                                if (selectedGroup) {
+                                                    handleExchangeChange(i, 'groupId', selectedGroup.id);
+                                                }
+                                            }}
                                         >
                                             {ex.groups && ex.groups.map((grp: any) => (
                                                 <IonSelectOption key={grp.id} value={grp.name}>{grp.name}</IonSelectOption>

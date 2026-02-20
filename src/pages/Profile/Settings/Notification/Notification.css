@@ -28,7 +28,7 @@ ion-toggle {
     --handle-width: 22px;
     --handle-height: 22px;
     --track-background: #e0e6ed;
-    --track-background-checked: #002b49;
+    --track-background-checked: #2dd36f;
     /* Theme Navy Blue */
     padding-right: 5px;
 }

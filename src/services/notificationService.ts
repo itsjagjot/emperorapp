@@ -45,3 +45,49 @@ export const markNotificationRead = async (
 
     return await response.json();
 };
+
+export interface NotificationSettings {
+    market_order: boolean;
+    pending_order: boolean;
+    execute_pending: boolean;
+    delete_pending: boolean;
+    trading_sound: boolean;
+}
+
+export const getNotificationSettings = async (
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<{ success: boolean; data: NotificationSettings }> => {
+    const url = `${API_BASE_URL}/${exchange}/notification-settings`;
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    return await response.json();
+};
+
+export const updateNotificationSettings = async (
+    settings: NotificationSettings,
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<{ success: boolean; message: string; data: NotificationSettings }> => {
+    const url = `${API_BASE_URL}/${exchange}/notification-settings`;
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'POST', // Note: Using POST for update/create as per Laravel route
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(settings)
+    });
+
+    return await response.json();
+};

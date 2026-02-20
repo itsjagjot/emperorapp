@@ -8,7 +8,7 @@ export const SOCKET_URL = 'https://socket.swamijewellers.com';
 // export const SOCKET_URL = 'https://endlessly-outgoing-cowbird.ngrok-free.app';
 
 // Default exchange for API routes
-export const DEFAULT_EXCHANGE = 'demo';
+export const DEFAULT_EXCHANGE = 'EMPEROR';
 
 // App Mode: 'dev' or 'prod'
 export const APP_MODE: 'dev' | 'prod' = 'prod';
