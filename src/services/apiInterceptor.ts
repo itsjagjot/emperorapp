@@ -1,8 +1,4 @@
-/**
- * Global API Interceptor
- * This script overrides the global fetch function to catch 401/403 errors
- * and automatically redirect the user to the login page.
- */
+import '../components/Loader/Loader.css';
 
 const originalFetch = window.fetch;
 
@@ -19,12 +15,25 @@ window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
             if (!isLoginPage) {
                 console.warn(`Global Auth Interceptor: Unauthorized access detected (Status ${response.status}). Redirecting to login...`);
 
+                // Use the application's base Loader structure
+                const container = document.createElement('div');
+                container.className = 'loader-container overlay';
+                container.style.zIndex = '99999'; // Ensure it's on top
+
+                const loader = document.createElement('div');
+                loader.className = 'loader';
+
+                container.appendChild(loader);
+                document.body.appendChild(container);
+
                 // Force clear all storage to ensure a clean state
                 localStorage.clear();
                 sessionStorage.clear();
 
-                // Redirect to login page
-                window.location.href = '/login';
+                // Redirect to login page after a tiny delay for visual feedback
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 800);
             }
         }
 

@@ -15,15 +15,20 @@ interface CommonHeaderProps {
     backLink?: string;
     actionIcon?: string;
     onAction?: () => void;
+    onBack?: () => void;
 }
 
-const CommonHeader: React.FC<CommonHeaderProps> = ({ title, backLink = "/app/profile", actionIcon, onAction }) => {
+const CommonHeader: React.FC<CommonHeaderProps> = ({ title, backLink = "/app/profile", actionIcon, onAction, onBack }) => {
     return (
         <IonHeader className="common-header">
             <IonToolbar>
                 <IonButtons slot="start">
-                    {backLink == 'back()' ? (
+                    {onBack ? (
+                        <IonButton onClick={onBack}><IonIcon icon={chevronBackOutline} /></IonButton>
+                    ) : backLink == 'back()' ? (
                         <IonButton onClick={() => window.history.back()}><IonIcon icon={chevronBackOutline} /></IonButton>
+                    ) : backLink == 'none' ? (
+                        null
                     ) : (
                         <IonBackButton defaultHref={backLink} text="" />
                     )}

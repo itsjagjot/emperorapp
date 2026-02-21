@@ -1,0 +1,110 @@
+/* Common Filter Modal Styling */
+.common-filter-modal {
+    --border-radius: 24px 24px 0 0;
+}
+
+.common-filter-modal ion-header {
+    background: #fff;
+    padding-top: 10px;
+}
+
+.common-filter-modal ion-title {
+    color: #ccaa00;
+    font-weight: 800;
+    font-size: 18px;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.common-filter-modal ion-button {
+    --color: #ccaa00;
+}
+
+.filter-form {
+    padding: 5px 0 20px;
+}
+
+.filter-section-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0b2a47;
+    margin: 20px 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.date-inputs-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.pill-date-box {
+    flex: 1;
+    background: #f1f3f5;
+    border-radius: 30px;
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.date-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+.pill-date-box ion-datetime-button {
+    --background: transparent;
+    --color: #0b2a47;
+    font-weight: 700;
+}
+
+.select-input-group {
+    margin-bottom: 18px;
+}
+
+.select-input-group ion-label {
+    display: block;
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.filter-select {
+    --background: #f8f9fa;
+    --padding-start: 15px;
+    --padding-end: 15px;
+    --border-radius: 8px;
+    font-weight: 700;
+    color: #1a334d;
+    border: 1px solid #e9ecef;
+}
+
+.filter-actions-row {
+    display: flex;
+    gap: 15px;
+    margin-top: 35px;
+}
+
+.action-btn {
+    flex: 1;
+    margin: 0;
+    --border-radius: 10px;
+    font-weight: 700;
+    height: 52px;
+    font-size: 16px;
+}
+
+.action-btn.main.apply-btn {
+    --background: #113322;
+    --color: white;
+    --box-shadow: 0 4px 12px rgba(17, 51, 34, 0.3);
+}
+
+.action-btn.reset-btn {
+    --border-color: #ddd;
+    --color: #888;
+}

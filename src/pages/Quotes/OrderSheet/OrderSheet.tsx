@@ -69,7 +69,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
         try {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             await TradeService.placeOrder({
-                name: quote.name,
+                name: `MCX ${quote.name}`,
                 symbol: quote.original?.commodity || quote.name,
                 symbol_instrument: quote.original?.instrument || 'FUTCOM',
                 symbol_expiry: quote.original?.expiry || '',
@@ -111,7 +111,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                     <div className="canvas-header">
                         <div className="header-top-row">
                             <h3>
-                                MCX {quote.name}
+                                {`MCX ${quote.name}`}
                                 <div className={`price-change-row ${quote.change >= 0 ? 'up' : 'down'}`}>
                                     {quote.change.toFixed(0)} ({quote.changePercent.toFixed(2)}%)
                                 </div>

@@ -55,12 +55,22 @@ class TradeService {
         }
     }
 
-    async getOrders(status?: string) {
+    async getOrders(status?: string, filters?: { fromDate?: string | null, toDate?: string | null, exchange?: string | null, symbol?: string | null }) {
         try {
-            const exchange = this.getExchange();
-            const url = status
-                ? `${API_BASE_URL}/${exchange}/orders?status=${status}`
-                : `${API_BASE_URL}/${exchange}/orders`;
+            const baseUrlExchange = this.getExchange();
+            let url = `${API_BASE_URL}/${baseUrlExchange}/orders`;
+            const params = new URLSearchParams();
+
+            if (status) params.append('status', status);
+            if (filters?.fromDate) params.append('from_date', filters.fromDate);
+            if (filters?.toDate) params.append('to_date', filters.toDate);
+            if (filters?.exchange) params.append('exchange_name', filters.exchange);
+            if (filters?.symbol) params.append('symbol', filters.symbol);
+
+            const queryString = params.toString();
+            if (queryString) {
+                url += `?${queryString}`;
+            }
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -97,6 +107,60 @@ class TradeService {
             return await response.json();
         } catch (error) {
             console.error('Error fetching account summary:', error);
+            throw error;
+        }
+    }
+
+    async squareOffAll() {
+        try {
+            const exchange = this.getExchange();
+            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/square-off`, {
+                method: 'POST',
+                headers: this.getHeaders()
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to square off positions');
+            }
+            return data;
+        } catch (error) {
+            console.error('Error squaring off positions:', error);
+            throw error;
+        }
+    }
+
+    async cancelOrder(id: number) {
+        try {
+            const exchange = this.getExchange();
+            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/${id}/cancel`, {
+                method: 'POST',
+                headers: this.getHeaders()
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to cancel order');
+            }
+            return data;
+        } catch (error) {
+            console.error('Error canceling order:', error);
+            throw error;
+        }
+    }
+
+    async cancelAllPending() {
+        try {
+            const exchange = this.getExchange();
+            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/cancel-all-pending`, {
+                method: 'POST',
+                headers: this.getHeaders()
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to cancel pending orders');
+            }
+            return data;
+        } catch (error) {
+            console.error('Error canceling all pending orders:', error);
             throw error;
         }
     }

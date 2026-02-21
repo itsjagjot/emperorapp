@@ -11,6 +11,7 @@ import {
     useIonViewWillEnter,
     useIonToast
 } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { funnel } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
 import Loader from '../../../components/Loader/Loader';
@@ -32,6 +33,7 @@ interface User {
 }
 
 const UserList: React.FC = () => {
+    const history = useHistory();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [searchText, setSearchText] = useState<string>('');
@@ -126,7 +128,12 @@ const UserList: React.FC = () => {
                 )}
 
                 {users.map((user) => (
-                    <div className="user-card" key={user.UserId}>
+                    <div
+                        className="user-card"
+                        key={user.UserId}
+                        onClick={() => history.push(`/app/user-management/details/${user.UserId}`)}
+                        style={{ cursor: 'pointer' }}
+                    >
                         <div className="card-header">
                             <div className="user-info">
                                 <div className="avatar-circle">

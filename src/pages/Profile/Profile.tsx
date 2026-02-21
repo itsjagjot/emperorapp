@@ -16,14 +16,25 @@ import {
     cubeOutline
 } from 'ionicons/icons';
 import { logoutUser } from '../../services/authService';
+import Loader from '../../components/Loader/Loader';
 import './Profile.css';
 
 const Profile: React.FC = () => {
     const router = useIonRouter();
+    const [loggingOut, setLoggingOut] = React.useState(false);
 
     const handleLogout = async () => {
-        await logoutUser();
-        window.location.href = '/login';
+        setLoggingOut(true);
+        try {
+            await logoutUser();
+            // Add a small delay so user can see the loader
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        } catch (error) {
+            console.error('Logout failed:', error);
+            setLoggingOut(false);
+        }
     };
 
 
@@ -109,6 +120,7 @@ const Profile: React.FC = () => {
 
     return (
         <IonPage className="profile-page">
+            {loggingOut && <Loader overlay />}
             <IonHeader className="ion-no-border">
                 <IonToolbar className="profile-nav">
                     <div className="profile-header-content">

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import {
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
     IonGrid, IonRow, IonCol, IonSearchbar, IonIcon,
-    useIonViewWillEnter
+    useIonViewWillEnter, IonActionSheet
 } from '@ionic/react';
+import { useToast } from '../../components/Toast/Toast';
 import {
     refreshOutline, megaphoneOutline, chevronUpOutline,
     chevronDownOutline, ellipsisVerticalOutline, briefcaseOutline
@@ -41,8 +42,10 @@ const Position: React.FC = () => {
         freeMargin: 100000
     });
 
+    const { showToast } = useToast();
     const [liveRates, setLiveRates] = useState<any[]>([]);
     const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
+    const [showActionSheet, setShowActionSheet] = useState(false);
 
     const fetchPositions = async () => {
         setLoading(true);
@@ -172,6 +175,19 @@ const Position: React.FC = () => {
         setSelectedQuoteId(pos.symbol);
     };
 
+    const handleSquareOffAll = async () => {
+        try {
+            setLoading(true);
+            const response = await TradeService.squareOffAll();
+            showToast(response.message || 'All positions squared off successfully', 'success');
+            fetchPositions();
+        } catch (error: any) {
+            showToast(error.message || 'Failed to square off positions', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const getSelectedQuote = () => {
         if (!selectedQuoteId) return null;
         const rate = liveRates.find(r => r.commodity === selectedQuoteId);
@@ -255,7 +271,7 @@ const Position: React.FC = () => {
                     ></IonSearchbar>
                     <div className="search-actions">
                         <IonIcon icon={refreshOutline} className="refresh-btn" onClick={fetchPositions} />
-                        <IonIcon icon={ellipsisVerticalOutline} className="menu-btn" />
+                        <IonIcon icon={ellipsisVerticalOutline} className="menu-btn" onClick={() => setShowActionSheet(true)} />
                     </div>
                 </div>
 
@@ -268,7 +284,7 @@ const Position: React.FC = () => {
                             {Array.isArray(positions) && positions.map((pos, idx) => (
                                 <div key={idx} className="position-item" onClick={() => handlePositionClick(pos)}>
                                     <div className="pos-top">
-                                        <span className="pos-symbol">MCX {pos.name || ''}</span>
+                                        <span className="pos-symbol">{pos.name || ''}</span>
                                         <span className={`pos-pnl ${pos.pnl && pos.pnl >= 0 ? 'up' : 'down'}`}>
                                             {pos.pnl ? pos.pnl.toFixed(0) : '0'}
                                         </span>
@@ -308,6 +324,22 @@ const Position: React.FC = () => {
                     isOpen={!!selectedQuote}
                     onClose={() => setSelectedQuoteId(null)}
                     onSuccess={fetchPositions}
+                />
+
+                <IonActionSheet
+                    isOpen={showActionSheet}
+                    onDidDismiss={() => setShowActionSheet(false)}
+                    buttons={[
+                        {
+                            text: 'Square Off all Position',
+                            role: 'destructive',
+                            handler: handleSquareOffAll
+                        },
+                        {
+                            text: 'Cancel',
+                            role: 'cancel'
+                        }
+                    ]}
                 />
             </IonContent>
         </IonPage>

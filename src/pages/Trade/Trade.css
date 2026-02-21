@@ -74,10 +74,10 @@ ion-segment-button {
     padding: 0;
 }
 
-.filter-btn {
+.trade-filter-btn {
     --color: #666;
     margin-left: 5px;
-    height: 38px;
+    height: auto;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
@@ -316,7 +316,7 @@ ion-segment-button {
 .detail-table .table-row {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
+    padding: 10px 0;
     border-bottom: 1px solid #f0f0f0;
 }
 
@@ -332,6 +332,7 @@ ion-segment-button {
     --background: #f9f9f9;
 }
 
+/* Empty State Styling */
 .empty-state-wrapper {
     display: flex;
     flex-direction: column;
