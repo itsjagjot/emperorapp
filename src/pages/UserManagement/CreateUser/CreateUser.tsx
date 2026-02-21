@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     IonContent, IonPage, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption,
-    IonToggle, IonCheckbox, IonButton, IonIcon, IonList, useIonToast
+    IonToggle, IonCheckbox, IonButton, IonIcon, IonList, useIonToast, useIonViewWillEnter
 } from '@ionic/react';
 import {
     personCircleOutline, personOutline, lockClosedOutline, globeOutline,
@@ -32,16 +32,16 @@ const CreateUser: React.FC = () => {
     const [exchanges, setExchanges] = useState<any[]>([]);
     const [masterExchanges, setMasterExchanges] = useState<any[]>([]);
 
-    // Fetch Master Data
-    useEffect(() => {
-        const fetchMasterData = async () => {
-            const result = await getMasterData();
+    const fetchMasterData = async () => {
+        setLoading(true);
+        try {
+            const result = await getMasterData(true); // forceRefresh = true
             if (result && result.Success && result.Data) {
                 setMasterExchanges(result.Data);
                 const initialExchanges = result.Data.map((ex: any) => ({
                     id: ex.id,
                     name: ex.name,
-                    enabled: ex.name === 'EMPEROR', // Default enable EMPEROR if exists
+                    enabled: false, // Don't default enable, let user choose
                     turnover: true,
                     lot: false,
                     group: ex.groups && ex.groups.length > 0 ? ex.groups[0].name : 'Default',
@@ -50,9 +50,16 @@ const CreateUser: React.FC = () => {
                 }));
                 setExchanges(initialExchanges);
             }
-        };
+        } catch (error) {
+            console.error('Error fetching master data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useIonViewWillEnter(() => {
         fetchMasterData();
-    }, []);
+    });
 
     const handleInputChange = (key: string, value: string) => {
         setFormData(prev => ({ ...prev, [key]: value }));

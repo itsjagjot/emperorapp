@@ -1,7 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-    IonContent, IonPage, IonSelect, IonSelectOption
+    IonContent, IonPage, IonSelect, IonSelectOption, useIonViewWillEnter
 } from '@ionic/react';
 import CommonHeader from '../../../../components/CommonHeader';
 import Loader from '../../../../components/Loader/Loader';
@@ -15,14 +15,10 @@ const ScriptQuantity: React.FC = () => {
     const [scripts, setScripts] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    useEffect(() => {
-        loadData();
-    }, []);
-
     const loadData = async () => {
         setLoading(true);
         try {
-            const result = await getMasterData();
+            const result = await getMasterData(true); // forceRefresh = true
             if (result && result.Success && result.Data) {
                 setMasterData(result.Data);
 
@@ -43,6 +39,10 @@ const ScriptQuantity: React.FC = () => {
             setLoading(false);
         }
     };
+
+    useIonViewWillEnter(() => {
+        loadData();
+    });
 
     const handleExchangeChange = (e: CustomEvent) => {
         const exName = e.detail.value;
