@@ -1,0 +1,159 @@
+/* e:\laragon\www\emperorapp\src\pages\Quotes\AddSymbol\AddSymbolModal.css */
+.add-sym-header {
+    --background: #f4f5f9;
+}
+
+.add-sym-header ion-toolbar {
+    --background: #f4f5f9;
+    --border-color: transparent;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.sym-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+}
+
+.back-btn,
+.refresh-btn {
+    --color: #1a1a1a;
+    font-size: 24px;
+}
+
+.sym-search-row {
+    padding: 10px 15px;
+    background: #f4f5f9;
+}
+
+.sym-search-box {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sym-search-box .s-icon {
+    font-size: 20px;
+    color: #7a7a7a;
+    margin-right: 8px;
+}
+
+.sym-search-box input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: #333;
+    background: transparent;
+}
+
+.sym-search-box input::placeholder {
+    color: #999;
+}
+
+.s-counts {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #666;
+    border-left: 1px solid #e0e0e0;
+    padding-left: 10px;
+}
+
+.clear-icon {
+    margin-left: 5px;
+    font-size: 18px;
+    color: #999;
+    cursor: pointer;
+}
+
+.sym-content {
+    --background: #ffffff;
+}
+
+.sym-list {
+    background: transparent;
+    padding: 0;
+}
+
+.sym-item {
+    --background: transparent;
+    --min-height: 54px;
+    --padding-start: 15px;
+    --inner-padding-end: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.group-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0b2e59;
+    /* Matching the deep blue from screenshot */
+    text-transform: uppercase;
+}
+
+.group-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0b2e59;
+    margin-right: 10px;
+}
+
+.group-arrow {
+    color: #0b2e59;
+    font-size: 20px;
+}
+
+/* Child symbol list */
+.custom-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid #a0a0a0;
+    border-radius: 4px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-checkbox.checked {
+    border-color: #27ae60;
+    background: #ffffff;
+}
+
+.check-icon {
+    width: 16px;
+    height: 16px;
+    color: #27ae60;
+}
+
+.child-item {
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+}
+
+.sym-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0b2e59;
+    margin-bottom: 4px;
+}
+
+.sym-sub {
+    font-size: 13px;
+    color: #0b2e59;
+    margin-bottom: 4px;
+}
+
+.sym-meta {
+    font-size: 12px;
+    color: #888;
+}

@@ -10,11 +10,42 @@ import { statsChartOutline, informationCircleOutline, listOutline, searchOutline
 import './Quotes.css';
 import OrderSheet from './OrderSheet/OrderSheet';
 import Loader from '../../components/Loader/Loader';
+import AddSymbolModal from './AddSymbol/AddSymbolModal';
 
 const Quotes: React.FC = () => {
     const [searchText, setSearchText] = useState('');
     const [quotes, setQuotes] = useState<any[]>([]);
+    const [isAddSymbolOpen, setIsAddSymbolOpen] = useState(false);
+
+    const userStr = localStorage.getItem('user');
+    const userData = userStr ? JSON.parse(userStr) : null;
+    const userRole = userData?.UserRoleName || '';
+    const isAdmin = userRole === 'SuperAdmin' || userRole === 'Admin';
     const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
+
+    // Load persisted selected symbols
+    const [selectedSymbols, setSelectedSymbols] = useState<string[]>(() => {
+        const saved = localStorage.getItem('selected_symbols');
+        if (saved) {
+            try { return JSON.parse(saved); } catch (e) { }
+        }
+        return [];
+    });
+
+    const handleSelectionChange = (newSelection: string[]) => {
+        setSelectedSymbols(newSelection);
+        localStorage.setItem('selected_symbols', JSON.stringify(newSelection));
+    };
+
+    const [isUnlocked, setIsUnlocked] = useState(localStorage.getItem('menuUnlocked') === 'true' || !isAdmin);
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsUnlocked(localStorage.getItem('menuUnlocked') === 'true');
+        };
+        window.addEventListener('menuUnlockedChanged', handleStorageChange);
+        return () => window.removeEventListener('menuUnlockedChanged', handleStorageChange);
+    }, []);
 
     // Store previous prices to determine fluctuation
     // Key: instrument + commodity + expiry
@@ -93,24 +124,53 @@ const Quotes: React.FC = () => {
         // So hitting other pages might stop this update, which is fine for now as we only need it here.
     }, []);
 
-    const filteredQuotes = quotes.filter(q => q.name.toLowerCase().includes(searchText.toLowerCase()));
+    // ONLY show quotes that have been selected from the AddSymbolModal
+    const watchListQuotes = quotes.filter(q => selectedSymbols.includes(q.id));
+    const filteredQuotes = watchListQuotes.filter(q => q.name.toLowerCase().includes(searchText.toLowerCase()));
 
     // Derived state for the modal to ensure it gets live updates
     const selectedQuote = selectedQuoteId !== null ? quotes.find(q => q.id === selectedQuoteId) || null : null;
+
+    let pressTimer: any;
+    const handlePressStart = () => {
+        if (isAdmin && !isUnlocked) {
+            pressTimer = setTimeout(() => {
+                localStorage.setItem('menuUnlocked', 'true');
+                setIsUnlocked(true);
+                window.dispatchEvent(new Event('menuUnlockedChanged'));
+                // Trigger tactile feedback mechanism if available
+                if (navigator.vibrate) navigator.vibrate(200);
+            }, 2500); // 2.5 seconds
+        }
+    };
+
+    const handlePressEnd = () => {
+        if (pressTimer) {
+            clearTimeout(pressTimer);
+        }
+    };
 
     return (
         <IonPage>
             <IonHeader className="ion-no-border">
                 <IonToolbar className="minimal-toolbar">
-                    <IonTitle>Marketwatch</IonTitle>
+                    <IonTitle
+                        onMouseDown={handlePressStart}
+                        onMouseUp={handlePressEnd}
+                        onMouseLeave={handlePressEnd}
+                        onTouchStart={handlePressStart}
+                        onTouchEnd={handlePressEnd}>
+                        Marketwatch
+                    </IonTitle>
                 </IonToolbar>
                 <div className="minimal-search-row">
-                    <div className="search-input-container">
+                    <div className="search-input-container" onClick={() => setIsAddSymbolOpen(true)}>
                         <IonIcon icon={searchOutline} />
                         <input
                             placeholder="Search & Add"
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
+                            readOnly // Prevent keyboard pop-up, let it act as a button
                         />
                     </div>
                     <span className="count-badge">{filteredQuotes.length}/100</span>
@@ -130,7 +190,10 @@ const Quotes: React.FC = () => {
                 ) : (
                     <div className="minimal-list">
                         {filteredQuotes.map(quote => (
-                            <div className="minimal-item" key={quote.id} onClick={() => setSelectedQuoteId(quote.id)}>
+                            <div className="minimal-item" key={quote.id} onClick={() => {
+                                if (!isUnlocked) return;
+                                setSelectedQuoteId(quote.id);
+                            }}>
                                 <div className="item-row">
                                     <span className="item-name">{quote.name}</span>
 
@@ -155,6 +218,14 @@ const Quotes: React.FC = () => {
                     isOpen={!!selectedQuote}
                     onClose={() => setSelectedQuoteId(null)}
                     onSuccess={() => { /* Market data is live, no extra refresh needed here */ }}
+                />
+
+                <AddSymbolModal
+                    isOpen={isAddSymbolOpen}
+                    onClose={() => setIsAddSymbolOpen(false)}
+                    availableQuotes={quotes}
+                    selectedSymbols={selectedSymbols}
+                    onSelectionChange={handleSelectionChange}
                 />
             </IonContent>
         </IonPage>

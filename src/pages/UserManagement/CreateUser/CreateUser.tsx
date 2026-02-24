@@ -3,6 +3,7 @@ import {
     IonContent, IonPage, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption,
     IonToggle, IonCheckbox, IonButton, IonIcon, IonList, useIonToast, useIonViewWillEnter
 } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import {
     personCircleOutline, personOutline, lockClosedOutline, globeOutline,
     settingsOutline, addCircleOutline, keyOutline, trendingUpOutline,
@@ -16,6 +17,7 @@ import './CreateUser.css';
 
 const CreateUser: React.FC = () => {
     const [present] = useIonToast();
+    const history = useHistory();
 
     // Form State
     const [formData, setFormData] = useState({
@@ -62,6 +64,9 @@ const CreateUser: React.FC = () => {
     });
 
     const handleInputChange = (key: string, value: string) => {
+        if (key === 'username') {
+            value = value.replace(/[^a-zA-Z0-9]/g, '');
+        }
         setFormData(prev => ({ ...prev, [key]: value }));
     };
 
@@ -75,6 +80,15 @@ const CreateUser: React.FC = () => {
         if (!formData.username || !formData.fullName || !formData.password) {
             present({
                 message: 'Please fill in all required fields (Name, Username, Password)',
+                duration: 2000,
+                color: 'warning'
+            });
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            present({
+                message: 'Password must be at least 6 characters long',
                 duration: 2000,
                 color: 'warning'
             });
@@ -157,14 +171,19 @@ const CreateUser: React.FC = () => {
                     duration: 2000,
                     color: 'success'
                 });
-                // Reset form
-                setFormData({
-                    username: '',
-                    fullName: '',
-                    password: '',
-                    credit: '',
-                    contactNumber: ''
-                });
+
+                if (data.userId) {
+                    history.push(`/app/user-management/details/${data.userId}`);
+                } else {
+                    // Reset form
+                    setFormData({
+                        username: '',
+                        fullName: '',
+                        password: '',
+                        credit: '',
+                        contactNumber: ''
+                    });
+                }
             } else {
                 present({
                     message: data.message || 'Failed to create user',

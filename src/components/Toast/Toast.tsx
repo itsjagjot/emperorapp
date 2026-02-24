@@ -42,7 +42,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                         onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
                     >
                         <span className="toast-icon">
-                            {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'}
+                            {toast.type === 'success' ? '✓' : toast.type === 'error' ? '⚠' : 'ℹ'}
                         </span>
                         <span className="toast-text">{toast.text}</span>
                     </div>

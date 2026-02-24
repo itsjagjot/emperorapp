@@ -11,6 +11,7 @@ import {
 } from 'ionicons/icons';
 import './Position.css';
 import TradeService from '../../services/TradeService';
+// import { liveRateService as liveRateV2Service } from '../../services/LiveRate';
 import { liveRateV2Service } from '../../services/ExiSoc/LiveRateV2';
 import OrderSheet from '../Quotes/OrderSheet/OrderSheet';
 import CommonHeader from '../../components/CommonHeader';
@@ -38,9 +39,10 @@ const Position: React.FC = () => {
         realised: 0,
         credit: 200000,
         equity: 200000,
-        marginUsed: 100000,
-        freeMargin: 100000
+        marginUsed: 0,
+        freeMargin: 0
     });
+    const [marginPercentage, setMarginPercentage] = useState(10); // Dynamic margin requirement
 
     const { showToast } = useToast();
     const [liveRates, setLiveRates] = useState<any[]>([]);
@@ -59,6 +61,9 @@ const Position: React.FC = () => {
                         realised: response.summary.realised_pnl || 0,
                         credit: response.summary.credit || prev.credit
                     }));
+                }
+                if (response.user && response.user.margin_squareoff !== undefined) {
+                    setMarginPercentage(Number(response.user.margin_squareoff));
                 }
             } else if (Array.isArray(response)) {
                 setPositions(response);
@@ -86,45 +91,54 @@ const Position: React.FC = () => {
         });
     }, []);
 
-    // Calculate P&L whenever rates or positions change
     useEffect(() => {
-        if (!Array.isArray(positions)) return;
+        if (!Array.isArray(positions) || positions.length === 0 || liveRates.length === 0) return;
 
-        // We always want to recalculate based on current state, even if positions is empty (to reset values)
         let totalM2M = 0;
         let totalMarginUsed = 0;
+        let hasChanges = false;
 
-        positions.forEach(pos => {
+        const updatedPositions = positions.map(pos => {
             const rate = liveRates.find(r => r.commodity == pos.symbol);
             const posQty = Number(pos.quantity) || 0;
             const posLotSize = Number(pos.lot_size) || 0;
             const posAtp = Number(pos.atp) || 0;
 
+            let cmp = pos.cmp || 0;
+            let pnl = pos.pnl || 0;
+
             if (rate) {
-                // If user BOUGHT (Long), they will SELL to close. CMP = BID (Sell Price)
-                // If user SOLD (Short), they will BUY to close. CMP = ASK (Buy Price)
-                const cmp = pos.action === 'Buy' ? parseFloat(rate.bid) : parseFloat(rate.ask);
-                if (!isNaN(cmp)) {
+                const currentCmp = pos.action === 'Buy' ? parseFloat(rate.bid) : parseFloat(rate.ask);
+                if (!isNaN(currentCmp)) {
+                    cmp = currentCmp;
                     const Buydiff = Math.round(cmp - posAtp);
                     const SellDiff = Math.round(posAtp - cmp);
-                    const pnl = pos.action === 'Buy'
+                    pnl = pos.action === 'Buy'
                         ? (Buydiff) * posQty * posLotSize
                         : (SellDiff) * posQty * posLotSize;
 
-                    totalM2M += pnl;
-
                     const tradeValue = cmp * posQty * posLotSize;
-                    const margin = tradeValue / 100;
+                    const margin = tradeValue * (marginPercentage / 100);
                     totalMarginUsed += margin;
+
+                    if (pos.cmp !== cmp || pos.pnl !== pnl) {
+                        hasChanges = true;
+                    }
                 }
             } else {
-                // Fallback if no live rate, use ATP to estimate margin
                 const estValue = posAtp * posQty * posLotSize;
-                totalMarginUsed += (estValue / 100);
+                totalMarginUsed += (estValue * (marginPercentage / 100));
             }
+
+            totalM2M += pnl;
+
+            return hasChanges ? { ...pos, cmp, pnl } : pos;
         });
 
-        // Update summary
+        if (hasChanges) {
+            setPositions(updatedPositions);
+        }
+
         setSummary(prev => {
             const realisedPnL = Number(prev.realised) || 0;
             const credit = Number(prev.credit) || 0;
@@ -139,37 +153,9 @@ const Position: React.FC = () => {
             };
         });
 
-    }, [liveRates, positions.length]); // Only re-run if liveRates change or number of positions change. NOT if values inside positions change.
+    }, [liveRates, positions.length, marginPercentage]);
 
-    // Second effect to update the displayed list with live PnL without causing loops
-    useEffect(() => {
-        if (!Array.isArray(positions) || positions.length === 0 || liveRates.length === 0) return;
 
-        setPositions(prevPositions => {
-            return prevPositions.map(pos => {
-                const rate = liveRates.find(r => r.commodity == pos.symbol);
-                if (rate) {
-                    const cmp = pos.action === 'Buy' ? parseFloat(rate.bid) : parseFloat(rate.ask);
-                    if (!isNaN(cmp)) {
-                        const posAtp = Number(pos.atp) || 0;
-                        const posQty = Number(pos.quantity) || 0;
-                        const posLotSize = Number(pos.lot_size) || 0;
-                        const Buydiff = Math.round(cmp - posAtp);
-                        const SellDiff = Math.round(posAtp - cmp);
-                        const pnl = pos.action === 'Buy'
-                            ? (Buydiff) * posQty * posLotSize
-                            : (SellDiff) * posQty * posLotSize;
-
-                        // Only return new object if changed
-                        if (pos.cmp !== cmp || pos.pnl !== pnl) {
-                            return { ...pos, cmp, pnl };
-                        }
-                    }
-                }
-                return pos;
-            });
-        });
-    }, [liveRates]);
 
     const handlePositionClick = (pos: PositionData) => {
         setSelectedQuoteId(pos.symbol);

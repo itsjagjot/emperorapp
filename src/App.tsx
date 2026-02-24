@@ -26,16 +26,30 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { liveRateService } from './services/LiveRate';
+import SplashScreen from './components/SplashScreen/SplashScreen';
 
 import { ToastProvider } from './components/Toast/Toast';
 
 setupIonicReact();
 
 const App: React.FC = () => {
+  const [showSplash, setShowSplash] = useState(() => {
+    return sessionStorage.getItem('splashShown') !== 'true';
+  });
 
   useEffect(() => {
+    if (!showSplash) {
+      sessionStorage.setItem('splashShown', 'true');
+    }
+  }, [showSplash]);
+
+  useEffect(() => {
+    // Lock the admin menu on fresh app start (app reopened or cleared from recents)
+    localStorage.removeItem('menuUnlocked');
+    window.dispatchEvent(new Event('menuUnlockedChanged'));
+
     // Service is initialized on import, but we can reference it here to ensure it's kept alive or for future logic.
     console.log('App initialized. Checking LiveRate service...');
 
@@ -55,6 +69,7 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       <ToastProvider>
         <IonReactRouter>
           <AppRoutes />

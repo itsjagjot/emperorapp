@@ -56,9 +56,20 @@ const Profile: React.FC = () => {
     const userRole = userData?.UserRoleName || '';
     const isAdmin = userRole === 'SuperAdmin' || userRole === 'Admin';
 
+    const [isUnlocked, setIsUnlocked] = React.useState(localStorage.getItem('menuUnlocked') === 'true');
+    React.useEffect(() => {
+        const handleStorageChange = () => {
+            setIsUnlocked(localStorage.getItem('menuUnlocked') === 'true');
+        };
+        window.addEventListener('menuUnlockedChanged', handleStorageChange);
+        return () => window.removeEventListener('menuUnlockedChanged', handleStorageChange);
+    }, []);
+
+    const showAllFeatures = !isAdmin || isUnlocked;
+
     const sections = [
         // User Management: Only for Admins
-        ...(isAdmin ? [{
+        ...(isAdmin && showAllFeatures ? [{
             label: "User Management",
             items: [
                 { title: 'Create New User', icon: personAddOutline, color: '#4a90e2', path: '/app/user-management/create' },
@@ -76,11 +87,11 @@ const Profile: React.FC = () => {
                 { title: 'Invite Friends', icon: peopleOutline, color: '#2c3e50', path: '/app/my-information/invite-friends' },
                 { title: 'Login History', icon: documentTextOutline, color: '#2c3e50', path: '/app/my-information/login-history' },
                 { title: 'Messages', icon: mailOutline, color: '#897e06ff', path: '/app/settings/message' },
-            ]
+            ].filter(item => showAllFeatures || ['Profile', 'Change Password', 'Login History', 'Messages'].includes(item.title))
         },
 
         // Reports
-        {
+        ...(showAllFeatures ? [{
             label: "Reports",
             items: [
                 { title: 'Generate Bill', icon: receiptOutline, color: '#417505', path: '/app/reports/generate-bill' },
@@ -104,7 +115,7 @@ const Profile: React.FC = () => {
                 ];
                 return allowed.includes(item.title);
             })
-        },
+        }] : []),
 
         // Settings
         {
@@ -114,9 +125,9 @@ const Profile: React.FC = () => {
                 { title: 'Set Quantity Values', icon: settingsOutline, color: '#12a275ff', path: '/app/settings/quantity-value' },
                 { title: 'Notification Settings', icon: notificationsOutline, color: '#be02cbff', path: '/app/settings/notification' },
                 { title: 'Privacy Policy', icon: shieldCheckmarkOutline, color: '#52cc6aff', path: '/app/settings/privacy-policy' },
-            ]
+            ].filter(item => showAllFeatures || ['Privacy Policy'].includes(item.title))
         }
-    ];
+    ].filter(section => section && section.items && section.items.length > 0);
 
     return (
         <IonPage className="profile-page">

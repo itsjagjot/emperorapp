@@ -45,7 +45,8 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
             const mappedLot = lotSizeMap[symbol.toUpperCase()] || quote.lotSize || quote.original?.lot_size || 100;
             setLotSize(mappedLot);
         }
-    }, [isOpen, quote]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     // Timer to update time every 2 seconds
     useEffect(() => {
@@ -152,7 +153,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                                 <span style={{ fontWeight: 600 }}>Price</span>
                                 <div className="counter-controls">
                                     <button className="cnt-btn" onClick={decrementPrice}><IonIcon icon={removeOutline} /></button>
-                                    <span className="qty-val">{price}</span>
+                                    <span className="qty-val">{price.toFixed(0)}</span>
                                     <button className="cnt-btn" onClick={incrementPrice}><IonIcon icon={addOutline} /></button>
                                 </div>
                             </div>

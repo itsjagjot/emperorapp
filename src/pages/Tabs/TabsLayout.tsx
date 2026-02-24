@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
     IonTabs,
@@ -46,6 +47,22 @@ import Message from '../Profile/Settings/Message/Message';
 import Notification from '../Profile/Settings/Notification/Notification';
 
 const TabsLayout: React.FC = () => {
+    const [isUnlocked, setIsUnlocked] = useState(localStorage.getItem('menuUnlocked') === 'true');
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsUnlocked(localStorage.getItem('menuUnlocked') === 'true');
+        };
+        window.addEventListener('menuUnlockedChanged', handleStorageChange);
+        return () => window.removeEventListener('menuUnlockedChanged', handleStorageChange);
+    }, []);
+
+    const userStr = localStorage.getItem('user');
+    const userData = userStr ? JSON.parse(userStr) : null;
+    const userRole = userData?.UserRoleName || '';
+    const isAdmin = userRole === 'SuperAdmin' || userRole === 'Admin';
+
+    const showAllTabs = !isAdmin || isUnlocked;
+
     return (
         <IonTabs>
             <IonRouterOutlet>
@@ -107,14 +124,18 @@ const TabsLayout: React.FC = () => {
                     <IonIcon icon={barChartOutline} />
                     <IonLabel>Quotes</IonLabel>
                 </IonTabButton>
-                <IonTabButton tab="trade" href="/app/trade">
-                    <IonIcon icon={swapHorizontalOutline} />
-                    <IonLabel>Trade</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="position" href="/app/position">
-                    <IonIcon icon={briefcaseOutline} />
-                    <IonLabel>Position</IonLabel>
-                </IonTabButton>
+                {showAllTabs && (
+                    <IonTabButton tab="trade" href="/app/trade">
+                        <IonIcon icon={swapHorizontalOutline} />
+                        <IonLabel>Trade</IonLabel>
+                    </IonTabButton>
+                )}
+                {showAllTabs && (
+                    <IonTabButton tab="position" href="/app/position">
+                        <IonIcon icon={briefcaseOutline} />
+                        <IonLabel>Position</IonLabel>
+                    </IonTabButton>
+                )}
                 <IonTabButton tab="profile" href="/app/profile">
                     <IonIcon icon={personOutline} />
                     <IonLabel>Profile</IonLabel>

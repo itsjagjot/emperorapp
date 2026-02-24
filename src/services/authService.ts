@@ -158,9 +158,18 @@ export const logoutUser = async (exchange: string = DEFAULT_EXCHANGE) => {
         }
     }
 
+    const savedSymbols = localStorage.getItem('selected_symbols');
+
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('menuUnlocked');
+    localStorage.removeItem('market_timing_data');
+    localStorage.clear();
+
+    if (savedSymbols) {
+        localStorage.setItem('selected_symbols', savedSymbols);
+    }
 };
 
 

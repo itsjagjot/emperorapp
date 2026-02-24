@@ -30,7 +30,8 @@ import {
     serverOutline,
     pieChartOutline,
     receiptOutline,
-    gridOutline
+    gridOutline,
+    keyOutline
 } from 'ionicons/icons';
 import './UserDetails.css';
 import '../../Trade/Trade.css';
@@ -57,6 +58,7 @@ interface UserDetails {
         summary: any;
     };
     Exchanges?: string;
+    margin_squareoff?: number;
 }
 
 const UserDetailsPage: React.FC = () => {
@@ -71,8 +73,15 @@ const UserDetailsPage: React.FC = () => {
     const [creditAmount, setCreditAmount] = useState('');
     const [creditLogs, setCreditLogs] = useState<any[]>([]);
 
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const [showMarginModal, setShowMarginModal] = useState(false);
+    const [marginAmount, setMarginAmount] = useState('100.0');
+
     const [showBrkModal, setShowBrkModal] = useState(false);
-    const [brkType, setBrkType] = useState('Turnover'); // Turnover or Lot
+    const [brkType, setBrkType] = useState('Lot'); // Turnover or Lot
     const [brkAmount, setBrkAmount] = useState('');
     const [exchanges, setExchanges] = useState<any[]>([]);
     const [selectedExchangeId, setSelectedExchangeId] = useState<number | null>(null);
@@ -237,6 +246,9 @@ const UserDetailsPage: React.FC = () => {
                     ...userData,
                     Balance: 0 // Default placeholder
                 });
+                if (userData.margin_squareoff !== undefined && userData.margin_squareoff !== null) {
+                    setMarginAmount(userData.margin_squareoff);
+                }
             } else {
                 present('Failed to fetch user details', 2000);
                 history.goBack();
@@ -281,6 +293,78 @@ const UserDetailsPage: React.FC = () => {
         } catch (error) {
             console.error(error);
             present('Error occurred', 2000);
+        }
+    };
+
+    const handleChangePassword = async () => {
+        if (!newPassword || newPassword.length < 6) {
+            present({ message: 'Password must be at least 6 characters', duration: 2000, color: 'warning' });
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            present({ message: 'Passwords do not match', duration: 2000, color: 'danger' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/change-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    new_password: newPassword,
+                    confirm_password: confirmPassword
+                })
+            });
+
+            if (response.ok) {
+                present({ message: 'Password updated successfully', duration: 2000, color: 'success' });
+                setShowPasswordModal(false);
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                const errData = await response.json();
+                present({ message: errData.message || 'Failed to update password', duration: 2000, color: 'danger' });
+            }
+        } catch (error) {
+            console.error(error);
+            present({ message: 'Error occurred', duration: 2000, color: 'danger' });
+        }
+    };
+
+    const handleUpdateMarginSquareoff = async () => {
+        if (!marginAmount || isNaN(Number(marginAmount))) {
+            present({ message: 'Please enter a valid percentage', duration: 2000, color: 'danger' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/margin-squareoff`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    margin_squareoff: Number(marginAmount)
+                })
+            });
+
+            if (response.ok) {
+                present({ message: 'Margin Square-off updated successfully', duration: 2000, color: 'success' });
+                setShowMarginModal(false);
+                fetchUserDetails(); // Refresh
+            } else {
+                const errData = await response.json();
+                present({ message: errData.message || 'Failed to update Margin Square-off', duration: 2000, color: 'danger' });
+            }
+        } catch (error) {
+            console.error(error);
+            present({ message: 'Error occurred', duration: 2000, color: 'danger' });
         }
     };
 
@@ -403,21 +487,35 @@ const UserDetailsPage: React.FC = () => {
                                     <IonIcon icon={peopleOutline} />
                                 </div>
                                 <span>Group Quantity Settings</span>
-                            </div>
+                            </div> */}
 
-                            <div className="action-item">
+                            <div className="action-item" onClick={() => setShowMarginModal(true)}>
                                 <div className="icon-wrapper red">
                                     <IonIcon icon={gridOutline} />
                                 </div>
                                 <span>Margin Square-off Settings</span>
-                                <small>100.0%</small>
-                            </div> */}
+                                <small>{user.margin_squareoff !== undefined ? Number(user.margin_squareoff).toFixed(1) : '100.0'}%</small>
+                            </div>
 
                             <div className="action-item" onClick={() => setShowBrkModal(true)}>
                                 <div className="icon-wrapper purple">
                                     <IonIcon icon={settingsOutline} />
                                 </div>
                                 <span>Brk Setting</span>
+                            </div>
+
+                            <div className="action-item" onClick={() => setShowPasswordModal(true)}>
+                                <div className="icon-wrapper orange">
+                                    <IonIcon icon={keyOutline} />
+                                </div>
+                                <span>Change Password</span>
+                            </div>
+
+                            <div className="action-item" onClick={() => history.push(`/app/reports/generate-bill?userId=${user.UserId}`)}>
+                                <div className="icon-wrapper teal">
+                                    <IonIcon icon={receiptOutline} />
+                                </div>
+                                <span>Generate Bill</span>
                             </div>
 
                             {/* <div className="action-item">
@@ -573,6 +671,71 @@ const UserDetailsPage: React.FC = () => {
                     </IonContent>
                 </IonModal>
 
+                {/* Change Password Modal */}
+                <IonModal isOpen={showPasswordModal} onDidDismiss={() => setShowPasswordModal(false)} initialBreakpoint={0.6} breakpoints={[0, 0.6, 1]} className="action-modal">
+                    <IonContent className="ion-padding">
+                        <div className="modal-inner">
+                            <h3>Change Password</h3>
+                            <p className="subtitle">Update password for {user.Username}</p>
+
+                            <div className="input-group">
+                                <label>New Password</label>
+                                <IonInput
+                                    type="password"
+                                    value={newPassword}
+                                    onIonChange={e => setNewPassword(e.detail.value!)}
+                                    placeholder="Enter New Password"
+                                    className="custom-input"
+                                />
+                            </div>
+
+                            <div className="input-group" style={{ marginTop: '15px' }}>
+                                <label>Confirm Password</label>
+                                <IonInput
+                                    type="password"
+                                    value={confirmPassword}
+                                    onIonChange={e => setConfirmPassword(e.detail.value!)}
+                                    placeholder="Confirm New Password"
+                                    className="custom-input"
+                                />
+                            </div>
+
+                            <IonButton expand="block" onClick={handleChangePassword} style={{ '--border-radius': '8px', marginTop: '20px' }} color="primary">
+                                Save Password
+                            </IonButton>
+                        </div>
+                    </IonContent>
+                </IonModal>
+
+                {/* Margin Square-off Modal */}
+                <IonModal isOpen={showMarginModal} onDidDismiss={() => setShowMarginModal(false)} initialBreakpoint={0.6} breakpoints={[0, 0.6, 1]} className="action-modal">
+                    <IonContent className="ion-padding">
+                        <div className="modal-inner">
+                            <h3>Margin Square Off Percentage</h3>
+
+                            <div className="input-group" style={{ marginTop: '20px' }}>
+                                <label>Enter Percentage</label>
+                                <IonInput
+                                    type="number"
+                                    value={marginAmount}
+                                    onIonChange={e => setMarginAmount(e.detail.value!)}
+                                    placeholder="Please enter Cash Margin"
+                                    className="custom-input"
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
+                                <IonButton expand="block" fill="outline" onClick={() => setShowMarginModal(false)} style={{ flex: 1, '--border-radius': '8px', color: '#1a202c', '--border-color': '#1a202c' }}>
+                                    Cancel
+                                </IonButton>
+                                <IonButton expand="block" onClick={handleUpdateMarginSquareoff} style={{ flex: 1, '--border-radius': '8px', '--background': '#072146' }}>
+                                    Submit
+                                </IonButton>
+                            </div>
+                        </div>
+                    </IonContent>
+                </IonModal>
+
                 {/* BRK Setting Modal */}
                 <IonModal isOpen={showBrkModal} onDidDismiss={() => setShowBrkModal(false)}>
                     <CommonHeader title="Brk Setting" backLink="none" onBack={() => setShowBrkModal(false)} />
@@ -581,11 +744,11 @@ const UserDetailsPage: React.FC = () => {
                         <div className="brk-modal-container">
                             {/* Tabs Row */}
                             <div className="brk-tabs-row">
-                                <button className={`brk-tab ${brkType === 'Turnover' ? 'active' : ''}`} onClick={() => setBrkType('Turnover')}>
-                                    TURNOVER WISE
-                                </button>
                                 <button className={`brk-tab ${brkType === 'Lot' ? 'active' : ''}`} onClick={() => setBrkType('Lot')}>
                                     LOT WISE
+                                </button>
+                                <button className={`brk-tab ${brkType === 'Turnover' ? 'active' : ''}`} onClick={() => setBrkType('Turnover')}>
+                                    TURNOVER WISE
                                 </button>
                             </div>
 
