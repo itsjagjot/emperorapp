@@ -27,7 +27,9 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import { useEffect, useState } from 'react';
-import { liveRateService } from './services/LiveRate';
+// import { liveRateService } from './services/LiveRate';
+import { liveRateV2Service } from './services/ExiSoc/LiveRateV2';
+import { useRateStore } from './store/useRateStore';
 import SplashScreen from './components/SplashScreen/SplashScreen';
 
 import { ToastProvider } from './components/Toast/Toast';
@@ -39,6 +41,8 @@ const App: React.FC = () => {
     return sessionStorage.getItem('splashShown') !== 'true';
   });
 
+  const setRates = useRateStore(state => state.setRates);
+
   useEffect(() => {
     if (!showSplash) {
       sessionStorage.setItem('splashShown', 'true');
@@ -47,25 +51,38 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Lock the admin menu on fresh app start (app reopened or cleared from recents)
-    localStorage.removeItem('menuUnlocked');
-    window.dispatchEvent(new Event('menuUnlockedChanged'));
+    // localStorage.removeItem('menuUnlocked');
+    // window.dispatchEvent(new Event('menuUnlockedChanged'));
 
-    // Service is initialized on import, but we can reference it here to ensure it's kept alive or for future logic.
-    console.log('App initialized. Checking LiveRate service...');
+    //   console.log('App initialized. Checking LiveRate service...');
 
-    // Explicitly check connection logic
-    if (liveRateService) {
-      console.log('LiveRate service instance exists.');
-      const socket = liveRateService.getSocket();
-      console.log('Socket instance:', socket);
-      if (socket?.connected) {
-        console.log('Socket is already connected with ID:', socket.id);
-      } else {
-        console.log('Socket is NOT connected. Attempting manual connect...');
-        socket?.connect();
+    //   // Explicitly check connection logic
+    //   if (liveRateService) {
+    //     console.log('LiveRate service instance exists.');
+    //     const socket = liveRateService.getSocket();
+    //     console.log('Socket instance:', socket);
+    //     if (socket?.connected) {
+    //       console.log('Socket is already connected with ID:', socket.id);
+    //     } else {
+    //       console.log('Socket is NOT connected. Attempting manual connect...');
+    //       socket?.connect();
+    //     }
+    //   }
+    // }, []);
+    // Global listener for live rates
+    console.log('App initialized. Subscribing to LiveRateV2 service...');
+
+    liveRateV2Service.onMarketData((data) => {
+      if (Array.isArray(data)) {
+        setRates(data);
       }
-    }
-  }, []);
+    });
+
+    return () => {
+      // Optional: clean up if App unmounts (rare in Ionic Apps)
+      // liveRateV2Service.disconnect();
+    };
+  }, [setRates]);
 
   return (
     <IonApp>

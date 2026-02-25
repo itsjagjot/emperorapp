@@ -22,7 +22,7 @@ let toastId = 0;
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-    const showToast = useCallback((text: string, type: ToastType = 'success', duration: number = 3000) => {
+    const showToast = useCallback((text: string, type: ToastType = 'success', duration: number = 30000000) => {
         const id = ++toastId;
         setToasts(prev => [...prev, { id, text, type }]);
 

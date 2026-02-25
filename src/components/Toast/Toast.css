@@ -25,7 +25,7 @@
     cursor: pointer;
     animation: toastIn 0.35s ease-out, toastOut 0.3s ease-in forwards;
     animation-delay: 0s, 100.7s;
-    min-width: 250px;
+    min-width: 300px;
     justify-content: center;
 }
 
@@ -36,9 +36,9 @@
 }
 
 .toast-error {
-    background: #ebd6bb;
-    border: 1px solid #ef7744f2;
-    color: #ff2e00;
+    background: #fdeac1;
+    border: 1px solid #ff4b2df2;
+    color: #ff0000;
 }
 
 .toast-info {

@@ -7,9 +7,11 @@ interface LoaderProps {
 
 const Loader: React.FC<LoaderProps> = ({ overlay }) => {
     return (
-        <div className={`loader-container ${overlay ? 'overlay' : ''}`}>
-            <div className="loader"></div>
-        </div>
+        // <div className={`loader-container ${overlay ? 'overlay' : ''}`}>
+        //     <div className="loader"></div>
+        // </div>
+        <>
+        </>
     );
 };
 

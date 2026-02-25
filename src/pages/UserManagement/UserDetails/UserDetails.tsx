@@ -59,6 +59,7 @@ interface UserDetails {
     };
     Exchanges?: string;
     margin_squareoff?: number;
+    lock_timing?: number;
 }
 
 const UserDetailsPage: React.FC = () => {
@@ -79,6 +80,9 @@ const UserDetailsPage: React.FC = () => {
 
     const [showMarginModal, setShowMarginModal] = useState(false);
     const [marginAmount, setMarginAmount] = useState('100.0');
+
+    const [showLockModal, setShowLockModal] = useState(false);
+    const [lockTiming, setLockTiming] = useState('0');
 
     const [showBrkModal, setShowBrkModal] = useState(false);
     const [brkType, setBrkType] = useState('Lot'); // Turnover or Lot
@@ -249,6 +253,9 @@ const UserDetailsPage: React.FC = () => {
                 if (userData.margin_squareoff !== undefined && userData.margin_squareoff !== null) {
                     setMarginAmount(userData.margin_squareoff);
                 }
+                if (userData.lock_timing !== undefined && userData.lock_timing !== null) {
+                    setLockTiming(userData.lock_timing.toString());
+                }
             } else {
                 present('Failed to fetch user details', 2000);
                 history.goBack();
@@ -361,6 +368,39 @@ const UserDetailsPage: React.FC = () => {
             } else {
                 const errData = await response.json();
                 present({ message: errData.message || 'Failed to update Margin Square-off', duration: 2000, color: 'danger' });
+            }
+        } catch (error) {
+            console.error(error);
+            present({ message: 'Error occurred', duration: 2000, color: 'danger' });
+        }
+    };
+
+    const handleUpdateLockTiming = async () => {
+        if (lockTiming === '' || isNaN(Number(lockTiming))) {
+            present({ message: 'Please enter a valid time in seconds', duration: 2000, color: 'danger' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/lock-timing`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    lock_timing: Number(lockTiming)
+                })
+            });
+
+            if (response.ok) {
+                present({ message: 'Lock timing updated successfully', duration: 2000, color: 'success' });
+                setShowLockModal(false);
+                fetchUserDetails(); // Refresh
+            } else {
+                const errData = await response.json();
+                present({ message: errData.message || 'Failed to update lock timing', duration: 2000, color: 'danger' });
             }
         } catch (error) {
             console.error(error);
@@ -516,6 +556,14 @@ const UserDetailsPage: React.FC = () => {
                                     <IonIcon icon={receiptOutline} />
                                 </div>
                                 <span>Generate Bill</span>
+                            </div>
+
+                            <div className="action-item" onClick={() => setShowLockModal(true)}>
+                                <div className="icon-wrapper indigo">
+                                    <IonIcon icon={serverOutline} />
+                                </div>
+                                <span>Lock Timing</span>
+                                <small>{user.lock_timing || 0} Sec</small>
                             </div>
 
                             {/* <div className="action-item">
@@ -736,6 +784,36 @@ const UserDetailsPage: React.FC = () => {
                     </IonContent>
                 </IonModal>
 
+                {/* Lock Timing Modal */}
+                <IonModal isOpen={showLockModal} onDidDismiss={() => setShowLockModal(false)} initialBreakpoint={0.6} breakpoints={[0, 0.6, 1]} className="action-modal">
+                    <IonContent className="ion-padding">
+                        <div className="modal-inner">
+                            <h3>Profit Lock Timing</h3>
+                            <p className="subtitle">Set lock timing (in seconds) for {user.Username}</p>
+
+                            <div className="input-group" style={{ marginTop: '20px' }}>
+                                <label>Enter Seconds</label>
+                                <IonInput
+                                    type="number"
+                                    value={lockTiming}
+                                    onIonChange={e => setLockTiming(e.detail.value!)}
+                                    placeholder="Enter lock timing in seconds"
+                                    className="custom-input"
+                                />
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '30px' }}>
+                                <IonButton expand="block" fill="outline" onClick={() => setShowLockModal(false)} style={{ flex: 1, '--border-radius': '8px', color: '#1a202c', '--border-color': '#1a202c' }}>
+                                    Cancel
+                                </IonButton>
+                                <IonButton expand="block" onClick={handleUpdateLockTiming} style={{ flex: 1, '--border-radius': '8px', '--background': '#072146' }}>
+                                    Submit
+                                </IonButton>
+                            </div>
+                        </div>
+                    </IonContent>
+                </IonModal>
+
                 {/* BRK Setting Modal */}
                 <IonModal isOpen={showBrkModal} onDidDismiss={() => setShowBrkModal(false)}>
                     <CommonHeader title="Brk Setting" backLink="none" onBack={() => setShowBrkModal(false)} />
@@ -800,7 +878,7 @@ const UserDetailsPage: React.FC = () => {
                 </IonModal>
 
             </IonContent>
-        </IonPage>
+        </IonPage >
     );
 };
 

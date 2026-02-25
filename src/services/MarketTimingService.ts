@@ -81,6 +81,41 @@ class MarketTimingService {
         const [hours, minutes] = timeStr.split(':').map(Number);
         return hours * 60 + minutes;
     }
+
+    /**
+     * Synchronously check if the market is currently open based on localStorage data.
+     */
+    public isMarketOpen(): boolean {
+        try {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            if (!storedData) return true; // Default to open if no timing found
+
+            const parsed: MarketTiming = JSON.parse(storedData);
+            if (!this.isToday(parsed.date)) {
+                return true; // Default to open if timing is stale (or we could return false, but true is safer)
+            }
+
+            const now = new Date();
+            const start = parsed.start_time;
+            const end = parsed.end_time;
+
+            if (!start || !end) return true;
+
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const startMins = this.timeToMinutes(start);
+            const endMins = this.timeToMinutes(end);
+
+            if (startMins <= endMins) {
+                return currentMins >= startMins && currentMins <= endMins;
+            } else {
+                // Crosses midnight (e.g. 09:00 to 02:00)
+                return currentMins >= startMins || currentMins <= endMins;
+            }
+        } catch (e) {
+            console.error('Error parsing market timing from localStorage:', e);
+            return true;
+        }
+    }
 }
 
 export const marketTimingService = new MarketTimingService();

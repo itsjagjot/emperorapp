@@ -164,6 +164,24 @@ class TradeService {
             throw error;
         }
     }
+
+    private lotSizeCache: { [key: string]: number } | null = null;
+
+    async getLotSizeMap() {
+        if (this.lotSizeCache) return this.lotSizeCache;
+        try {
+            const response = await fetch(`${API_BASE_URL}/lot-size-map`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            const data = await response.json();
+            this.lotSizeCache = data;
+            return data;
+        } catch (error) {
+            console.error('Error fetching lot size map:', error);
+            return {};
+        }
+    }
 }
 
 export default new TradeService();

@@ -21,7 +21,7 @@ export interface LiveRateItem {
 
 class LiveRateV2Service {
     private socket: Socket | null = null;
-    private marketDataCallback: ((data: any) => void) | null = null;
+    private callbacks: ((data: any) => void)[] = [];
     private rateStore: Map<string, LiveRateItem> = new Map();
 
     // Market Timing
@@ -127,7 +127,7 @@ class LiveRateV2Service {
             if (item.bid < item.low) item.low = item.bid;
         });
 
-        if (this.marketDataCallback) {
+        if (this.callbacks.length > 0) {
             const results = Array.from(this.rateStore.values()).map(item => ({
                 instrument: item.instrument || 'FUTCOM',
                 commodity: item.commodity,
@@ -144,9 +144,19 @@ class LiveRateV2Service {
                 bid: item.bid,
                 ask: item.ask
             }));
-            this.marketDataCallback(results);
+            this.notifyListeners(results);
             this.processIntradayData(results);
         }
+    }
+
+    private notifyListeners(data: any) {
+        this.callbacks.forEach(cb => {
+            try {
+                cb(data);
+            } catch (e) {
+                console.error('Error in listener:', e);
+            }
+        });
     }
 
     private handleIncomingData(data: any, type: string) {
@@ -189,7 +199,7 @@ class LiveRateV2Service {
             }
         });
 
-        if (hasUpdates && this.marketDataCallback) {
+        if (hasUpdates && this.callbacks.length > 0) {
             const results = Array.from(this.rateStore.values()).map(item => ({
                 instrument: 'FUTCOM',
                 commodity: item.commodity,
@@ -206,13 +216,13 @@ class LiveRateV2Service {
                 bid: item.bid,
                 ask: item.ask
             }));
-            this.marketDataCallback(results);
+            this.notifyListeners(results);
             this.processIntradayData(results);
         }
     }
 
     public onMarketData(callback: (data: any) => void) {
-        this.marketDataCallback = callback;
+        this.callbacks.push(callback);
         if (this.rateStore.size > 0) {
             callback(Array.from(this.rateStore.values()));
         }

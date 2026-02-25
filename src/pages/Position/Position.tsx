@@ -13,9 +13,11 @@ import './Position.css';
 import TradeService from '../../services/TradeService';
 // import { liveRateService as liveRateV2Service } from '../../services/LiveRate';
 import { liveRateV2Service } from '../../services/ExiSoc/LiveRateV2';
+import { marketTimingService } from '../../services/MarketTimingService';
 import OrderSheet from '../Quotes/OrderSheet/OrderSheet';
 import CommonHeader from '../../components/CommonHeader';
 import Loader from '../../components/Loader/Loader';
+import { useRateStore } from '../../store/useRateStore';
 
 interface PositionData {
     name: string;
@@ -45,7 +47,7 @@ const Position: React.FC = () => {
     const [marginPercentage, setMarginPercentage] = useState(10); // Dynamic margin requirement
 
     const { showToast } = useToast();
-    const [liveRates, setLiveRates] = useState<any[]>([]);
+    const liveRates = useRateStore(state => state.rates);
     const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
     const [showActionSheet, setShowActionSheet] = useState(false);
 
@@ -83,13 +85,13 @@ const Position: React.FC = () => {
         fetchPositions();
     });
 
+    const hasInitializedRef = React.useRef(false);
+
     useEffect(() => {
-        liveRateV2Service.onMarketData((rates: any[]) => {
-            if (Array.isArray(rates)) {
-                setLiveRates(rates);
-            }
-        });
-    }, []);
+        if (liveRates.length > 0) {
+            hasInitializedRef.current = true;
+        }
+    }, [liveRates]);
 
     useEffect(() => {
         if (!Array.isArray(positions) || positions.length === 0 || liveRates.length === 0) return;
@@ -108,7 +110,7 @@ const Position: React.FC = () => {
             let pnl = pos.pnl || 0;
 
             if (rate) {
-                const currentCmp = pos.action === 'Buy' ? parseFloat(rate.bid) : parseFloat(rate.ask);
+                const currentCmp = pos.action === 'Buy' ? Number(rate.bid) : Number(rate.ask);
                 if (!isNaN(currentCmp)) {
                     cmp = currentCmp;
                     const Buydiff = Math.round(cmp - posAtp);
@@ -162,6 +164,11 @@ const Position: React.FC = () => {
     };
 
     const handleSquareOffAll = async () => {
+        // if (!marketTimingService.isMarketOpen()) {
+        //     showToast('Market is currently closed. You cannot square off positions at this time.', 'error');
+        //     return;
+        // }
+
         try {
             setLoading(true);
             const response = await TradeService.squareOffAll();
@@ -199,7 +206,16 @@ const Position: React.FC = () => {
         };
     };
 
-    const selectedQuote = getSelectedQuote();
+    const [selectedQuote, setSelectedQuote] = useState<any>(null);
+
+    useEffect(() => {
+        const quote = getSelectedQuote();
+        if (quote) {
+            setSelectedQuote(quote);
+        } else if (selectedQuoteId === null) {
+            setSelectedQuote(null);
+        }
+    }, [selectedQuoteId, liveRates, positions]);
 
     return (
         <IonPage>

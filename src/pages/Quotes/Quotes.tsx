@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 // import { liveRateService } from '../../services/LiveRate';
 import { liveRateV2Service as liveRateService } from '../../services/ExiSoc/LiveRateV2';
 import { SHOW_STRATEGY } from '../../services/config';
+import { marketTimingService } from '../../services/MarketTimingService';
 import {
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
     IonModal, IonIcon, IonGrid, IonRow, IonCol
@@ -11,6 +12,7 @@ import './Quotes.css';
 import OrderSheet from './OrderSheet/OrderSheet';
 import Loader from '../../components/Loader/Loader';
 import AddSymbolModal from './AddSymbol/AddSymbolModal';
+import { useRateStore } from '../../store/useRateStore';
 
 const Quotes: React.FC = () => {
     const [searchText, setSearchText] = useState('');
@@ -41,7 +43,7 @@ const Quotes: React.FC = () => {
 
     useEffect(() => {
         const handleStorageChange = () => {
-            setIsUnlocked(localStorage.getItem('menuUnlocked') === 'true');
+            setIsUnlocked(localStorage.getItem('menuUnlocked') === 'true' || !isAdmin);
         };
         window.addEventListener('menuUnlockedChanged', handleStorageChange);
         return () => window.removeEventListener('menuUnlockedChanged', handleStorageChange);
@@ -50,86 +52,98 @@ const Quotes: React.FC = () => {
     // Store previous prices to determine fluctuation
     // Key: instrument + commodity + expiry
     const prevPricesRef = React.useRef<{ [key: string]: number }>({});
+    const hasInitializedRef = React.useRef(false);
+
+    const liveRates = useRateStore(state => state.rates);
 
     useEffect(() => {
-        liveRateService.onMarketData((data) => {
-            // Deduplicate data based on SHOW_STRATEGY config
-            const uniqueItems = new Map();
-            data.forEach((item: any) => {
-                let commodity = item?.commodity ?? item?.symbol;
-                // Determine key based on strategy
-                const key = SHOW_STRATEGY === 'FCFS'
-                    ? commodity
-                    : `${item.instrument}-${commodity}-${item.expiry}`;
+        if (!liveRates || liveRates.length === 0) return;
 
-                if (SHOW_STRATEGY === 'FCFS') {
-                    const existing = uniqueItems.get(key);
-                    // Priority: Keep item if it has expiry data, or if no item exists yet
-                    if (!existing || (!existing.expiry && item.expiry)) {
-                        uniqueItems.set(key, item);
-                    }
-                } else {
-                    // Original logic for non-FCFS
-                    if (!uniqueItems.has(key)) {
-                        uniqueItems.set(key, item);
-                    }
+        hasInitializedRef.current = true;
+
+        // Deduplicate data based on SHOW_STRATEGY config
+        const uniqueItems = new Map();
+        liveRates.forEach((item: any) => {
+            let commodity = item?.commodity ?? item?.symbol;
+            // Determine key based on strategy
+            const key = SHOW_STRATEGY === 'FCFS'
+                ? commodity
+                : `${item.instrument}-${commodity}-${item.expiry}`;
+
+            if (SHOW_STRATEGY === 'FCFS') {
+                const existing = uniqueItems.get(key);
+                // Priority: Keep item if it has expiry data, or if no item exists yet
+                if (!existing || (!existing.expiry && item.expiry)) {
+                    uniqueItems.set(key, item);
                 }
-            });
-
-            const formattedQuotes = Array.from(uniqueItems.values()).map((item: any) => {
-                let commodity = item?.commodity ?? item?.symbol;
-                // Safety check for expiry_date to avoid substring errors
-                let formattedDate = '';
-                if (item.expiry && item.expiry.length >= 5) {
-                    const day = item.expiry.substring(0, 2);
-                    const month = item.expiry.substring(2, 5); // APR
-                    formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
+            } else {
+                // Original logic for non-FCFS
+                if (!uniqueItems.has(key)) {
+                    uniqueItems.set(key, item);
                 }
-
-                const uniqueKey = `${item.instrument}-${commodity}-${item.expiry}`;
-                const currentPrice = parseFloat(item.ltp || '0');
-                const prevPrice = prevPricesRef.current[uniqueKey];
-
-                let tickClass = '';
-                if (prevPrice !== undefined) {
-                    const diff = Math.abs(currentPrice - prevPrice);
-                    if (diff >= 5) { // Only show color if change is 10 or more
-                        if (currentPrice > prevPrice) tickClass = 'tick-up high';
-                        else if (currentPrice < prevPrice) tickClass = 'tick-down low';
-                    }
-                }
-
-                // Update ref
-                prevPricesRef.current[uniqueKey] = currentPrice;
-
-                return {
-                    id: uniqueKey,
-                    name: `${commodity}${formattedDate ? ' ' + formattedDate : ''}`,
-                    price: currentPrice,
-                    high: parseFloat(item.high || '0'),
-                    low: parseFloat(item.low || '0'),
-                    change: parseFloat(item.change || '0'),
-                    changePercent: parseFloat(item.change_percent || '0'),
-                    open: parseFloat(item.open || '0'),
-                    close: parseFloat(item.close || '0'),
-                    original: item,
-                    tickClass: tickClass
-                };
-            });
-            setQuotes(formattedQuotes);
+            }
         });
 
-        // Cleanup if needed? The service is a singleton so maybe just leave the callback?
-        // Ideally we should have an unsubscribe, but the current implementation of onMarketData just replaces the callback.
-        // So hitting other pages might stop this update, which is fine for now as we only need it here.
-    }, []);
+        const formattedQuotes = Array.from(uniqueItems.values()).map((item: any) => {
+            let commodity = item?.commodity ?? item?.symbol;
+            // Safety check for expiry_date to avoid substring errors
+            let formattedDate = '';
+            if (item.expiry && item.expiry.length >= 5) {
+                const day = item.expiry.substring(0, 2);
+                const month = item.expiry.substring(2, 5); // APR
+                formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
+            }
+
+            const uniqueKey = `${item.instrument}-${commodity}-${item.expiry}`;
+            const currentPrice = parseFloat(item.ltp || '0');
+            const prevPrice = prevPricesRef.current[uniqueKey];
+
+            let tickClass = '';
+            if (prevPrice !== undefined) {
+                const diff = Math.abs(currentPrice - prevPrice);
+                if (diff >= 3) { // Only show color if change is 10 or more
+                    if (currentPrice > prevPrice) tickClass = 'tick-up high';
+                    else if (currentPrice < prevPrice) tickClass = 'tick-down low';
+                }
+            }
+
+            // Update ref
+            prevPricesRef.current[uniqueKey] = currentPrice;
+
+            return {
+                id: uniqueKey,
+                name: `${commodity}${formattedDate ? ' ' + formattedDate : ''}`,
+                price: currentPrice,
+                high: parseFloat(item.high || '0'),
+                low: parseFloat(item.low || '0'),
+                change: parseFloat(item.change || '0'),
+                changePercent: parseFloat(item.change_percent || '0'),
+                open: parseFloat(item.open || '0'),
+                close: parseFloat(item.close || '0'),
+                original: item,
+                tickClass: tickClass
+            };
+        });
+        setQuotes(formattedQuotes);
+    }, [liveRates]);
 
     // ONLY show quotes that have been selected from the AddSymbolModal
     const watchListQuotes = quotes.filter(q => selectedSymbols.includes(q.id));
     const filteredQuotes = watchListQuotes.filter(q => q.name.toLowerCase().includes(searchText.toLowerCase()));
 
-    // Derived state for the modal to ensure it gets live updates
-    const selectedQuote = selectedQuoteId !== null ? quotes.find(q => q.id === selectedQuoteId) || null : null;
+    // Keep selected quote state stable while modal is open
+    const [selectedQuote, setSelectedQuote] = useState<any>(null);
+
+    useEffect(() => {
+        if (selectedQuoteId !== null) {
+            const found = quotes.find(q => q.id === selectedQuoteId);
+            if (found) {
+                setSelectedQuote(found);
+            }
+        } else {
+            setSelectedQuote(null);
+        }
+    }, [selectedQuoteId, quotes]);
 
     let pressTimer: any;
     const handlePressStart = () => {
