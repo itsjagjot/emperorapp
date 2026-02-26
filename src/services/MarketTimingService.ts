@@ -23,13 +23,14 @@ class MarketTimingService {
 
         // 2. Check Local Storage
         const storedData = localStorage.getItem(STORAGE_KEY);
-        if (storedData) {
-            const parsed: MarketTiming = JSON.parse(storedData);
-            if (this.isToday(parsed.date)) {
-                this.timing = parsed;
-                return parsed;
-            }
-        }
+        // if (storedData) {
+
+        //     const parsed: MarketTiming = JSON.parse(storedData);
+        //     if (this.isToday(parsed.date)) {
+        //         this.timing = parsed;
+        //         return parsed;
+        //     }
+        // }
 
         // 3. Fetch from API
         return await this.fetchFromApi();
@@ -87,15 +88,22 @@ class MarketTimingService {
      */
     public isMarketOpen(): boolean {
         try {
+            // First check if today is a weekend
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return false; // Market is closed on Saturday and Sunday
+            }
+
             const storedData = localStorage.getItem(STORAGE_KEY);
             if (!storedData) return true; // Default to open if no timing found
 
             const parsed: MarketTiming = JSON.parse(storedData);
             if (!this.isToday(parsed.date)) {
-                return true; // Default to open if timing is stale (or we could return false, but true is safer)
+                return true; // Default to open if timing is stale
             }
 
-            const now = new Date();
+            const now = today;
             const start = parsed.start_time;
             const end = parsed.end_time;
 

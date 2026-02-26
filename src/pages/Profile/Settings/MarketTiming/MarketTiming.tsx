@@ -122,7 +122,7 @@ const MarketTiming: React.FC = () => {
                             </div>
                             <div className={`time-strip ${isMarketOpen ? 'bg-open' : 'bg-closed'}`}>
                                 {isMarketOpen ? (
-                                    timings ? `${formatToAMPM(timings.start_time)} - ${formatToAMPM(timings.end_time)}` : '09:00 AM - 03:30 PM'
+                                    timings ? `${formatToAMPM(timings.start_time)} - ${formatToAMPM(timings.end_time)}` : '09:00 AM - 23:30 PM'
                                 ) : '12:00 AM - 12:00 AM'}
                             </div>
                         </div>

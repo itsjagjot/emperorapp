@@ -97,6 +97,28 @@ class TradeService {
         }
     }
 
+    async getUserwisePositions(filters?: { username?: string, symbol?: string, exchange_name?: string }) {
+        try {
+            const exchange = this.getExchange();
+            const params = new URLSearchParams();
+            if (filters?.username) params.append('username', filters.username);
+            if (filters?.symbol) params.append('symbol', filters.symbol);
+            if (filters?.exchange_name) params.append('exchange_name', filters.exchange_name);
+
+            const queryString = params.toString();
+            const url = `${API_BASE_URL}/${exchange}/orders/userwise-positions${queryString ? '?' + queryString : ''}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching userwise positions:', error);
+            throw error;
+        }
+    }
+
     async getAccountSummary() {
         try {
             const exchange = this.getExchange();

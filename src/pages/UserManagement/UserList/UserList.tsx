@@ -27,6 +27,7 @@ interface User {
     UserRoleName: string;
     IsActive: boolean;
     Credit: number;
+    ServerName?: string;
     // Add placeholders if needed
     balance?: string;
     pl?: string;
@@ -142,6 +143,7 @@ const UserList: React.FC = () => {
                                 <div className="name-section">
                                     <h3>{user.FirstName} {user.LastName}</h3>
                                     <p>@{user.Username} ({user.UserRoleName})</p>
+                                    {/* {user.ServerName && <p className="server-tag">Server: {user.ServerName}</p>} */}
                                 </div>
                             </div>
                             <IonBadge color={user.IsActive ? 'success' : 'medium'} className="status-badge">

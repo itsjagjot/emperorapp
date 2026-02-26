@@ -19,16 +19,20 @@ const CreateUser: React.FC = () => {
     const [present] = useIonToast();
     const history = useHistory();
 
-    // Form State
     const [formData, setFormData] = useState({
         username: '',
         fullName: '',
         password: '',
         credit: '',
+        deposit: '',
         contactNumber: ''
     });
 
     const [loading, setLoading] = useState(false);
+
+    const userStr = localStorage.getItem('user');
+    const currentUser = userStr ? JSON.parse(userStr) : null;
+    const isSuperAdmin = currentUser?.UserRoleName === 'SuperAdmin';
 
     // Exchange State
     const [exchanges, setExchanges] = useState<any[]>([]);
@@ -58,6 +62,8 @@ const CreateUser: React.FC = () => {
             setLoading(false);
         }
     };
+
+
 
     useIonViewWillEnter(() => {
         fetchMasterData();
@@ -150,6 +156,7 @@ const CreateUser: React.FC = () => {
                 FirstName: formData.fullName,
                 Password: formData.password,
                 Credit: formData.credit ? Math.abs(parseFloat(formData.credit)) : 0,
+                Deposit: formData.deposit ? Math.abs(parseFloat(formData.deposit)) : 0,
                 ContactNumber: formData.contactNumber,
                 Exchanges: exchangesObj
             };
@@ -181,6 +188,7 @@ const CreateUser: React.FC = () => {
                         fullName: '',
                         password: '',
                         credit: '',
+                        deposit: '',
                         contactNumber: ''
                     });
                 }
@@ -282,6 +290,18 @@ const CreateUser: React.FC = () => {
                                     min={0}
                                     value={formData.credit}
                                     onIonInput={e => handleInputChange('credit', e.detail.value!)}
+                                />
+                            </div>
+                            <div className="floating-input">
+                                <IonInput
+                                    label="Deposit"
+                                    labelPlacement="stacked"
+                                    placeholder="0.00"
+                                    fill="outline"
+                                    type="number"
+                                    min={0}
+                                    value={formData.deposit}
+                                    onIonInput={e => handleInputChange('deposit', e.detail.value!)}
                                 />
                             </div>
                         </div>

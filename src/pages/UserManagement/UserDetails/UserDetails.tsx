@@ -74,6 +74,10 @@ const UserDetailsPage: React.FC = () => {
     const [creditAmount, setCreditAmount] = useState('');
     const [creditLogs, setCreditLogs] = useState<any[]>([]);
 
+    const [showDepositModal, setShowDepositModal] = useState(false);
+    const [depositAmount, setDepositAmount] = useState('');
+    const [depositLogs, setDepositLogs] = useState<any[]>([]);
+
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -143,6 +147,21 @@ const UserDetailsPage: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to fetch credit logs', error);
+        }
+    };
+
+    const fetchDepositLogs = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/deposit-logs`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setDepositLogs(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch deposit logs', error);
         }
     };
 
@@ -296,6 +315,41 @@ const UserDetailsPage: React.FC = () => {
             } else {
                 const errData = await response.json();
                 present(errData.message || 'Failed to update credit', 2000);
+            }
+        } catch (error) {
+            console.error(error);
+            present('Error occurred', 2000);
+        }
+    };
+
+    const handleUpdateDeposit = async () => {
+        if (!depositAmount || isNaN(Number(depositAmount))) {
+            present({ message: 'Please enter a valid amount', duration: 2000, color: 'danger' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/deposit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    amount: Number(depositAmount),
+                    remarks: 'Deposit added by admin'
+                })
+            });
+
+            if (response.ok) {
+                present('Deposit updated successfully', 2000);
+                setShowDepositModal(false);
+                setDepositAmount('');
+                fetchUserDetails(); // Refresh
+            } else {
+                const errData = await response.json();
+                present(errData.message || 'Failed to update deposit', 2000);
             }
         } catch (error) {
             console.error(error);
@@ -465,7 +519,11 @@ const UserDetailsPage: React.FC = () => {
                                         </p>
                                         <p className="credit-text">
                                             <IonIcon icon={documentTextOutline} className="green-icon" />
-                                            <span className="green-text">Credit: {user?.positions?.summary?.credit}</span>
+                                            <span className="green-text">Credit: {user?.Credit}</span>
+                                        </p>
+                                        <p className="credit-text">
+                                            <IonIcon icon={layersOutline} className="green-icon" />
+                                            <span className="green-text">Deposit: {user?.Deposit}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -520,6 +578,16 @@ const UserDetailsPage: React.FC = () => {
                                     <IonIcon icon={walletOutline} />
                                 </div>
                                 <span>Add Credit</span>
+                            </div>
+
+                            <div className="action-item" onClick={() => {
+                                setShowDepositModal(true);
+                                fetchDepositLogs();
+                            }}>
+                                <div className="icon-wrapper green">
+                                    <IonIcon icon={layersOutline} />
+                                </div>
+                                <span>Add Deposit</span>
                             </div>
 
                             {/* <div className="action-item">
@@ -713,6 +781,56 @@ const UserDetailsPage: React.FC = () => {
                                     </div>
                                 ) : (
                                     <p style={{ color: '#888', fontSize: '13px' }}>No credit logs found.</p>
+                                )}
+                            </div>
+                        </div>
+                    </IonContent>
+                </IonModal>
+
+                {/* Add Deposit Modal */}
+                <IonModal isOpen={showDepositModal} onDidDismiss={() => setShowDepositModal(false)} initialBreakpoint={0.7} breakpoints={[0, 0.7, 1]} className="action-modal">
+                    <IonContent className="ion-padding">
+                        <div className="modal-inner">
+                            <h3>Add Deposit</h3>
+                            <p className="subtitle">Update deposit limit for {user.Username}</p>
+
+                            <div className="input-group">
+                                <label>Deposit Amount</label>
+                                <IonInput
+                                    type="number"
+                                    value={depositAmount}
+                                    onIonChange={e => setDepositAmount(e.detail.value!)}
+                                    placeholder="Enter Amount"
+                                    className="custom-input"
+                                />
+                            </div>
+
+                            <IonButton expand="block" onClick={handleUpdateDeposit} style={{ '--border-radius': '8px', marginTop: '20px' }}>
+                                Save Deposit
+                            </IonButton>
+
+                            {/* Deposit Logs Section */}
+                            <div style={{ marginTop: '30px' }}>
+                                <h4>Recent Deposit Logs</h4>
+                                {depositLogs.length > 0 ? (
+                                    <div className="brk-table" style={{ fontSize: '12px' }}>
+                                        <div className="brk-table-header" style={{ gridTemplateColumns: '1fr 1fr 1fr', padding: '8px' }}>
+                                            <span>Date</span>
+                                            <span>Amt</span>
+                                            <span>By</span>
+                                        </div>
+                                        <div className="brk-table-body">
+                                            {depositLogs.map((log: any) => (
+                                                <div key={log.id} className="brk-table-row" style={{ gridTemplateColumns: '1fr 1fr 1fr', padding: '8px' }}>
+                                                    <span>{new Date(log.date).toLocaleDateString()}</span>
+                                                    <span style={{ color: log.amount >= 0 ? 'green' : 'red', fontWeight: 'bold' }}>{log.amount}</span>
+                                                    <span>{log.added_by_username}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p style={{ color: '#888', fontSize: '13px' }}>No deposit logs found.</p>
                                 )}
                             </div>
                         </div>

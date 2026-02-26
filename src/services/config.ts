@@ -15,3 +15,7 @@ export const APP_MODE: 'dev' | 'prod' = 'prod';
 
 // Market Data Display Strategy: 'ALL' or 'FCFS' (First Come First Served)
 export const SHOW_STRATEGY: 'ALL' | 'FCFS' = 'FCFS';
+
+// Invite Links for sharing (Fallbacks)
+export const ANDROID_INVITE_LINK = 'https://play.google.com/store/apps/details?id=your.package.id';
+export const IOS_INVITE_LINK = 'https://apps.apple.com/app/your-app-id';

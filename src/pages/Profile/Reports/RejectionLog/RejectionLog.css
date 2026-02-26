@@ -16,6 +16,72 @@
     margin-top: 5px;
 }
 
+/* Row Styling */
+.filter-row {
+    display: flex;
+    gap: 10px;
+}
+
+/* Half width for first row */
+.filter-item-half {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    height: 42px;
+}
+
+/* Minute dropdown grows to fill space */
+.dropdown-flex-grow {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    height: 42px;
+}
+
+/* Dropdown Styling */
+.brand-select {
+    width: 100%;
+    height: 100%;
+    --placeholder-color: #4a5568;
+    --placeholder-opacity: 1;
+    font-size: 14px;
+    padding-inline-start: 10px;
+}
+
+.brand-select::part(icon) {
+    color: #4a5568;
+    opacity: 0.6;
+}
+
+/* Icons Styling */
+.icon-actions-group {
+    display: flex;
+    gap: 8px;
+}
+
+.action-circle-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.search-bg {
+    background: #015d28;
+    color: white;
+}
+
+.reset-outline-btn {
+    border: 1.5px solid #015d28;
+    color: #015d28;
+    background: white;
+}
+
 /* Buttons and Other Filters */
 .filter-row {
     display: flex;
@@ -62,4 +128,90 @@
 
 .btn-icon-gap {
     margin-right: 8px;
+}
+
+/* Table Styles */
+.scrollable-table-container {
+    overflow-x: auto;
+    margin-top: 10px;
+    border-radius: 4px;
+    background: white;
+}
+
+.table-min-width {
+    min-width: 650px;
+}
+
+.table-header-row {
+    background: #e2e8f0;
+    display: flex;
+    padding: 10px 0;
+}
+
+.table-data-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+}
+
+.th-item,
+.td-item {
+    flex: 1;
+    font-size: 12px;
+    text-align: center;
+    padding: 0 5px;
+}
+
+.th-item {
+    font-weight: 700;
+    color: #00263e;
+}
+
+.td-item {
+    color: #475569;
+}
+
+.desc-col {
+    flex: 1.5;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.script-name {
+    font-weight: 700;
+    color: #4f46e5;
+}
+
+/* Rejection Info */
+.rejection-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.reason-text {
+    font-weight: 600;
+    color: #e11d48;
+}
+
+.by-text {
+    font-size: 10px;
+    color: #64748b;
+    font-style: italic;
+}
+
+.loading-state {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #94a3b8;
 }

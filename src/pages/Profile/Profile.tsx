@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    IonContent, IonHeader, IonPage, IonToolbar, IonIcon, useIonRouter
+    IonContent, IonHeader, IonPage, IonToolbar, IonIcon, useIonRouter, useIonToast, isPlatform
 } from '@ionic/react';
 import {
     personAddOutline, listOutline, searchOutline, personOutline,
@@ -13,13 +13,16 @@ import {
     briefcaseOutline,
     pieChartOutline,
     alertCircleOutline,
-    cubeOutline
+    cubeOutline,
+    globeOutline
 } from 'ionicons/icons';
 import { logoutUser } from '../../services/authService';
 import Loader from '../../components/Loader/Loader';
+import { ANDROID_INVITE_LINK, IOS_INVITE_LINK } from '../../services/config';
 import './Profile.css';
 
 const Profile: React.FC = () => {
+    const [present] = useIonToast();
     const router = useIonRouter();
     const [loggingOut, setLoggingOut] = React.useState(false);
 
@@ -34,6 +37,47 @@ const Profile: React.FC = () => {
         } catch (error) {
             console.error('Logout failed:', error);
             setLoggingOut(false);
+        }
+    };
+
+    const handleInvite = async () => {
+        let shareLink = '';
+
+        if (isPlatform('android')) {
+            shareLink = userData?.AndroidLink || ANDROID_INVITE_LINK;
+        } else if (isPlatform('ios')) {
+            shareLink = userData?.IOSLink || IOS_INVITE_LINK;
+        } else {
+            // Default for web/desktop
+            shareLink = userData?.AndroidLink || ANDROID_INVITE_LINK;
+        }
+
+        const shareData = {
+            title: 'Join Emperor Shot',
+            text: 'Check out Emperor Shot for the best trading experience!',
+            url: shareLink
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                if ((err as Error).name !== 'AbortError') {
+                    console.error('Error sharing:', err);
+                }
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareData.url);
+                present({
+                    message: 'Link copied to clipboard!',
+                    duration: 2000,
+                    color: 'success',
+                    position: 'bottom'
+                });
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
         }
     };
 
@@ -84,7 +128,7 @@ const Profile: React.FC = () => {
                 { title: 'Profile', icon: personOutline, color: '#9013fe', path: '/app/my-information/profile' },
                 { title: 'Account Summary', icon: walletOutline, color: '#d0021b', path: '/app/my-information/account-summary' },
                 { title: 'Change Password', icon: lockClosedOutline, color: '#2c3e50', path: '/app/my-information/change-password' },
-                { title: 'Invite Friends', icon: peopleOutline, color: '#2c3e50', path: '/app/my-information/invite-friends' },
+                { title: 'Invite Friends', icon: peopleOutline, color: '#2c3e50', action: handleInvite },
                 { title: 'Login History', icon: documentTextOutline, color: '#2c3e50', path: '/app/my-information/login-history' },
                 { title: 'Messages', icon: mailOutline, color: '#897e06ff', path: '/app/settings/message' },
             ].filter(item => showAllFeatures || ['Profile', 'Change Password', 'Login History', 'Messages'].includes(item.title))
@@ -98,12 +142,12 @@ const Profile: React.FC = () => {
                 { title: 'Weekly Admin', icon: calendarOutline, color: '#4a4a4a', path: '/app/reports/weekly-admin' },
                 { title: 'Intraday History', icon: timeOutline, color: '#2e7d32', path: '/app/reports/intraday-history' },
                 { title: 'P & L', icon: statsChartOutline, color: '#c62828', path: '/app/reports/pnl' },
-                { title: 'Client P & L Summary', icon: barChartOutline, color: '#1565c0', path: '/app/reports/client-pnl' },
-                { title: 'Script P & L Summary', icon: documentTextOutline, color: '#ef6c00', path: '/app/reports/script-pnl' },
+                // { title: 'Client P & L Summary', icon: barChartOutline, color: '#1565c0', path: '/app/reports/client-pnl' },
+                // { title: 'Script P & L Summary', icon: documentTextOutline, color: '#ef6c00', path: '/app/reports/script-pnl' },
                 { title: 'Settlements Report', icon: scaleOutline, color: '#bb116cff', path: '/app/reports/settlement' },
-                { title: 'Cf Margin SquareOff', icon: briefcaseOutline, color: '#590a7bff', path: '/app/reports/cf-margin' },
+                // { title: 'Cf Margin SquareOff', icon: briefcaseOutline, color: '#590a7bff', path: '/app/reports/cf-margin' },
                 { title: 'Userwise Open Position', icon: briefcaseOutline, color: '#0eca2aff', path: '/app/reports/userwise-open-position' },
-                { title: '% Open Position', icon: pieChartOutline, color: '#1565c0', path: '/app/reports/open-position-percent' },
+                // { title: '% Open Position', icon: pieChartOutline, color: '#1565c0', path: '/app/reports/open-position-percent' },
                 { title: 'Rejection Log', icon: alertCircleOutline, color: '#e1531fff', path: '/app/reports/rejection-log' },
                 { title: 'Delete Trade', icon: trashOutline, color: '#ce0000ff', path: '/app/reports/delete-trade' },
                 { title: 'Script Quantity', icon: cubeOutline, color: '#0ea985ff', path: '/app/reports/script-quantity' },
@@ -159,7 +203,13 @@ const Profile: React.FC = () => {
                             <h3 className="profile-section-label">{section.label}</h3>
                             <div className="card-stack">
                                 {section.items.map((item: any, iIdx) => (
-                                    <div className="premium-card" key={iIdx} onClick={() => item.path && router.push(item.path)}>
+                                    <div className="premium-card" key={iIdx} onClick={() => {
+                                        if (item.action) {
+                                            item.action();
+                                        } else if (item.path) {
+                                            router.push(item.path);
+                                        }
+                                    }}>
                                         <div className="card-main">
                                             <div className="icon-wrapper" style={{ color: item.color }}>
                                                 <IonIcon icon={item.icon} />

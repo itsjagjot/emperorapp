@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IonContent, IonPage, IonInput, IonIcon, IonList, IonItem, IonLabel, IonAvatar } from '@ionic/react';
 import { personOutline, eyeOutline, searchOutline, chevronForwardOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
-import { loginUser } from '../../services/authService';
+import { loginUser, fetchServers } from '../../services/authService';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -20,28 +20,20 @@ const Login: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const history = useHistory();
 
-    // Local Data for now (Will be replaced by API)
-    const localServers = [
-        { id: 1, name: 'DEMO', logo: '/assets/demo_logo.png' },
-        { id: 2, name: 'EMPEROR', logo: '/assets/emperor_logo.png' }
-    ];
-
     useEffect(() => {
-        // Trigger search after 3 characters
-        if (serverSearch.length >= 3 && !selectedServer) {
-            const query = serverSearch.toLowerCase();
+        const timer = setTimeout(async () => {
+            if (serverSearch.length >= 3 && !selectedServer) {
+                const results = await fetchServers(serverSearch);
+                setSuggestions(results);
+                setShowSuggestions(results.length > 0);
+            } else {
+                setSuggestions([]);
+                setShowSuggestions(false);
+            }
+        }, 500); // 500ms debounce
 
-            // SIMULATING API CALL: Replace this block with your actual fetch logic
-            const filtered = localServers.filter(s =>
-                s.name.toLowerCase().includes(query)
-            );
-
-            setSuggestions(filtered);
-            setShowSuggestions(filtered.length > 0);
-        } else {
-            setShowSuggestions(false);
-        }
-    }, [serverSearch]);
+        return () => clearTimeout(timer);
+    }, [serverSearch, selectedServer]);
 
     const handleSelectServer = (srv: any) => {
         setSelectedServer(srv);
@@ -59,7 +51,7 @@ const Login: React.FC = () => {
             setLoading(true);
             setError('');
 
-            const response = await loginUser(username, password, selectedServer.name);
+            const response = await loginUser(username, password, 'EMPEROR', selectedServer.id);
 
             if (response.success && response.data) {
                 localStorage.setItem('isAuthenticated', 'true');

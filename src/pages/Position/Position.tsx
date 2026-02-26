@@ -103,7 +103,6 @@ const Position: React.FC = () => {
         const updatedPositions = positions.map(pos => {
             const rate = liveRates.find(r => r.commodity == pos.symbol);
             const posQty = Number(pos.quantity) || 0;
-            const posLotSize = Number(pos.lot_size) || 0;
             const posAtp = Number(pos.atp) || 0;
 
             let cmp = pos.cmp || 0;
@@ -116,19 +115,20 @@ const Position: React.FC = () => {
                     const Buydiff = Math.round(cmp - posAtp);
                     const SellDiff = Math.round(posAtp - cmp);
                     pnl = pos.action === 'Buy'
-                        ? (Buydiff) * posQty * posLotSize
-                        : (SellDiff) * posQty * posLotSize;
+                        ? (Buydiff) * posQty
+                        : (SellDiff) * posQty;
 
-                    const tradeValue = cmp * posQty * posLotSize;
+                    const tradeValue = cmp * posQty;
                     const margin = tradeValue * (marginPercentage / 100);
                     totalMarginUsed += margin;
 
-                    if (pos.cmp !== cmp || pos.pnl !== pnl) {
+                    // if (pos.cmp !== cmp || pos.pnl !== pnl) {
+                    if (pos.cmp !== cmp || Math.abs((pos.pnl || 0) - pnl) > 0.01) {
                         hasChanges = true;
                     }
                 }
             } else {
-                const estValue = posAtp * posQty * posLotSize;
+                const estValue = posAtp * posQty;
                 totalMarginUsed += (estValue * (marginPercentage / 100));
             }
 
@@ -145,6 +145,9 @@ const Position: React.FC = () => {
             const realisedPnL = Number(prev.realised) || 0;
             const credit = Number(prev.credit) || 0;
             const newEquity = credit + totalM2M + realisedPnL;
+
+            if (prev.m2m === totalM2M && prev.marginUsed === totalMarginUsed) return prev; // added
+
             return {
                 ...prev,
                 m2m: totalM2M,

@@ -24,7 +24,8 @@ export interface LoginResponse {
 export const loginUser = async (
     username: string,
     password: string,
-    exchange: string = DEFAULT_EXCHANGE
+    exchange: string = DEFAULT_EXCHANGE,
+    serverId: number | null = null
 ): Promise<LoginResponse> => {
     const url = `${API_BASE_URL}/${exchange}/auth/login`;
 
@@ -34,11 +35,29 @@ export const loginUser = async (
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, server_id: serverId }),
     });
 
     const data = await response.json();
     return data;
+};
+
+/**
+ * Fetch Servers based on search query (min 3 characters)
+ */
+export const fetchServers = async (query: string): Promise<any[]> => {
+    try {
+        const url = `${API_BASE_URL}/servers/search?q=${encodeURIComponent(query)}`;
+        const response = await fetch(url, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (response.ok) {
+            return await response.json();
+        }
+    } catch (error) {
+        console.error('Error fetching servers:', error);
+    }
+    return [];
 };
 
 /**

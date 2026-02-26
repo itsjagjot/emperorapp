@@ -90,3 +90,51 @@
     color: #94a3b8;
     font-size: 14px;
 }
+
+.table-data-row {
+    display: flex;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 12px 0;
+    align-items: center;
+}
+
+.td-item {
+    flex: 1;
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+}
+
+.name-bold {
+    font-weight: 700;
+    color: #00263e;
+    font-size: 13px;
+}
+
+.time-sub {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.pnl-val {
+    font-weight: 700;
+}
+
+.up {
+    color: #10b981;
+}
+
+.down {
+    color: #ef4444;
+}
+
+.qty-val {
+    font-weight: 600;
+    color: #00263e;
+}
+
+.cmp-val {
+    font-weight: 600;
+    color: #00263e;
+}

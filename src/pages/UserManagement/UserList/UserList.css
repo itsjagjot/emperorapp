@@ -59,6 +59,14 @@
     color: #888;
 }
 
+.server-tag {
+    font-size: 0.7rem;
+    color: #4a90e2;
+    margin-top: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 .status-badge {
     --padding-start: 10px;
     --padding-end: 10px;
