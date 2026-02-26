@@ -52,6 +52,7 @@ interface UserDetails {
     IsActive: boolean;
     // adding placeholder extra fields
     Balance: number;
+    Deposit?: number;
     trades?: any[];
     positions?: {
         positions: any[];
