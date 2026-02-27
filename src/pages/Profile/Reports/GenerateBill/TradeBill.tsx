@@ -78,7 +78,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                     const avgSPrice = totalSQty > 0 ? totalSVol / (totalSQty * (scriptTrades[0].lot_size || 1)) : 0;
 
                     const scriptNetVol = totalSVol - totalBVol;
-                    const scriptBrk = scriptTrades.reduce((sum: number, t: any) => sum + Number(t.brokerage || 0), 0);
+                    const scriptBrk = scriptTrades.reduce((sum: number, t: any) => sum + Number(t.brokerage_amount || 0), 0);
                     const scriptNetResult = scriptNetVol - scriptBrk;
 
                     totalNetPL += scriptNetVol;
@@ -188,7 +188,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                                 const scriptTrades = groupedTrades[scriptName];
                                 const buyVol = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'buy').reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (t.lot_size || 1)), 0);
                                 const sellVol = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'sell').reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (t.lot_size || 1)), 0);
-                                const brk = scriptTrades.reduce((sum: number, t: any) => sum + Number(t.brokerage || 0), 0);
+                                const brk = scriptTrades.reduce((sum: number, t: any) => sum + Number(t.brokerage_amount || 0), 0);
                                 const total = sellVol - buyVol;
                                 const net = total - brk;
 

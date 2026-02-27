@@ -61,6 +61,7 @@ interface UserDetails {
     Exchanges?: string;
     margin_squareoff?: number;
     lock_timing?: number;
+    UserExchanges?: any[];
 }
 
 const UserDetailsPage: React.FC = () => {
@@ -953,7 +954,13 @@ const UserDetailsPage: React.FC = () => {
                             <div className="brk-filters-row">
                                 <select className="brk-select" value={selectedExchangeId || ''} onChange={(e) => handleExchangeChange({ detail: { value: e.target.value } })}>
                                     <option value="" disabled>Select Exchange</option>
-                                    {exchanges.map(ex => (
+                                    {exchanges.filter(ex => {
+                                        const userEx = user?.UserExchanges?.find((ue: any) => ue.exchange_id === ex.id || ue.exchange_type === ex.name);
+                                        if (!userEx || !userEx.is_enabled) return false;
+                                        if (brkType === 'Lot' && userEx.lot) return true;
+                                        if (brkType === 'Turnover' && userEx.turnover) return true;
+                                        return false;
+                                    }).map(ex => (
                                         <option key={ex.id} value={ex.id}>{ex.name}</option>
                                     ))}
                                 </select>
@@ -961,7 +968,13 @@ const UserDetailsPage: React.FC = () => {
                             </div>
 
                             <div className="brk-filters-row">
-                                <input type="number" placeholder="Amount" className="brk-input" value={brkAmount} onChange={e => setBrkAmount(e.target.value)} />
+                                <input
+                                    type="number"
+                                    placeholder={brkType === 'Lot' ? "Amount (e.g., 400, 500)" : "Percent % (e.g., 0.02, 0.2)"}
+                                    className="brk-input"
+                                    value={brkAmount}
+                                    onChange={e => setBrkAmount(e.target.value)}
+                                />
                                 <button className="brk-btn-apply" onClick={handleApplyBrokerage} style={{ width: '100px' }}>Apply</button>
                             </div>
 

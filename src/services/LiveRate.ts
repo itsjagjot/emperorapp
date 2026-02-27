@@ -159,7 +159,6 @@ class LiveRateService {
 
             // Listen for market data
             this.socket.on('market_data', (data: any) => {
-                // console.log('Live Rates:', data); 
                 this.notifyListeners(data);
                 this.processIntradayData(data);
             });
@@ -190,7 +189,10 @@ class LiveRateService {
         console.log('LiveRate using market timing:', this.timingConfig);
     }
 
+    private lastData: any = null;
+
     private notifyListeners(data: any) {
+        this.lastData = data;
         this.callbacks.forEach(cb => {
             try {
                 cb(data);
@@ -202,9 +204,11 @@ class LiveRateService {
 
     public onMarketData(callback: (data: any) => void) {
         this.callbacks.push(callback);
-        // Immediate call in dev mode to avoid waiting
-        if (APP_MODE === 'dev') {
-            // callback(DEV_DATA);
+        // Immediate call if we already have data
+        if (this.lastData) {
+            callback(this.lastData);
+        } else if (APP_MODE === 'dev') {
+            callback(DEV_DATA);
         }
     }
 
@@ -330,17 +334,17 @@ class LiveRateService {
                 change: 0 // We don't track change relative to prev candle here easily
             };
 
-            try {
-                await fetch(`${API_BASE_URL}/market-data`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-            } catch (error) {
-                console.error('Failed to store intraday data for', candle.symbol, error);
-            }
+            // try {
+            //     await fetch(`${API_BASE_URL}/market-data`, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json'
+            //         },
+            //         body: JSON.stringify(payload)
+            //     });
+            // } catch (error) {
+            //     console.error('Failed to store intraday data for', candle.symbol, error);
+            // }
         }
     }
 }

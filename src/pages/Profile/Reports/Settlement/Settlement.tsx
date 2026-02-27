@@ -110,7 +110,7 @@ const SettlementsReport: React.FC = () => {
                     // Use 'deals' field for P&L as per user instruction
                     const scriptPL = scriptTrades.reduce((sum, t) => sum + Number(t.deals || 0), 0);
                     userGrossPL += scriptPL;
-                    userBrokerage += scriptTrades.reduce((sum, t) => sum + Number(t.brokerage || 0), 0);
+                    userBrokerage += scriptTrades.reduce((sum, t) => sum + Number(t.brokerage_amount || 0), 0);
                 });
 
                 // Net P&L = Gross P&L - Brokerage

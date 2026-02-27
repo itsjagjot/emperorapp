@@ -60,7 +60,7 @@
     margin-bottom: 5px;
 }
 
-.custom-search {
+.wa-custom-search {
     --background: white;
     --border-radius: 10px;
     --box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
@@ -132,6 +132,16 @@
     /* Visual contrast layi light green use kitta hai dark background te */
 }
 
+.red-text {
+    color: #e53935 !important;
+}
+
+.theme-red-text {
+    color: #e53935 !important;
+    font-weight: 700;
+    font-size: 13px;
+}
+
 /* Je tusi exact dark green (#015d28) hi chahunde ho */
 .theme-green-text {
     color: #015d28 !important;
@@ -151,13 +161,13 @@
 .theme-green-text {
     color: #2ecc71 !important;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .theme-green2-text {
     color: #015d28 !important;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Sort Pills */

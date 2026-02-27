@@ -7,16 +7,15 @@
 }
 
 /* Input Boxes - Smaller height */
-.custom-input-box.compact {
+/* .custom-input-box.compact {
     background: #ffffff;
     border: 1px solid #dcdcdc;
     border-radius: 8px;
     height: 42px;
-    /* Pehlan 50 ਸੀ, hun 42 kitta */
     display: flex;
     align-items: center;
     padding: 0 8px;
-}
+} */
 
 .custom-input-box.compact IonSelect {
     font-size: 14px;

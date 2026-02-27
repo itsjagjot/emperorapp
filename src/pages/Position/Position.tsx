@@ -39,12 +39,15 @@ const Position: React.FC = () => {
         total: 0,
         m2m: 0,
         realised: 0,
-        credit: 200000,
-        equity: 200000,
+        credit: 0,
+        deposit: 0,
+        equity: 0,
         marginUsed: 0,
-        freeMargin: 0
+        freeMargin: 0,
+        baseM2m: 0,
+        baseEquity: 0
     });
-    const [marginPercentage, setMarginPercentage] = useState(10); // Dynamic margin requirement
+    const [marginPercentage, setMarginPercentage] = useState(1); // Dynamic margin requirement
 
     const { showToast } = useToast();
     const liveRates = useRateStore(state => state.rates);
@@ -61,11 +64,21 @@ const Position: React.FC = () => {
                     setSummary(prev => ({
                         ...prev,
                         realised: response.summary.realised_pnl || 0,
-                        credit: response.summary.credit || prev.credit
+                        credit: response.summary.actual_credit || 0,
+                        deposit: response.summary.deposit || 0,
+                        baseM2m: response.summary.m2m || 0,
+                        baseEquity: response.summary.equity || 0,
+                        m2m: response.summary.m2m || 0,
+                        total: response.summary.m2m || 0,
+                        equity: response.summary.equity || 0,
+                        marginUsed: response.summary.margin_used || 0,
+                        freeMargin: response.summary.free_margin || 0,
                     }));
                 }
                 if (response.user && response.user.margin_squareoff !== undefined) {
                     setMarginPercentage(Number(response.user.margin_squareoff));
+                } else if (response.summary && response.summary.margin_percentage !== undefined) {
+                    setMarginPercentage(Number(response.summary.margin_percentage));
                 }
             } else if (Array.isArray(response)) {
                 setPositions(response);
@@ -96,13 +109,15 @@ const Position: React.FC = () => {
     useEffect(() => {
         if (!Array.isArray(positions) || positions.length === 0 || liveRates.length === 0) return;
 
-        let totalM2M = 0;
+        let runningPnl = 0;
         let totalMarginUsed = 0;
         let hasChanges = false;
 
         const updatedPositions = positions.map(pos => {
             const rate = liveRates.find(r => r.commodity == pos.symbol);
             const posQty = Number(pos.quantity) || 0;
+            const posLotSize = Number(pos.lot_size) || 0;
+
             const posAtp = Number(pos.atp) || 0;
 
             let cmp = pos.cmp || 0;
@@ -112,13 +127,14 @@ const Position: React.FC = () => {
                 const currentCmp = pos.action === 'Buy' ? Number(rate.bid) : Number(rate.ask);
                 if (!isNaN(currentCmp)) {
                     cmp = currentCmp;
-                    const Buydiff = Math.round(cmp - posAtp);
-                    const SellDiff = Math.round(posAtp - cmp);
+                    const Buydiff = cmp - posAtp;
+                    const SellDiff = posAtp - cmp;
                     pnl = pos.action === 'Buy'
-                        ? (Buydiff) * posQty
-                        : (SellDiff) * posQty;
+                        ? (Buydiff) * posQty * posLotSize
+                        : (SellDiff) * posQty * posLotSize;
 
-                    const tradeValue = cmp * posQty;
+                    // Margin calculation with live CMP
+                    const tradeValue = cmp * posQty * posLotSize;
                     const margin = tradeValue * (marginPercentage / 100);
                     totalMarginUsed += margin;
 
@@ -132,7 +148,7 @@ const Position: React.FC = () => {
                 totalMarginUsed += (estValue * (marginPercentage / 100));
             }
 
-            totalM2M += pnl;
+            runningPnl += pnl;
 
             return hasChanges ? { ...pos, cmp, pnl } : pos;
         });
@@ -142,19 +158,28 @@ const Position: React.FC = () => {
         }
 
         setSummary(prev => {
-            const realisedPnL = Number(prev.realised) || 0;
-            const credit = Number(prev.credit) || 0;
-            const newEquity = credit + totalM2M + realisedPnL;
+            const baseM2m = Number(prev.baseM2m) || 0;
+            const baseEquity = Number(prev.baseEquity) || 0;
 
-            if (prev.m2m === totalM2M && prev.marginUsed === totalMarginUsed) return prev; // added
+            const liveM2m = baseM2m + runningPnl;
+            const liveEquity = baseEquity + runningPnl;
+            const liveFreeMargin = liveEquity - totalMarginUsed;
+
+            if (prev.m2m === liveM2m && prev.marginUsed === totalMarginUsed && prev.equity === liveEquity && prev.freeMargin === liveFreeMargin) return prev;
+
+            localStorage.setItem('m2m', liveM2m.toString());
+            localStorage.setItem('total', liveM2m.toString());
+            localStorage.setItem('equity', liveEquity.toString());
+            localStorage.setItem('marginUsed', totalMarginUsed.toString());
+            localStorage.setItem('freeMargin', liveFreeMargin.toString());
 
             return {
                 ...prev,
-                m2m: totalM2M,
-                total: totalM2M + realisedPnL,
-                equity: newEquity,
+                m2m: liveM2m,
+                total: liveM2m,
+                equity: liveEquity,
                 marginUsed: totalMarginUsed,
-                freeMargin: newEquity - totalMarginUsed
+                freeMargin: liveFreeMargin
             };
         });
 
@@ -250,6 +275,10 @@ const Position: React.FC = () => {
                             <div className="detail-row">
                                 <span>Credit</span>
                                 <strong>{(summary.credit || 0).toFixed(0)}</strong>
+                            </div>
+                            <div className="detail-row">
+                                <span>Deposit</span>
+                                <strong>{(summary.deposit || 0).toFixed(0)}</strong>
                             </div>
                             <div className="detail-row">
                                 <span>Equity</span>

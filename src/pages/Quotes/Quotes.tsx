@@ -95,31 +95,33 @@ const Quotes: React.FC = () => {
             }
 
             const uniqueKey = `${item.instrument}-${commodity}-${item.expiry}`;
-            const currentPrice = parseFloat(item.ltp || '0');
+            const bidPrice = parseFloat(item.bid || item.ltp || '0');
+            const askPrice = parseFloat(item.ask || item.close || item.ltp || '0');
+            const currentPrice = bidPrice; // Using bid as the primary price for comparison
             const prevPrice = prevPricesRef.current[uniqueKey];
 
             let tickClass = '';
             if (prevPrice !== undefined) {
                 const diff = Math.abs(currentPrice - prevPrice);
-                if (diff >= 3) { // Only show color if change is 10 or more
+                if (diff >= 0.3) {
                     if (currentPrice > prevPrice) tickClass = 'tick-up high';
                     else if (currentPrice < prevPrice) tickClass = 'tick-down low';
                 }
             }
 
-            // Update ref
+            // Update ref with the primary price
             prevPricesRef.current[uniqueKey] = currentPrice;
 
             return {
                 id: uniqueKey,
                 name: `${commodity}${formattedDate ? ' ' + formattedDate : ''}`,
-                price: currentPrice,
+                price: bidPrice,
                 high: parseFloat(item.high || '0'),
                 low: parseFloat(item.low || '0'),
                 change: parseFloat(item.change || '0'),
                 changePercent: parseFloat(item.change_percent || '0'),
                 open: parseFloat(item.open || '0'),
-                close: parseFloat(item.close || '0'),
+                close: askPrice,
                 original: item,
                 tickClass: tickClass
             };
@@ -219,7 +221,7 @@ const Quotes: React.FC = () => {
 
                                 <div className="item-row sub">
                                     <span className={quote.change >= 0 ? 'up' : 'down'}>
-                                        {quote.change > 0 ? '+' : ''}{quote.change.toFixed(0)} ({quote.changePercent}%)
+                                        {quote.change > 0 ? '+' : ''}{quote.change.toFixed(0)} {quote.changePercent != 0 ? '(' + quote.changePercent.toFixed(2) + '%)' : ''}
                                     </span>
                                     <span className="item-hl">L: {quote.low.toFixed(0)} H: {quote.high.toFixed(0)}</span>
                                 </div>

@@ -14,6 +14,7 @@ export interface TradeOrder {
     username: string;
     deals?: number;
     brokerage?: number;
+    brokerage_amount?: number;
     status?: string;
     square?: number;
     duration?: string;
@@ -183,6 +184,26 @@ class TradeService {
             return data;
         } catch (error) {
             console.error('Error canceling all pending orders:', error);
+            throw error;
+        }
+    }
+
+    async getPnLSummary(filters?: { username?: string }) {
+        try {
+            const exchange = this.getExchange();
+            const params = new URLSearchParams();
+            if (filters?.username) params.append('username', filters.username);
+
+            const queryString = params.toString();
+            const url = `${API_BASE_URL}/${exchange}/orders/pnl-summary${queryString ? '?' + queryString : ''}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching PnL summary:', error);
             throw error;
         }
     }

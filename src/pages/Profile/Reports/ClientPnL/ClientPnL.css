@@ -12,8 +12,7 @@
 }
 
 /* Card Styling for Selects - Matching image_605608 */
-.filter-card,
-.custom-input-box.compact {
+.filter-card {
     background: #fff;
     border: 1px solid #d1d5db;
     border-radius: 6px;

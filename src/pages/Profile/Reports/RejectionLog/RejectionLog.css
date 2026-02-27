@@ -5,12 +5,12 @@
     gap: 10px;
 }
 
-.custom-input-box.compact {
+/* .custom-input-box.compact {
     background: #fff;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     height: 42px;
-}
+} */
 
 .compact-date-row {
     margin-top: 5px;

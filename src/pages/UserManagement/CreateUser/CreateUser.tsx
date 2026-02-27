@@ -78,7 +78,13 @@ const CreateUser: React.FC = () => {
 
     const handleExchangeChange = (index: number, field: string, value: any) => {
         const newExchanges = [...exchanges];
-        newExchanges[index] = { ...newExchanges[index], [field]: value };
+        if (field === 'turnover') {
+            newExchanges[index] = { ...newExchanges[index], turnover: value, lot: !value };
+        } else if (field === 'lot') {
+            newExchanges[index] = { ...newExchanges[index], lot: value, turnover: !value };
+        } else {
+            newExchanges[index] = { ...newExchanges[index], [field]: value };
+        }
         setExchanges(newExchanges);
     };
 

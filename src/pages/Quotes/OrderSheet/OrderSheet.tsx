@@ -80,6 +80,12 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
 
 
     const handleTrade = async (action: 'Buy' | 'Sell') => {
+        // 🕒 Check Market Status first
+        if (!marketTimingService.isMarketOpen()) {
+            showToast('Market closed.', 'error');
+            return;
+        }
+
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const lockTimingValue = Number(user.lock_timing || 0);
 
@@ -91,6 +97,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
 
                 if (response) {
                     const realised = response.summary?.realised_pnl || 0;
+                    const baseM2m = response.summary?.m2m || 0;
                     let m2m = 0;
 
                     // Calculate M2M for all open positions
@@ -115,6 +122,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                     }
 
                     const totalPnL = realised + m2m;
+                    // const totalPnL = baseM2m + m2m;
 
                     if (totalPnL > 0) {
                         setLockCountdown(lockTimingValue);

@@ -27,8 +27,8 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import { useEffect, useState } from 'react';
-// import { liveRateService } from './services/LiveRate';
-import { liveRateV2Service } from './services/ExiSoc/LiveRateV2';
+import { liveRateService as liveRateV2Service } from './services/LiveRate';
+// import { liveRateV2Service } from './services/ExiSoc/LiveRateV2';
 import { useRateStore } from './store/useRateStore';
 import SplashScreen from './components/SplashScreen/SplashScreen';
 
