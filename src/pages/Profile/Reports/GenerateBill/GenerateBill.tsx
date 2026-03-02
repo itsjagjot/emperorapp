@@ -117,18 +117,19 @@ const GenerateBill: React.FC = () => {
             reportElement.style.margin = '0';
 
             const canvas = await html2canvas(reportElement, {
-                scale: 2,
+                scale: 1.5, // Reduced from 2 for better speed
                 logging: false,
                 useCORS: true,
                 allowTaint: true,
                 width: 794, // Approx 210mm in pixels at 96dpi
-                windowWidth: 794
+                windowWidth: 794,
+                imageTimeout: 0 // Prevent timeout on large reports
             });
 
             // Restore original styles
             reportElement.style.cssText = originalStyle;
 
-            const imgData = canvas.toDataURL('image/png');
+            const imgData = canvas.toDataURL('image/jpeg', 0.85); // JPEG is much faster/smaller than PNG
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
@@ -141,13 +142,13 @@ const GenerateBill: React.FC = () => {
             let heightLeft = imgHeight;
             let position = 0;
 
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
             heightLeft -= pageHeight;
 
             while (heightLeft >= 0) {
                 position = heightLeft - imgHeight;
                 pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
                 heightLeft -= pageHeight;
             }
 
@@ -155,13 +156,19 @@ const GenerateBill: React.FC = () => {
             const fileName = `Trade_Bill_${displayUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
 
             if (Capacitor.isNativePlatform()) {
+                // Request permissions if not granted (Fixes permission issue)
+                const perm = await Filesystem.checkPermissions();
+                if (perm.publicStorage !== 'granted') {
+                    await Filesystem.requestPermissions();
+                }
+
                 const pdfBase64 = pdf.output('datauristring').split(',')[1];
 
-                // Write file to Documents directory (Standard for mobile)
+                // Write file to Cache directory (Faster and safer for sharing)
                 const result = await Filesystem.writeFile({
                     path: fileName,
                     data: pdfBase64,
-                    directory: Directory.Documents,
+                    directory: Directory.Cache, // Changed from Documents to Cache for smoother share
                     recursive: true
                 });
 
