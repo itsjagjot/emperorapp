@@ -53,6 +53,12 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
         });
     };
 
+    const getColorClass = (val: number) => {
+        if (val > 0) return 'text-success';
+        if (val < 0) return 'text-danger';
+        return '';
+    };
+
     let totalNetPL = 0;
     let totalBrokerage = 0;
 
@@ -153,18 +159,18 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                             {/* Script Summary Block */}
                             <div className="script-summary-block">
                                 <div className="summary-line">
-                                    <span className="val">{formatCurrency(scriptNetVol)}</span>
+                                    <span className={`val ${getColorClass(scriptNetResult)}`}>{formatCurrency(scriptNetVol)}</span>
                                 </div>
                                 <div className="summary-line">
-                                    <span className="val">{formatCurrency(Math.abs(scriptNetVol))}</span>
+                                    <span className={`val ${getColorClass(scriptNetResult)}`}>{formatCurrency(scriptNetVol)}</span>
                                 </div>
                                 <div className="summary-line br-line">
                                     <span className="lbl">Br</span>
-                                    <span className="val">+ {formatCurrency(scriptBrk)}</span>
+                                    <span className="val text-danger">- {formatCurrency(scriptBrk)}</span>
                                 </div>
                                 <div className="summary-line result-line">
                                     <span className="lbl">({scriptNetResult >= 0 ? 'P' : 'L'})</span>
-                                    <span className="val">{formatCurrency(Math.abs(scriptNetResult))}</span>
+                                    <span className={`val ${getColorClass(scriptNetResult)}`}>{formatCurrency(scriptNetResult)}</span>
                                 </div>
                             </div>
                         </div>
@@ -196,17 +202,17 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                                     <tr key={scriptName}>
                                         <td>MCX</td>
                                         <td>{scriptName}</td>
-                                        <td className="ion-text-right">{formatCurrency(total)}</td>
-                                        <td className="ion-text-right">{formatCurrency(brk)}</td>
-                                        <td className="ion-text-right">{formatCurrency(net)}</td>
+                                        <td className={`ion-text-right ${getColorClass(total)}`}>{formatCurrency(total)}</td>
+                                        <td className="ion-text-right text-danger" >- {formatCurrency(brk)}</td>
+                                        <td className={`ion-text-right ${getColorClass(net)}`}>{formatCurrency(net)}</td>
                                     </tr>
                                 );
                             })}
                             <tr className="total-row">
                                 <td colSpan={2}>Total</td>
-                                <td className="ion-text-right">{formatCurrency(totalNetPL)}</td>
-                                <td className="ion-text-right">{formatCurrency(totalBrokerage)}</td>
-                                <td className="ion-text-right">{formatCurrency(totalNetPL - totalBrokerage)}</td>
+                                <td className={`ion-text-right ${getColorClass(totalNetPL)}`}>{formatCurrency(totalNetPL)}</td>
+                                <td className="ion-text-right text-danger">- {formatCurrency(totalBrokerage)}</td>
+                                <td className={`ion-text-right ${getColorClass(totalNetPL - totalBrokerage)}`}>{formatCurrency(totalNetPL - totalBrokerage)}</td>
                             </tr>
                         </tbody>
                     </table>

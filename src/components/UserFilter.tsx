@@ -5,19 +5,23 @@ import './UserFilter.css';
 import userService from '../services/userService';
 
 interface UserFilterProps {
-    onUserChange: (userId: string) => void;
+    onUserChange: (userName: string) => void;
+    onUserSelect?: (user: { user_id: any; user_name: string; name: string }) => void;
     includeSelf?: boolean;
     includeAll?: boolean;
+    defaultValue?: string;
     label?: string;
 }
 
 const UserFilter: React.FC<UserFilterProps> = ({
     onUserChange,
+    onUserSelect,
     includeSelf = false,
     includeAll = false,
+    defaultValue,
     label = "All User"
 }) => {
-    const [selectedUser, setSelectedUser] = useState(includeAll ? 'all' : (includeSelf ? 'self' : ''));
+    const [selectedUser, setSelectedUser] = useState(defaultValue || (includeAll ? 'all' : (includeSelf ? 'self' : '')));
     const [users, setUsers] = useState<{ user_id: number; user_name: string; name: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<any>(null);
@@ -33,11 +37,29 @@ const UserFilter: React.FC<UserFilterProps> = ({
                 const data = await userService.getAccessibleUsers();
                 setUsers(data);
 
+                // Find initial selected user details
+                const findInitialUser = (val: string) => {
+                    if (val === 'self' && userStr) {
+                        const u = JSON.parse(userStr);
+                        return { user_id: u.UserId, user_name: u.Username, name: u.FirstName || u.Username };
+                    }
+                    if (val === 'all') return { user_id: 'all', user_name: 'all', name: 'All' };
+                    const found = data.find((u: any) => u.user_name === val);
+                    return found ? found : null;
+                };
+
+                const initialVal = defaultValue || (includeAll ? 'all' : (includeSelf ? 'self' : ''));
+                const initialUser = findInitialUser(initialVal);
+                if (initialUser && onUserSelect) {
+                    onUserSelect(initialUser);
+                }
+
                 // If only one user is available (current user), default to it if not including all/self
                 if (data.length === 1 && !includeSelf && !includeAll) {
                     const userName = data[0].user_name;
                     setSelectedUser(userName);
                     onUserChange(userName);
+                    if (onUserSelect) onUserSelect(data[0]);
                 }
             } catch (error) {
                 console.error('Failed to load users:', error);
@@ -53,6 +75,17 @@ const UserFilter: React.FC<UserFilterProps> = ({
         const val = e.detail.value;
         setSelectedUser(val);
         onUserChange(val);
+
+        if (onUserSelect) {
+            if (val === 'self' && currentUser) {
+                onUserSelect({ user_id: currentUser.UserId, user_name: currentUser.Username, name: currentUser.FirstName || currentUser.Username });
+            } else if (val === 'all') {
+                onUserSelect({ user_id: 'all', user_name: 'all', name: 'All' });
+            } else {
+                const user = users.find(u => u.user_name === val);
+                if (user) onUserSelect(user);
+            }
+        }
     };
 
     if (!loading && users.length === 0 && !includeSelf && !includeAll) return null;

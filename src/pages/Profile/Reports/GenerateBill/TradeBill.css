@@ -6,6 +6,15 @@
     flex-direction: column;
     align-items: center;
     overflow-y: auto;
+    position: relative;
+}
+
+@media screen and (max-width: 768px) {
+    .trade-bill-viewer {
+        padding: 5px;
+        align-items: flex-start;
+        overflow-x: auto;
+    }
 }
 
 .bill-paper {
@@ -235,4 +244,14 @@
 .carry-forward {
     margin-top: 20px;
     page-break-before: auto;
+}
+
+.text-success {
+    color: #28ba62 !important;
+    /* ion-color-success-shade */
+}
+
+.text-danger {
+    color: #cf3c4f !important;
+    /* ion-color-danger-shade */
 }

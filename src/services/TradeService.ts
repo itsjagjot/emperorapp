@@ -56,7 +56,7 @@ class TradeService {
         }
     }
 
-    async getOrders(status?: string, filters?: { fromDate?: string | null, toDate?: string | null, exchange?: string | null, symbol?: string | null }) {
+    async getOrders(status?: string, filters?: { fromDate?: string | null, toDate?: string | null, exchange?: string | null, symbol?: string | null, user_id?: string | number }) {
         try {
             const baseUrlExchange = this.getExchange();
             let url = `${API_BASE_URL}/${baseUrlExchange}/orders`;
@@ -67,6 +67,7 @@ class TradeService {
             if (filters?.toDate) params.append('to_date', filters.toDate);
             if (filters?.exchange) params.append('exchange_name', filters.exchange);
             if (filters?.symbol) params.append('symbol', filters.symbol);
+            if (filters?.user_id) params.append('user_id', String(filters.user_id));
 
             const queryString = params.toString();
             if (queryString) {

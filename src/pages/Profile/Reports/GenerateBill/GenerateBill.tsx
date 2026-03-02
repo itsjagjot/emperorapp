@@ -8,13 +8,20 @@ import './GenerateBill.css';
 import UserFilter from '../../../../components/UserFilter';
 import TradeService, { TradeOrder } from '../../../../services/TradeService';
 import TradeBill from './TradeBill';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 
 const GenerateBill: React.FC = () => {
-    const [selectedUser, setSelectedUser] = useState<string>('self');
+    const [selectedUser, setSelectedUser] = useState<string>('EDEMO912');
+    const [selectedUserId, setSelectedUserId] = useState<string | number>('');
     const [billType, setBillType] = useState<string>('default');
     const [trades, setTrades] = useState<TradeOrder[]>([]);
     const [showReport, setShowReport] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     // Date range state
     const [dateRange, setDateRange] = useState<{ start: string | null, end: string | null }>({
@@ -22,11 +29,18 @@ const GenerateBill: React.FC = () => {
         end: new Date().toISOString().split('T')[0]
     });
 
+    React.useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setCurrentUser(JSON.parse(userStr));
+        }
+    }, []);
+
     const handleSearch = async () => {
         setLoading(true);
 
         try {
-            const allTrades = await TradeService.getOrders('Success');
+            const allTrades = await TradeService.getOrders('Success', { user_id: selectedUserId });
 
             if (!allTrades || !Array.isArray(allTrades)) {
                 setTrades([]);
@@ -80,6 +94,87 @@ const GenerateBill: React.FC = () => {
         window.print();
     };
 
+    const handleDownloadPDF = async () => {
+        const reportElement = document.querySelector('.bill-paper') as HTMLElement;
+        if (!reportElement) return;
+
+        setLoading(true);
+        // Save original styles
+        const originalStyle = reportElement.style.cssText;
+
+        try {
+            // Temporarily fix width and position for clean capture
+            reportElement.style.width = '210mm';
+            reportElement.style.position = 'absolute';
+            reportElement.style.left = '0';
+            reportElement.style.top = '0';
+            reportElement.style.margin = '0';
+
+            const canvas = await html2canvas(reportElement, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                width: 794, // Approx 210mm in pixels at 96dpi
+                windowWidth: 794
+            });
+
+            // Restore original styles
+            reportElement.style.cssText = originalStyle;
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            const displayUserName = selectedUser === 'self' ? (currentUser?.Username || 'Self') : selectedUser;
+            const fileName = `Trade_Bill_${displayUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+            if (Capacitor.isNativePlatform()) {
+                const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
+                // Write file to Documents directory (Standard for mobile)
+                const result = await Filesystem.writeFile({
+                    path: fileName,
+                    data: pdfBase64,
+                    directory: Directory.Documents,
+                    recursive: true
+                });
+
+                // Trigger native share sheet so user can save or send the PDF
+                await Share.share({
+                    title: 'Trade Bill',
+                    text: 'Trade report PDF from Emperor App',
+                    url: result.uri,
+                });
+            } else {
+                pdf.save(fileName);
+            }
+        } catch (error) {
+            console.error('Failed to generate or save PDF', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleShare = async () => {
         if (navigator.share) {
             try {
@@ -92,7 +187,7 @@ const GenerateBill: React.FC = () => {
                 console.log('Error sharing', error);
             }
         } else {
-            handlePrint();
+            handleDownloadPDF();
         }
     };
 
@@ -101,8 +196,9 @@ const GenerateBill: React.FC = () => {
             <CommonHeader
                 title={showReport ? "View Report" : "Generate PDF"}
                 backLink={showReport ? undefined : "back()"}
+                onBack={showReport ? () => setShowReport(false) : undefined}
                 actionIcon={showReport ? shareOutline : undefined}
-                onAction={showReport ? handleShare : undefined}
+                onAction={showReport ? handleDownloadPDF : undefined}
             />
 
             <IonContent className={showReport ? "" : "ion-padding gray-bg relative"}>
@@ -115,7 +211,9 @@ const GenerateBill: React.FC = () => {
 
                         <UserFilter
                             onUserChange={setSelectedUser}
+                            onUserSelect={(u) => setSelectedUserId(u.user_id)}
                             includeSelf
+                            defaultValue={selectedUser}
                             label="Select User"
                         />
 
@@ -146,15 +244,10 @@ const GenerateBill: React.FC = () => {
                     <div className="report-view-container">
                         <TradeBill
                             trades={trades}
-                            userId={selectedUser === 'self' ? 'EDEMO912' : selectedUser}
+                            userId={selectedUser === 'self' ? (currentUser?.Username || 'Self') : selectedUser}
                             startDate={dateRange.start || undefined}
                             endDate={dateRange.end || undefined}
                         />
-                        <div className="no-print" style={{ position: 'fixed', bottom: '20px', left: '20px', right: '20px', zIndex: 999 }}>
-                            <IonButton expand="block" fill="solid" color="dark" onClick={() => setShowReport(false)}>
-                                Back to Filters
-                            </IonButton>
-                        </div>
                     </div>
                 )}
             </IonContent>
