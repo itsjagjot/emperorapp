@@ -36,16 +36,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
     return (
         <div className={`splash-screen ${isFading ? 'fade-out' : ''}`}>
-            <video
-                className="splash-video"
-                autoPlay
-                muted
-                playsInline
-                onEnded={startFadeOut}
-            >
-                <source src="/splash.mp4" type="video/mp4" />
-                <img src="/splash.gif" alt="Splash Screen" className="splash-video" />
-            </video>
+            <img src="/splash.gif" alt="Splash Screen" className="splash-video" />
         </div>
     );
 };

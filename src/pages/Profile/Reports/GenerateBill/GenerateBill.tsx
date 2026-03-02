@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonPage, IonIcon, IonButton, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonContent, IonPage, IonIcon, IonButton, IonSelect, IonSelectOption, useIonViewWillEnter } from '@ionic/react';
 import { chevronDownOutline, searchOutline, shareOutline } from 'ionicons/icons';
 import Loader from '../../../../components/Loader/Loader';
 import CommonHeader from '../../../../components/CommonHeader';
@@ -15,7 +15,7 @@ import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 
 const GenerateBill: React.FC = () => {
-    const [selectedUser, setSelectedUser] = useState<string>('EDEMO912');
+    const [selectedUser, setSelectedUser] = useState<string>('self');
     const [selectedUserId, setSelectedUserId] = useState<string | number>('');
     const [billType, setBillType] = useState<string>('default');
     const [trades, setTrades] = useState<TradeOrder[]>([]);
@@ -27,6 +27,12 @@ const GenerateBill: React.FC = () => {
     const [dateRange, setDateRange] = useState<{ start: string | null, end: string | null }>({
         start: new Date().toISOString().split('T')[0],
         end: new Date().toISOString().split('T')[0]
+    });
+
+    useIonViewWillEnter(() => {
+        // Reset state so user sees filters every time they navigate here
+        setShowReport(false);
+        setTrades([]);
     });
 
     React.useEffect(() => {
@@ -228,7 +234,7 @@ const GenerateBill: React.FC = () => {
                                     className="user-select-simple"
                                 >
                                     <IonSelectOption value="default">Default</IonSelectOption>
-                                    <IonSelectOption value="advance">Advance</IonSelectOption>
+                                    {/* <IonSelectOption value="advance">Advance</IonSelectOption> */}
                                 </IonSelect>
                             </div>
                             <IonButton
