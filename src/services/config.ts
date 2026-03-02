@@ -1,7 +1,7 @@
 // API Configuration
 // Backend is running on php artisan serve (default port 8000)
-export const API_BASE_URL = 'https://emperorshots.live/api';
-// export const API_BASE_URL = 'http://127.0.0.1:9510/api';
+// export const API_BASE_URL = 'https://emperorshots.live/api';
+export const API_BASE_URL = 'http://127.0.0.1:9510/api';
 
 // Socket.io Configuration
 // export const SOCKET_URL = 'http://localhost:8787';

@@ -76,12 +76,12 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                     const sellTrades = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'sell');
 
                     const totalBQty = buyTrades.reduce((sum: number, t: any) => sum + Number(t.quantity), 0);
-                    const totalBVol = buyTrades.reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (t.lot_size || 1)), 0);
-                    const avgBPrice = totalBQty > 0 ? totalBVol / (totalBQty * (scriptTrades[0].lot_size || 1)) : 0;
+                    const totalBVol = buyTrades.reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100), 0);
+                    const avgBPrice = totalBQty > 0 ? totalBVol / (totalBQty * (Number(scriptTrades[0].lot_size) || 1) / 100) : 0;
 
                     const totalSQty = sellTrades.reduce((sum: number, t: any) => sum + Number(t.quantity), 0);
-                    const totalSVol = sellTrades.reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (t.lot_size || 1)), 0);
-                    const avgSPrice = totalSQty > 0 ? totalSVol / (totalSQty * (scriptTrades[0].lot_size || 1)) : 0;
+                    const totalSVol = sellTrades.reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100), 0);
+                    const avgSPrice = totalSQty > 0 ? totalSVol / (totalSQty * (Number(scriptTrades[0].lot_size) || 1) / 100) : 0;
 
                     const scriptNetVol = totalSVol - totalBVol;
                     const scriptBrk = scriptTrades.reduce((sum: number, t: any) => sum + Number(t.brokerage_amount || 0), 0);
@@ -112,7 +112,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                                                     <td>{formatDate(t.order_time)}</td>
                                                     <td className="ion-text-right">{Number(t.quantity).toFixed(2)}</td>
                                                     <td className="ion-text-right">{formatCurrency(t.price)}</td>
-                                                    <td className="ion-text-right">{formatCurrency(Number(t.quantity) * Number(t.price) * (t.lot_size || 1))}</td>
+                                                    <td className="ion-text-right">{formatCurrency(Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100)}</td>
                                                 </tr>
                                             ))}
                                             <tr className="total-row">
@@ -142,7 +142,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                                                     <td>{formatDate(t.order_time)}</td>
                                                     <td className="ion-text-right">{Number(t.quantity).toFixed(2)}</td>
                                                     <td className="ion-text-right">{formatCurrency(t.price)}</td>
-                                                    <td className="ion-text-right">{formatCurrency(Number(t.quantity) * Number(t.price) * (t.lot_size || 1))}</td>
+                                                    <td className="ion-text-right">{formatCurrency(Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100)}</td>
                                                 </tr>
                                             ))}
                                             <tr className="total-row">
@@ -159,10 +159,14 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                             {/* Script Summary Block */}
                             <div className="script-summary-block">
                                 <div className="summary-line">
-                                    <span className={`val ${getColorClass(scriptNetResult)}`}>{formatCurrency(scriptNetVol)}</span>
+                                    <span className="val">{formatCurrency(totalBVol)}</span>
                                 </div>
                                 <div className="summary-line">
-                                    <span className={`val ${getColorClass(scriptNetResult)}`}>{formatCurrency(scriptNetVol)}</span>
+                                    <span className="val">- {formatCurrency(totalSVol)}</span>
+                                </div>
+                                <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '5px 0', width: '100px', marginLeft: 'auto' }} />
+                                <div className="summary-line">
+                                    <span className={`val ${getColorClass(totalSVol - totalBVol)}`}>{formatCurrency(Math.abs(totalSVol - totalBVol))}</span>
                                 </div>
                                 <div className="summary-line br-line">
                                     <span className="lbl">Br</span>
@@ -192,8 +196,8 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                         <tbody>
                             {scripts.map(scriptName => {
                                 const scriptTrades = groupedTrades[scriptName];
-                                const buyVol = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'buy').reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (t.lot_size || 1)), 0);
-                                const sellVol = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'sell').reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (t.lot_size || 1)), 0);
+                                const buyVol = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'buy').reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100), 0);
+                                const sellVol = scriptTrades.filter((t: any) => t.action.toLowerCase() === 'sell').reduce((sum: number, t: any) => sum + (Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100), 0);
                                 const brk = scriptTrades.reduce((sum: number, t: any) => sum + Number(t.brokerage_amount || 0), 0);
                                 const total = sellVol - buyVol;
                                 const net = total - brk;
