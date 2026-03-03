@@ -61,6 +61,7 @@ const WeeklyAdmin: React.FC = () => {
                 <div className="admin-filter-container">
                     <div className="dropdown-flex-grow custom-input-box compact">
                         <UserFilter
+                            value={selectedUser}
                             onUserChange={setSelectedUser}
                             includeSelf
                             label="Select User"

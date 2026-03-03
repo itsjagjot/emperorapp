@@ -26,7 +26,7 @@ interface UserwisePosition {
 }
 
 const OpenPositionUserwise: React.FC = () => {
-    const [selectedUser, setSelectedUser] = useState('self');
+    const [selectedUser, setSelectedUser] = useState('all');
     const [selectedExchange, setSelectedExchange] = useState('');
     const [selectedScript, setSelectedScript] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -55,6 +55,7 @@ const OpenPositionUserwise: React.FC = () => {
             }
         };
         fetchFilters();
+        fetchPositions();
     }, []);
 
     const fetchPositions = async () => {
@@ -104,7 +105,7 @@ const OpenPositionUserwise: React.FC = () => {
     }, [liveRates, positions.length]);
 
     const handleReset = () => {
-        setSelectedUser('self');
+        setSelectedUser('all');
         setSelectedExchange('');
         setSelectedScript('');
         setSearchTerm('');
@@ -159,6 +160,7 @@ const OpenPositionUserwise: React.FC = () => {
                     {/* Row 2: User Select and Action Buttons */}
                     <div className="filter-row">
                         <UserFilter
+                            value={selectedUser}
                             onUserChange={setSelectedUser}
                             includeSelf
                             includeAll

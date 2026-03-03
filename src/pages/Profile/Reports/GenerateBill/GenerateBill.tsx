@@ -223,10 +223,10 @@ const GenerateBill: React.FC = () => {
                         </div>
 
                         <UserFilter
+                            value={selectedUser}
                             onUserChange={setSelectedUser}
                             onUserSelect={(u) => setSelectedUserId(u.user_id)}
                             includeSelf
-                            defaultValue={selectedUser}
                             label="Select User"
                         />
 

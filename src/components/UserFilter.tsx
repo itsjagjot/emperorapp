@@ -10,6 +10,7 @@ interface UserFilterProps {
     includeSelf?: boolean;
     includeAll?: boolean;
     defaultValue?: string;
+    value?: string;
     label?: string;
 }
 
@@ -19,9 +20,16 @@ const UserFilter: React.FC<UserFilterProps> = ({
     includeSelf = false,
     includeAll = false,
     defaultValue,
+    value,
     label = "All User"
 }) => {
-    const [selectedUser, setSelectedUser] = useState(defaultValue || (includeAll ? 'all' : (includeSelf ? 'self' : '')));
+    const [selectedUser, setSelectedUser] = useState(value || defaultValue || (includeAll ? 'all' : (includeSelf ? 'self' : '')));
+
+    useEffect(() => {
+        if (value !== undefined) {
+            setSelectedUser(value);
+        }
+    }, [value]);
     const [users, setUsers] = useState<{ user_id: number; user_name: string; name: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState<any>(null);

@@ -72,8 +72,17 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
 
     if (!quote) return null;
 
-    const incrementPrice = () => setPrice((prev) => prev + 1);
-    const decrementPrice = () => setPrice((prev) => prev - 1);
+    const getMinPrice = () => activeTab === 'Limit' ? (Number(quote.high) || 0) : 0;
+    const getMaxPrice = () => activeTab === 'SL' ? ((Number(quote.low) || quote.price) - 1) : Infinity;
+
+    const incrementPrice = () => setPrice((prev) => {
+        const next = prev + 1;
+        return next > getMaxPrice() ? prev : next;
+    });
+    const decrementPrice = () => setPrice((prev) => {
+        const next = prev - 1;
+        return next < getMinPrice() ? prev : next;
+    });
 
     const incrementQty = () => setQuantity((prev) => prev + 1);
     const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
@@ -209,7 +218,17 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                             <button
                                 key={tab}
                                 className={`tab ${activeTab === tab ? 'active' : ''}`}
-                                onClick={() => setActiveTab(tab)}
+                                onClick={() => {
+                                    setActiveTab(tab);
+                                    // Set default price based on tab type
+                                    if (tab === 'Limit') {
+                                        setPrice(Number(quote.high) || quote.price);
+                                    } else if (tab === 'SL') {
+                                        setPrice((Number(quote.low) || quote.price) - 1);
+                                    } else {
+                                        setPrice(quote.price);
+                                    }
+                                }}
                             >
                                 {tab}
                             </button>
@@ -224,7 +243,17 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                                 <span style={{ fontWeight: 600 }}>Price</span>
                                 <div className="counter-controls">
                                     <button className="cnt-btn" onClick={decrementPrice}><IonIcon icon={removeOutline} /></button>
-                                    <span className="qty-val">{safefix(price)}</span>
+                                    <input
+                                        type="number"
+                                        className="qty-val price-input"
+                                        value={price}
+                                        onChange={(e) => setPrice(Number(e.target.value) || 0)}
+                                        onBlur={() => {
+                                            if (activeTab === 'Limit') setPrice(prev => Math.max(prev, getMinPrice()));
+                                            if (activeTab === 'SL') setPrice(prev => Math.min(prev, getMaxPrice()));
+                                        }}
+                                        style={{ width: '90px', textAlign: 'center', border: 'none', borderRadius: '4px', padding: '4px 2px', fontSize: '15px', fontWeight: 600, color: '#1a202c', background: 'transparent', outline: 'none', MozAppearance: 'textfield', WebkitAppearance: 'none' }}
+                                    />
                                     <button className="cnt-btn" onClick={incrementPrice}><IonIcon icon={addOutline} /></button>
                                 </div>
                             </div>

@@ -7,7 +7,8 @@ import {
 import { useToast } from '../../components/Toast/Toast';
 import {
     refreshOutline, megaphoneOutline, chevronUpOutline,
-    chevronDownOutline, ellipsisVerticalOutline, briefcaseOutline
+    chevronDownOutline, ellipsisVerticalOutline, briefcaseOutline,
+    personCircleOutline
 } from 'ionicons/icons';
 import './Position.css';
 import TradeService from '../../services/TradeService';
@@ -22,6 +23,7 @@ import { useRateStore } from '../../store/useRateStore';
 interface PositionData {
     name: string;
     symbol: string;
+    username?: string;
     expiry?: string;
     action: string;
     quantity: number;
@@ -53,6 +55,7 @@ const Position: React.FC = () => {
     const liveRates = useRateStore(state => state.rates);
     const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
     const [showActionSheet, setShowActionSheet] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const fetchPositions = async () => {
         setLoading(true);
@@ -74,6 +77,10 @@ const Position: React.FC = () => {
                         marginUsed: response.summary.margin_used || 0,
                         freeMargin: response.summary.free_margin || 0,
                     }));
+                }
+                // Check if admin view
+                if (response.is_admin !== undefined) {
+                    setIsAdmin(response.is_admin);
                 }
                 if (response.user && response.user.margin_squareoff !== undefined) {
                     setMarginPercentage(Number(response.user.margin_squareoff));
@@ -188,6 +195,8 @@ const Position: React.FC = () => {
 
 
     const handlePositionClick = (pos: PositionData) => {
+        // Admin can't trade, don't open OrderSheet
+        if (isAdmin) return;
         setSelectedQuoteId(pos.symbol);
     };
 
@@ -329,6 +338,12 @@ const Position: React.FC = () => {
                                             <IonIcon icon={briefcaseOutline} />
                                             <span>{pos.quantity || 0}</span>
                                         </div>
+                                        {isAdmin && pos.username && (
+                                            <span className="pos-usr">
+                                                <IonIcon icon={personCircleOutline} />
+                                                <small style={{ color: 'rgb(60 60 60)', fontWeight: 700, marginLeft: '6px', fontSize: '13px' }}>{pos.username}</small>
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="pos-bottom">
                                         <div className="atp-cmp">
@@ -353,28 +368,32 @@ const Position: React.FC = () => {
                     )}
                 </div>
 
-                <OrderSheet
-                    quote={selectedQuote}
-                    isOpen={!!selectedQuote}
-                    onClose={() => setSelectedQuoteId(null)}
-                    onSuccess={fetchPositions}
-                />
+                {!isAdmin && (
+                    <OrderSheet
+                        quote={selectedQuote}
+                        isOpen={!!selectedQuote}
+                        onClose={() => setSelectedQuoteId(null)}
+                        onSuccess={fetchPositions}
+                    />
+                )}
 
-                <IonActionSheet
-                    isOpen={showActionSheet}
-                    onDidDismiss={() => setShowActionSheet(false)}
-                    buttons={[
-                        {
-                            text: 'Square Off all Position',
-                            role: 'destructive',
-                            handler: handleSquareOffAll
-                        },
-                        {
-                            text: 'Cancel',
-                            role: 'cancel'
-                        }
-                    ]}
-                />
+                {!isAdmin && (
+                    <IonActionSheet
+                        isOpen={showActionSheet}
+                        onDidDismiss={() => setShowActionSheet(false)}
+                        buttons={[
+                            {
+                                text: 'Square Off all Position',
+                                role: 'destructive',
+                                handler: handleSquareOffAll
+                            },
+                            {
+                                text: 'Cancel',
+                                role: 'cancel'
+                            }
+                        ]}
+                    />
+                )}
             </IonContent>
         </IonPage>
     );

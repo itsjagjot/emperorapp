@@ -217,6 +217,11 @@
     font-size: 15px;
 }
 
+.pos-usr {
+    display: flex;
+    align-items: center;
+}
+
 .pos-pnl {
     font-weight: 800;
     font-size: 16px;

@@ -163,6 +163,26 @@ class LiveRateService {
                 this.processIntradayData(data);
             });
 
+            // 🚨 Listen for margin square-off event (user blocked)
+            this.socket.on('margin_squareoff', (data: any) => {
+                // Check if this event is for the current logged-in user
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    try {
+                        const user = JSON.parse(storedUser);
+                        if (user.UserId === data.user_id || user.Username === data.username) {
+                            console.error('🚨 MARGIN SQUARE-OFF:', data.message);
+                            alert(`⚠️ ${data.message}`);
+                            // Clear session and redirect to login
+                            localStorage.clear();
+                            window.location.href = '/login';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing user data for margin check:', e);
+                    }
+                }
+            });
+
             this.socket.on('rates', (data: any) => {
                 // Handle alternate event name if any
                 this.notifyListeners(data);

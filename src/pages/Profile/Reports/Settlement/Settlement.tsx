@@ -205,6 +205,7 @@ const SettlementsReport: React.FC = () => {
 
                     {/* Row 2: Select User */}
                     <UserFilter
+                        value={selectedUser}
                         onUserChange={setSelectedUser}
                         includeSelf
                         label="Select User"
