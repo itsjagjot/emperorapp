@@ -192,10 +192,10 @@ const Quotes: React.FC = () => {
                     </div>
                     <span className="count-badge">{filteredQuotes.length}/100</span>
                 </div>
+                <TickerBanner />
             </IonHeader>
 
             <IonContent className="white-content">
-                <TickerBanner />
 
                 {quotes.length === 0 ? (
                     <Loader />
