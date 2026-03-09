@@ -269,7 +269,6 @@ const UserDetailsPage: React.FC = () => {
                 console.log(userData);
                 setUser({
                     ...userData,
-                    Balance: 0 // Default placeholder
                 });
                 if (userData.margin_squareoff !== undefined && userData.margin_squareoff !== null) {
                     setMarginAmount(userData.margin_squareoff);

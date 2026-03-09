@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonContent, IonPage, IonInput, IonIcon, IonList, IonItem, IonLabel, IonAvatar } from '@ionic/react';
-import { personOutline, eyeOutline, searchOutline, chevronForwardOutline } from 'ionicons/icons';
+import { personOutline, eyeOutline, searchOutline, chevronForwardOutline, swapHorizontalOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { loginUser, fetchServers } from '../../services/authService';
 import './Login.css';
@@ -18,7 +18,29 @@ const Login: React.FC = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const [savedAccounts, setSavedAccounts] = useState<any[]>([]);
     const history = useHistory();
+
+    // Load saved accounts from multi_accounts
+    useEffect(() => {
+        const stored = localStorage.getItem('multi_accounts');
+        if (stored) {
+            try {
+                setSavedAccounts(JSON.parse(stored));
+            } catch (e) {
+                setSavedAccounts([]);
+            }
+        }
+    }, []);
+
+    const handleQuickSwitch = (account: any) => {
+        sessionStorage.setItem('account_switching', 'true');
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('accessToken', account.token);
+        localStorage.setItem('user', JSON.stringify(account.user));
+        history.push('/app/quotes');
+        window.location.reload();
+    };
 
     useEffect(() => {
         const timer = setTimeout(async () => {
@@ -58,6 +80,35 @@ const Login: React.FC = () => {
                 localStorage.setItem('accessToken', response.data.accessToken);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
 
+                // Save to multi_accounts list for multi-account management
+                const newAccount = {
+                    user: response.data.user,
+                    token: response.data.accessToken,
+                    serverName: selectedServer.name,
+                    serverId: selectedServer.id
+                };
+
+                const storedAccounts = localStorage.getItem('multi_accounts');
+                let accountsList = storedAccounts ? JSON.parse(storedAccounts) : [];
+
+                // Avoid duplication
+                const newUserId = newAccount.user.UserId || newAccount.user.user_id;
+                const existingIndex = accountsList.findIndex((a: any) => {
+                    const aUserId = a.user.UserId || a.user.user_id;
+                    return aUserId === newUserId;
+                });
+
+                if (existingIndex > -1) {
+                    accountsList[existingIndex] = newAccount;
+                } else {
+                    accountsList.push(newAccount);
+                }
+
+                localStorage.setItem('multi_accounts', JSON.stringify(accountsList));
+
+                // Set flag to prevent apiInterceptor interference during transition
+                sessionStorage.setItem('account_switching', 'true');
+
                 setLoading(false);
                 history.push('/app/quotes');
                 window.location.reload();
@@ -84,7 +135,7 @@ const Login: React.FC = () => {
 
     return (
         <IonPage>
-            <IonContent scrollY={false} className="oryx-login-page">
+            <IonContent scrollY={true} className="oryx-login-page">
                 <div className="wrapper">
                     <main className="content">
                         {error && (
@@ -185,6 +236,36 @@ const Login: React.FC = () => {
                                 <span>Register</span>
                                 <span>Forgot Password</span>
                             </div>
+
+                            {/* Saved Accounts Quick Switch */}
+                            {savedAccounts.length > 0 && (
+                                <div className="saved-accounts-section">
+                                    <p className="saved-accounts-label">Switch to Saved Account</p>
+                                    <div className="saved-accounts-list">
+                                        {savedAccounts.map((acc, idx) => {
+                                            const displayName = (acc.user.FirstName + ' ' + (acc.user.LastName || '')).trim() || acc.user.Username;
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className="saved-account-card"
+                                                    onClick={() => handleQuickSwitch(acc)}
+                                                >
+                                                    <div className="saved-acc-avatar">
+                                                        <img src="/assets/logo_icon.png" alt="E" />
+                                                    </div>
+                                                    <div className="saved-acc-info">
+                                                        <span className="saved-acc-name">{acc.user.Username}</span>
+                                                        {acc.serverName && (
+                                                            <span className="saved-acc-server">{acc.serverName}</span>
+                                                        )}
+                                                    </div>
+                                                    <IonIcon icon={swapHorizontalOutline} className="saved-acc-arrow" />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </main>
                     <footer className="footer-version">Version 1.0.0</footer>

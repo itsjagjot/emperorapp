@@ -7,10 +7,11 @@ import {
     IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
     IonModal, IonIcon, IonGrid, IonRow, IonCol
 } from '@ionic/react';
-import { statsChartOutline, informationCircleOutline, listOutline, searchOutline } from 'ionicons/icons';
+import { statsChartOutline, informationCircleOutline, listOutline, searchOutline, megaphoneOutline } from 'ionicons/icons';
 import './Quotes.css';
 import OrderSheet from './OrderSheet/OrderSheet';
 import Loader from '../../components/Loader/Loader';
+import TickerBanner from '../../components/TickerBanner/TickerBanner';
 import AddSymbolModal from './AddSymbol/AddSymbolModal';
 import { useRateStore } from '../../store/useRateStore';
 
@@ -194,12 +195,7 @@ const Quotes: React.FC = () => {
             </IonHeader>
 
             <IonContent className="white-content">
-                {/* <div className="ticker-banner">
-                <IonIcon icon={megaphoneOutline} className="megaphone" />
-                <div className="marquee-wrapper">
-                    <span className="marquee-text">Quotation. | NSE - SCRIPT - ONGC ME 6.25/- RS</span>
-                </div>
-            </div> */}
+                <TickerBanner />
 
                 {quotes.length === 0 ? (
                     <Loader />

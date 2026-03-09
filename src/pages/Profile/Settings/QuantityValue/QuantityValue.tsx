@@ -9,7 +9,7 @@ import { useToast } from '../../../../components/Toast/Toast';
 import './QuantityValue.css';
 
 const QuantityValue: React.FC = () => {
-    const initialValues = ["1", "1", "1", "1", "1", "1", "1", "1"];
+    const initialValues = ["1", "5", "10", "15", "50", "100", "500", "1000"];
     const [values, setValues] = useState<string[]>(initialValues);
     const [loading, setLoading] = useState<boolean>(true);
     const { showToast } = useToast();

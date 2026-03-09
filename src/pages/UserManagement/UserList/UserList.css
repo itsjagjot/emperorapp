@@ -122,12 +122,12 @@
 
 .card-details {
     margin-top: 12px;
-    padding-top: 12px;
+    /* padding-top: 12px; */
     border-top: 1px solid #f2f2f2;
 }
 
-.value {
-    font-size: 15px;
+.card-details .value {
+    font-size: 14px;
     font-weight: bold;
     margin: 0;
 }

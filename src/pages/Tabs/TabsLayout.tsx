@@ -45,6 +45,8 @@ import MarketTiming from '../Profile/Settings/MarketTiming/MarketTiming';
 import QuantityValue from '../Profile/Settings/QuantityValue/QuantityValue';
 import Message from '../Profile/Settings/Message/Message';
 import Notification from '../Profile/Settings/Notification/Notification';
+import ManageAccount from '../Profile/ManageAccount/ManageAccount';
+import AddAccount from '../Profile/ManageAccount/AddAccount/AddAccount';
 
 const TabsLayout: React.FC = () => {
     const [isUnlocked, setIsUnlocked] = useState(localStorage.getItem('menuUnlocked') === 'true');
@@ -113,6 +115,10 @@ const TabsLayout: React.FC = () => {
                 <Route exact path="/app/settings/message" component={Message} />
                 <Route exact path="/app/settings/notification" component={Notification} />
                 <Route exact path="/app/settings/privacy-policy" component={PrivacyPolicy} />
+
+                {/* Account Management Routes */}
+                <Route exact path="/app/profile/manage-account" component={ManageAccount} />
+                <Route exact path="/app/profile/manage-account/add" component={AddAccount} />
 
                 <Route exact path="/app">
                     <Redirect to="/app/quotes" />

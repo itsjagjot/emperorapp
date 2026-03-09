@@ -70,6 +70,8 @@ const App: React.FC = () => {
     //   }
     // }, []);
     // Global listener for live rates
+    // Clear account switching flag (set during account switch to prevent apiInterceptor)
+    sessionStorage.removeItem('account_switching');
     console.log('App initialized. Subscribing to LiveRateV2 service...');
 
     liveRateV2Service.onMarketData((data) => {

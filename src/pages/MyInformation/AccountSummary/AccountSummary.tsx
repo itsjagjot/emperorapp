@@ -134,29 +134,27 @@ const AccountSummary: React.FC = () => {
                                     </span>
                                 </div>
 
-                                {item.type === 'Profit/Loss' && item.details.entry_price !== undefined && (
-                                    <div className="trade-meta-row">
-                                        <div className="trade-badge-group">
-                                            <div className="qty-box">
-                                                <IonIcon icon={refreshOutline} style={{ transform: 'rotate(90deg)', fontSize: '10px' }} />
-                                                <span>{item.details.quantity.toFixed(1)}</span>
-                                            </div>
-                                            <span className={`type-badge ${item.details.action === 'Buy' ? 'buy' : 'sell'}`}>
-                                                {item.details.action === 'Buy' ? 'BUY' : 'SELL'}
-                                            </span>
+                                <div className="trade-meta-row">
+                                    <div className="user-info-mini">
+                                        <IonIcon icon={personOutline} />
+                                        <span>{item.username}</span>
+                                        <div className="qty-box">
+                                            <IonIcon icon={refreshOutline} style={{ transform: 'rotate(90deg)', fontSize: '10px' }} />
+                                            <span>{item.details.quantity.toFixed(1)}</span>
                                         </div>
+                                        <span className={`type-badge ${item.details.action === 'Buy' ? 'buy' : 'sell'}`}>
+                                            {item.details.action === 'Buy' ? 'BUY' : 'SELL'}
+                                        </span>
+                                    </div>
+                                    {item.type === 'Profit/Loss' && item.details.entry_price !== undefined && (
                                         <span className="price-flow">
                                             {item.details.entry_price?.toFixed(1)} → {item.details.exit_price?.toFixed(1)}
                                         </span>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
 
                                 <div className="ledger-bottom-row">
                                     <div className="user-section">
-                                        <div className="user-info-mini">
-                                            <IonIcon icon={personOutline} />
-                                            <span>{item.username}</span>
-                                        </div>
                                         <div className="type-label-mini">
                                             {item.type}
                                         </div>

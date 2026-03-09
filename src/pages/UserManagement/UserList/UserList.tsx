@@ -27,10 +27,13 @@ interface User {
     UserRoleName: string;
     IsActive: boolean;
     Credit: number;
+    ActualCredit: number;
+    Deposit: number;
     ServerName?: string;
     // Add placeholders if needed
-    balance?: string;
+    Balance?: number;
     pl?: string;
+    PLSharing?: string;
 }
 
 const UserList: React.FC = () => {
@@ -156,15 +159,15 @@ const UserList: React.FC = () => {
                                 <IonCol size="4" className="detail-col border-right">
                                     <p className="label">Balance</p>
                                     {/* Placeholder logic for Balance */}
-                                    <p className={`value ${'0' === '0' ? 'red' : ''}`}>0</p>
+                                    <p className={`value ${(user.Balance ?? 0) > (user.Credit ?? 0) ? 'red' : 'green'}`}>{user.Balance ?? 0}</p>
                                 </IonCol>
                                 <IonCol size="4" className="detail-col border-right">
                                     <p className="label">Credit</p>
-                                    <p className="value green">{user.Credit}</p>
+                                    <p className={`value ${user.Credit <= 0 ? 'red' : 'green'}`}>{user.Credit}</p>
                                 </IonCol>
                                 <IonCol size="4" className="detail-col">
-                                    <p className="label">PL Sharing</p>
-                                    <p className="value red">0.0%</p>
+                                    <p className="label">P/L</p>
+                                    <p className="value red">{user.PLSharing}%</p>
                                 </IonCol>
                             </IonRow>
                         </IonGrid>

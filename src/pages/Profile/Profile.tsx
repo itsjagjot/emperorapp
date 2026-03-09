@@ -18,8 +18,10 @@ import {
 } from 'ionicons/icons';
 import { logoutUser } from '../../services/authService';
 import Loader from '../../components/Loader/Loader';
+import TickerBanner from '../../components/TickerBanner/TickerBanner';
 import { ANDROID_INVITE_LINK, IOS_INVITE_LINK } from '../../services/config';
 import './Profile.css';
+import CommonHeader from '../../components/CommonHeader';
 
 const Profile: React.FC = () => {
     const [present] = useIonToast();
@@ -29,11 +31,40 @@ const Profile: React.FC = () => {
     const handleLogout = async () => {
         setLoggingOut(true);
         try {
+            // Get current user info before logout
+            const currentUserStr = localStorage.getItem('user');
+            const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+            const currentUserId = currentUser?.UserId || currentUser?.user_id;
+
             await logoutUser();
-            // Add a small delay so user can see the loader
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1000);
+
+            // Check if other accounts exist to switch to
+            const storedAccounts = localStorage.getItem('multi_accounts');
+            let accountsList = storedAccounts ? JSON.parse(storedAccounts) : [];
+
+            // Remove current account from multi_accounts
+            accountsList = accountsList.filter((a: any) =>
+                (a.user.UserId || a.user.user_id) !== currentUserId
+            );
+            localStorage.setItem('multi_accounts', JSON.stringify(accountsList));
+
+            if (accountsList.length > 0) {
+                // Switch to first available account
+                const nextAccount = accountsList[0];
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('accessToken', nextAccount.token);
+                localStorage.setItem('user', JSON.stringify(nextAccount.user));
+
+                setTimeout(() => {
+                    window.location.href = '/app/quotes';
+                }, 800);
+            } else {
+                // No more accounts, go to login
+                localStorage.removeItem('multi_accounts');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1000);
+            }
         } catch (error) {
             console.error('Logout failed:', error);
             setLoggingOut(false);
@@ -176,25 +207,24 @@ const Profile: React.FC = () => {
     return (
         <IonPage className="profile-page">
             {loggingOut && <Loader overlay />}
-            <IonHeader className="ion-no-border">
-                <IonToolbar className="profile-nav">
-                    <div className="profile-header-content">
-                        <div className="user-brand">
-                            <div className="logo-circle">
-                                <img src="/assets/logo_icon.png" alt="E" />
-                            </div>
-                            <div className="brand-details">
-                                <h2>{userData ? (userData.FirstName + ' ' + (userData.LastName || '')).trim() || userData.Username : 'User'}</h2>
-                                <span>{userData?.UserRoleName || 'Member'}</span>
-                            </div>
-                        </div>
-                        <button className="header-icon-btn logout-header-btn" onClick={handleLogout} title="Logout">
-                            <IonIcon icon={powerOutline} />
-                        </button>
-                    </div>
-                </IonToolbar>
+            <CommonHeader title="Profile" backLink="back()" adv={true} />
 
-            </IonHeader>
+            <IonToolbar className="profile-nav">
+                <div className="profile-header-content">
+                    <div className="user-brand">
+                        <div className="logo-circle">
+                            <img src="/assets/logo_icon.png" alt="E" />
+                        </div>
+                        <div className="brand-details">
+                            <h2>{userData ? (userData.FirstName + ' ' + (userData.LastName || '')).trim() || userData.Username : 'User'}</h2>
+                            <span>{userData?.UserRoleName || 'Member'}</span>
+                        </div>
+                    </div>
+                    <button className="header-icon-btn manage-header-btn" onClick={() => router.push('/app/profile/manage-account')} title="Manage Accounts">
+                        <IonIcon icon={addOutline} />
+                    </button>
+                </div>
+            </IonToolbar>
 
             <IonContent fullscreen className="profile-bg">
                 <div className="profile-container">

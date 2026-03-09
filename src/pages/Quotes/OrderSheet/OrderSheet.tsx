@@ -7,6 +7,8 @@ import TradeService from '../../../services/TradeService';
 import { marketTimingService } from '../../../services/MarketTimingService';
 import Loader from '../../../components/Loader/Loader';
 import { useToast } from '../../../components/Toast/Toast';
+import { getQuantities } from '../../../services/authService';
+import { useMasterDataStore } from '../../../store/useMasterDataStore';
 import './OrderSheet.css';
 
 interface OrderSheetProps {
@@ -23,9 +25,13 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
     const [price, setPrice] = useState<number>(0);
     const [lotSize, setLotSize] = useState<number>(100);
     const [quantity, setQuantity] = useState<number>(1.0);
+    const [breakupQty, setBreakupQty] = useState<number>(1.0);
     const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
     const [showLotGrid, setShowLotGrid] = useState<boolean>(false);
-    const lotOptions = [5, 10, 50, 100, 250, 500, 1000, 2500];
+
+    // Using Master Data Zustand Store
+    const { fetchMasterData, getScriptSettings } = useMasterDataStore();
+    const [lotOptions, setLotOptions] = useState<number[]>([1, 5, 10, 15, 50, 100, 500, 1000]);
 
     useEffect(() => {
         const initSheet = async () => {
@@ -37,9 +43,38 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 const backendMap = await TradeService.getLotSizeMap();
                 const mappedLot = backendMap[symbol.toUpperCase()] || quote.lotSize || quote.original?.lot_size || 100;
                 setLotSize(mappedLot);
+
+                // Fetch Master Data for Breakup Qty
+                await fetchMasterData();
+                const settings = getScriptSettings(symbol.toUpperCase());
+                const brkQty = settings?.breakup_qty ? Number(settings.breakup_qty) : 1.0;
+                setBreakupQty(brkQty);
+                setQuantity(brkQty); // Default quantity should be breakup lot size
+
+                // Fetch dynamic quantities
+                try {
+                    const quants = await getQuantities();
+                    if (quants.success && quants.data) {
+                        setLotOptions(quants.data.map(Number));
+                    }
+                } catch (e) {
+                    console.error('Failed to load user quantities', e);
+                }
             }
         };
         initSheet();
+
+        const handleQuantitiesUpdate = (e: any) => {
+            if (e.detail && Array.isArray(e.detail)) {
+                setLotOptions(e.detail.map(Number));
+            }
+        };
+
+        window.addEventListener('user_quantities_updated', handleQuantitiesUpdate);
+
+        return () => {
+            window.removeEventListener('user_quantities_updated', handleQuantitiesUpdate);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
@@ -72,7 +107,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
 
     if (!quote) return null;
 
-    const getMinPrice = () => activeTab === 'Limit' ? (Number(quote.high) || 0) : 0;
+    const getMinPrice = () => activeTab === 'Limit' ? (Number(quote.high) + 1 || 0) : 0;
     const getMaxPrice = () => activeTab === 'SL' ? ((Number(quote.low) || quote.price) - 1) : Infinity;
 
     const incrementPrice = () => setPrice((prev) => {
@@ -84,8 +119,10 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
         return next < getMinPrice() ? prev : next;
     });
 
-    const incrementQty = () => setQuantity((prev) => prev + 1);
-    const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
+    // const incrementQty = () => setQuantity((prev) => prev + 1);
+    // const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
+    const incrementQty = () => setQuantity((prev) => prev + breakupQty);
+    const decrementQty = () => setQuantity((prev) => Math.max(breakupQty, prev - breakupQty));
 
 
     const handleTrade = async (action: 'Buy' | 'Sell') => {
@@ -147,6 +184,8 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
             }
         }
 
+        const orderPrice = action == 'Buy' ? quote.price : quote.close;
+
         setProcessing(true);
         try {
             await TradeService.placeOrder({
@@ -158,7 +197,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 action: action,
                 quantity: quantity,
                 lot_size: lotSize,
-                price: activeTab === 'Market' ? quote.price : price,
+                price: activeTab === 'Market' ? orderPrice : price,
                 username: user.userName || user.Username || 'Unknown',
                 device: 'Mobile',
             });
@@ -194,7 +233,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                             <h3>
                                 {`MCX ${quote.name}`}
                                 <div className={`price-change-row ${Number(quote.change) >= 0 ? 'up' : 'down'}`}>
-                                    {safefix(quote.change)} ({safefix(quote.changePercent, 2)}%)
+                                    {safefix(quote.change)}
                                 </div>
                             </h3>
 
@@ -274,17 +313,23 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                         {/* LOT Preset Grid */}
                         {showLotGrid && (
                             <div className="lot-preset-grid">
-                                {lotOptions.map((opt) => (
-                                    <button
-                                        key={opt}
-                                        className={`preset-btn ${quantity === opt ? 'active' : ''}`}
-                                        onClick={() => {
-                                            setQuantity(opt);
-                                        }}
-                                    >
-                                        {opt}
-                                    </button>
-                                ))}
+                                {lotOptions.map((opt) => {
+                                    let calculatedQty = Math.floor(opt / breakupQty) * breakupQty;
+                                    if (calculatedQty < breakupQty) {
+                                        calculatedQty = breakupQty;
+                                    }
+                                    return (
+                                        <button
+                                            key={opt}
+                                            className={`preset-btn ${quantity === calculatedQty ? 'active' : ''}`}
+                                            onClick={() => {
+                                                setQuantity(calculatedQty);
+                                            }}
+                                        >
+                                            {opt}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         )}
                     </div>
@@ -319,8 +364,8 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                         <IonRow className="stats-row">
                             <IonCol size="6"><div className="stat"><span>LTP</span> <strong>{safefix(quote.price)}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Time </span> <strong>{currentTime}</strong></div></IonCol>
-                            <IonCol size="6"><div className="stat"><span>Volume</span> <strong>{quote.original?.vol_lots || '-'}</strong></div></IonCol>
-                            <IonCol size="6"><div className="stat"><span>Avg. Price</span> <strong>{quote.original?.oi_lots || '-'}</strong></div></IonCol>
+                            {/* <IonCol size="6"><div className="stat"><span>Volume</span> <strong>{quote.original?.vol_lots || '-'}</strong></div></IonCol>
+                            <IonCol size="6"><div className="stat"><span>Avg. Price</span> <strong>{quote.original?.oi_lots || '-'}</strong></div></IonCol> */}
                             <IonCol size="6"><div className="stat"><span>Units</span> <strong>{quote.original?.unit || '1.0'}</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Volume Step</span> <strong>1.0</strong></div></IonCol>
                             <IonCol size="6"><div className="stat"><span>Lotsize</span> <strong>{safefix(lotSize)}</strong></div></IonCol>

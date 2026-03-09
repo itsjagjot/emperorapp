@@ -27,6 +27,24 @@ export const getNotifications = async (
     return await response.json();
 };
 
+export const getTickerMessages = async (
+    exchange: string = DEFAULT_EXCHANGE
+): Promise<{ success: boolean; data: Notification[] }> => {
+    const url = `${API_BASE_URL}/${exchange}/notifications/ticker`;
+    const token = localStorage.getItem('accessToken');
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    return await response.json();
+};
+
 export const markNotificationRead = async (
     id: number,
     exchange: string = DEFAULT_EXCHANGE

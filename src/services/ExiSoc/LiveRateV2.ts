@@ -82,6 +82,20 @@ class LiveRateV2Service {
             if (res) this.handleIncomingData(res, 'future_rates');
         });
 
+        this.socket.on("quantities_updated", (res: any) => {
+            if (res && res.userId && res.quantities) {
+                const userStr = localStorage.getItem('user');
+                if (userStr) {
+                    try {
+                        const user = JSON.parse(userStr);
+                        if (user.UserId === res.userId || user.user_id === res.userId) {
+                            window.dispatchEvent(new CustomEvent('user_quantities_updated', { detail: res.quantities }));
+                        }
+                    } catch (e) { }
+                }
+            }
+        });
+
         // Start fluctuation simulator to keep UI alive
         setInterval(() => {
             this.simulateFluctuation();

@@ -178,6 +178,7 @@ export const logoutUser = async (exchange: string = DEFAULT_EXCHANGE) => {
     }
 
     const savedSymbols = localStorage.getItem('selected_symbols');
+    const savedMultiAccounts = localStorage.getItem('multi_accounts');
 
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('accessToken');
@@ -188,6 +189,9 @@ export const logoutUser = async (exchange: string = DEFAULT_EXCHANGE) => {
 
     if (savedSymbols) {
         localStorage.setItem('selected_symbols', savedSymbols);
+    }
+    if (savedMultiAccounts) {
+        localStorage.setItem('multi_accounts', savedMultiAccounts);
     }
 };
 

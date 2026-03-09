@@ -1,0 +1,129 @@
+.add-account-page {
+    --background: #f8fafd;
+}
+
+.add-account-container {
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 450px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.input-field-group {
+    position: relative;
+    width: 100%;
+}
+
+.custom-input-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --background: #fff;
+    --border-radius: 14px;
+    --highlight-color: transparent;
+    border: 1.5px solid #f0f2f5;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+}
+
+.custom-input-item:focus-within {
+    border-color: #0F3D2E;
+    box-shadow: 0 5px 15px rgba(15, 61, 46, 0.08);
+}
+
+.custom-input-field {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111;
+    --placeholder-color: #a0aec0;
+    --placeholder-font-weight: 500;
+}
+
+.pw-toggle-icon {
+    font-size: 20px;
+    color: #4a5568;
+    margin-left: 8px;
+}
+
+.server-suggestions {
+    background: #fff;
+    border: 1.5px solid #f0f2f5;
+    border-radius: 14px;
+    overflow: hidden;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 200;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.suggestion-inner-list {
+    background: #fff;
+    padding: 0;
+}
+
+.suggestion-row {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --inner-padding-top: 10px;
+    --inner-padding-bottom: 10px;
+    --background: #fff;
+    --border-color: #f1f3f5;
+}
+
+.srv-sm-avatar {
+    width: 36px;
+    height: 36px;
+    margin-right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.srv-sm-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+}
+
+.srv-sm-arrow {
+    font-size: 14px;
+    color: #cbd5e0;
+}
+
+.add-acc-action {
+    margin-top: 24px;
+}
+
+.btn-add-login {
+    width: 100%;
+    background: #df3838;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 6px 20px rgba(223, 56, 56, 0.25);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-add-login:active {
+    transform: scale(0.98);
+}
+
+.btn-add-login:disabled {
+    opacity: 0.6;
+    background: #cbd5e0;
+    box-shadow: none;
+}

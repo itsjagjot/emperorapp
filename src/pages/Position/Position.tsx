@@ -142,7 +142,7 @@ const Position: React.FC = () => {
 
                     // Margin calculation with live CMP
                     const tradeValue = cmp * posQty * posLotSize;
-                    const margin = tradeValue * (marginPercentage / 100);
+                    const margin = tradeValue * (marginPercentage / 100) / posLotSize;
                     totalMarginUsed += margin;
 
                     // if (pos.cmp !== cmp || pos.pnl !== pnl) {
@@ -256,7 +256,7 @@ const Position: React.FC = () => {
 
     return (
         <IonPage>
-            <CommonHeader title="Position" backLink="back()" />
+            <CommonHeader title="Position" backLink="back()" adv={true} />
 
             <IonContent className="position-content">
                 {/* Collapsible Summary Card */}

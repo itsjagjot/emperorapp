@@ -173,8 +173,16 @@ class LiveRateService {
                         if (user.UserId === data.user_id || user.Username === data.username) {
                             console.error('🚨 MARGIN SQUARE-OFF:', data.message);
                             alert(`⚠️ ${data.message}`);
-                            // Clear session and redirect to login
+                            // Clear session and redirect to login (preserve multi_accounts)
+                            const savedMultiAccounts = localStorage.getItem('multi_accounts');
+                            const savedSymbols = localStorage.getItem('selected_symbols');
                             localStorage.clear();
+                            if (savedMultiAccounts) {
+                                localStorage.setItem('multi_accounts', savedMultiAccounts);
+                            }
+                            if (savedSymbols) {
+                                localStorage.setItem('selected_symbols', savedSymbols);
+                            }
                             window.location.href = '/login';
                         }
                     } catch (e) {

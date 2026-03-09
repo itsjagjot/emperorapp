@@ -1,0 +1,252 @@
+.manage-nav {
+    --background: #fff;
+    --color: #0F3D2E;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.manage-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+}
+
+.manage-bg {
+    --background: #f8fafd;
+}
+
+.manage-account-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.account-count-label {
+    margin: 0 0 12px 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.account-list-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.account-card {
+    background: #fff;
+    border: 1px solid #f0f2f5;
+    border-radius: 16px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.account-card.active {
+    border-color: #0eca2a;
+    background: #f0fff4;
+}
+
+.card-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.account-circle {
+    width: 48px;
+    height: 48px;
+    background: #0F3D2E;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(15, 61, 46, 0.15);
+}
+
+.account-circle img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.acc-username {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: #111;
+    letter-spacing: -0.3px;
+}
+
+.acc-fullname {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: #777;
+    text-transform: uppercase;
+    line-height: 1.7em;
+}
+
+.acc-server-tag {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 8px;
+    background: #edf2f7;
+    color: #4a5568;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    max-width: fit-content;
+}
+
+.card-right {
+    display: flex;
+    align-items: center;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.status-badge {
+    background: #0eca2a;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(14, 202, 42, 0.2);
+}
+
+.switch-btn {
+    background: #eef6ff;
+    color: #3b82f6;
+    border: 1.5px solid #dbeafe;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.switch-btn:active {
+    transform: scale(0.9);
+    background: #dbeafe;
+}
+
+.remove-btn {
+    background: #fff5f5;
+    color: #df3838;
+    border: 1.5px solid #ffebeb;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.remove-btn:active {
+    transform: scale(0.9);
+    background: #ffebeb;
+}
+
+/* Empty State */
+.empty-accounts {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    font-size: 52px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-text {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #333;
+}
+
+.empty-subtext {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+}
+
+/* Footer */
+.manage-footer {
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.add-account-btn {
+    width: 100%;
+    background: #fff;
+    color: #0F3D2E;
+    border: 2px dashed #c6d9d0;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.add-account-btn:active {
+    transform: scale(0.98);
+    background: #f0f8f4;
+}
+
+.add-account-btn ion-icon {
+    font-size: 20px;
+}
+
+.logout-all-btn {
+    width: 100%;
+    background: #df3838;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(223, 56, 56, 0.2);
+    transition: all 0.2s ease;
+}
+
+.logout-all-btn:active {
+    transform: scale(0.98);
+}

@@ -12,7 +12,14 @@ window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
             // Check if we are already on the login page to avoid infinite loops
             const isLoginPage = window.location.pathname.includes('/login');
 
-            if (!isLoginPage) {
+            // Skip interceptor during account switching (flag set by AddAccount/ManageAccount)
+            const isAccountSwitching = sessionStorage.getItem('account_switching') === 'true';
+
+            // Skip interceptor for login/auth API calls (they handle their own errors)
+            const requestUrl = typeof input === 'string' ? input : input instanceof URL ? input.href : (input as Request).url;
+            const isAuthCall = requestUrl.includes('/auth/login') || requestUrl.includes('/servers/search');
+
+            if (!isLoginPage && !isAccountSwitching && !isAuthCall) {
                 console.warn(`Global Auth Interceptor: Unauthorized access detected (Status ${response.status}). Redirecting to login...`);
 
                 // Use the application's base Loader structure
@@ -27,8 +34,20 @@ window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
                 document.body.appendChild(container);
 
                 // Force clear all storage to ensure a clean state
+                // But preserve multi_accounts for multi-account switching
+                const savedMultiAccounts = localStorage.getItem('multi_accounts');
+                const savedSymbols = localStorage.getItem('selected_symbols');
+
                 localStorage.clear();
                 sessionStorage.clear();
+
+                // Restore multi-account data
+                if (savedMultiAccounts) {
+                    localStorage.setItem('multi_accounts', savedMultiAccounts);
+                }
+                if (savedSymbols) {
+                    localStorage.setItem('selected_symbols', savedSymbols);
+                }
 
                 // Redirect to login page after a tiny delay for visual feedback
                 setTimeout(() => {
