@@ -24,14 +24,25 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
     const [activeTab, setActiveTab] = useState<'Market' | 'Limit' | 'SL'>('Market');
     const [price, setPrice] = useState<number>(0);
     const [lotSize, setLotSize] = useState<number>(100);
-    const [quantity, setQuantity] = useState<number>(1.0);
-    const [breakupQty, setBreakupQty] = useState<number>(1.0);
+    const [quantity, setQuantity] = useState<number>(quote?.breakupQty || 1.0);
+    const [breakupQty, setBreakupQty] = useState<number>(quote?.breakupQty || 1.0);
     const [currentTime, setCurrentTime] = useState<string>(new Date().toLocaleTimeString());
     const [showLotGrid, setShowLotGrid] = useState<boolean>(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     // Using Master Data Zustand Store
     const { fetchMasterData, getScriptSettings } = useMasterDataStore();
     const [lotOptions, setLotOptions] = useState<number[]>([1, 5, 10, 15, 50, 100, 500, 1000]);
+
+    // Update state immediately when quote changes or modal opens
+    useEffect(() => {
+        if (isOpen && quote) {
+            const brk = quote.breakupQty || 1.0;
+            setBreakupQty(brk);
+            setQuantity(brk);
+            setPrice(quote.price);
+        }
+    }, [isOpen, quote?.id]);
 
     useEffect(() => {
         const initSheet = async () => {
@@ -44,10 +55,13 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 const mappedLot = backendMap[symbol.toUpperCase()] || quote.lotSize || quote.original?.lot_size || 100;
                 setLotSize(mappedLot);
 
-                // Fetch Master Data for Breakup Qty
-                await fetchMasterData();
-                const settings = getScriptSettings(symbol.toUpperCase());
-                const brkQty = settings?.breakup_qty ? Number(settings.breakup_qty) : 1.0;
+                // Fetch Master Data for Breakup Qty (if not already passed)
+                let brkQty = quote.breakupQty;
+                if (!brkQty) {
+                    await fetchMasterData();
+                    const settings = getScriptSettings(symbol.toUpperCase());
+                    brkQty = settings?.breakup_qty ? Number(settings.breakup_qty) : 1.0;
+                }
                 setBreakupQty(brkQty);
                 setQuantity(brkQty); // Default quantity should be breakup lot size
 
@@ -60,6 +74,9 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 } catch (e) {
                     console.error('Failed to load user quantities', e);
                 }
+                setIsInitialized(true);
+            } else if (!isOpen) {
+                setIsInitialized(false);
             }
         };
         initSheet();
@@ -184,12 +201,13 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
             }
         }
 
-        const orderPrice = action == 'Buy' ? quote.price : quote.close;
+        const orderPrice = action == 'Buy' ? quote.close : quote.price; /* Close: AskPrice || Price: BidPrice */
 
         setProcessing(true);
         try {
             await TradeService.placeOrder({
                 name: `MCX ${quote.name}`,
+                exchange_name: quote.original?.commodity || quote.name,
                 symbol: quote.original?.commodity || quote.name,
                 symbol_instrument: quote.original?.instrument || 'FUTCOM',
                 symbol_expiry: quote.original?.expiry || '',
@@ -339,11 +357,11 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                         <button
                             className="minimal-btn sell"
                             onClick={() => handleTrade('Sell')}
-                            disabled={processing || isCheckingProfit || lockCountdown > 0}
+                            disabled={!isInitialized || processing || isCheckingProfit || lockCountdown > 0}
                         >
                             {lockCountdown > 0 ? `WAIT (${lockCountdown})` : 'SELL'}
                         </button>
-                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={processing || isCheckingProfit}>BUY</button>
+                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={!isInitialized || processing || isCheckingProfit}>BUY</button>
                     </div>
 
                     {/* Utility Row */}

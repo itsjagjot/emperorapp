@@ -15,8 +15,8 @@ export const useMasterDataStore = create<MasterDataStore>((set, get) => ({
     error: null,
 
     fetchMasterData: async (forceRefresh = false) => {
-        const { masterData } = get();
-        if (masterData && !forceRefresh) return; // Already fetched
+        const { masterData, isLoading } = get();
+        if ((masterData || isLoading) && !forceRefresh) return; // Already fetched or fetching
 
         set({ isLoading: true, error: null });
         try {

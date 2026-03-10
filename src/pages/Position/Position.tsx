@@ -19,6 +19,7 @@ import OrderSheet from '../Quotes/OrderSheet/OrderSheet';
 import CommonHeader from '../../components/CommonHeader';
 import Loader from '../../components/Loader/Loader';
 import { useRateStore } from '../../store/useRateStore';
+import { useTradeStore } from '../../store/useTradeStore';
 
 interface PositionData {
     name: string;
@@ -34,6 +35,7 @@ interface PositionData {
 }
 
 const Position: React.FC = () => {
+    const { fetchTrades } = useTradeStore();
     const [positions, setPositions] = useState<PositionData[]>([]);
     const [loading, setLoading] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -50,12 +52,15 @@ const Position: React.FC = () => {
         baseEquity: 0
     });
     const [marginPercentage, setMarginPercentage] = useState(1); // Dynamic margin requirement
-
     const { showToast } = useToast();
     const liveRates = useRateStore(state => state.rates);
     const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null);
     const [showActionSheet, setShowActionSheet] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [squareOffBase, setSquareOffBase] = useState<'equity' | 'freeMargin'>(() => {
+        return (localStorage.getItem('squareOffBase') as 'equity' | 'freeMargin') || 'equity';
+    });
+    const squareOffTriggeredRef = React.useRef(false);
 
     const fetchPositions = async () => {
         setLoading(true);
@@ -98,6 +103,8 @@ const Position: React.FC = () => {
             setPositions([]);
         } finally {
             setLoading(false);
+            // Reset triggered ref when positions are refreshed
+            squareOffTriggeredRef.current = false;
         }
     };
 
@@ -172,6 +179,18 @@ const Position: React.FC = () => {
             const liveEquity = baseEquity + runningPnl;
             const liveFreeMargin = liveEquity - totalMarginUsed;
 
+            // Auto Square Off Logic
+            if (!isAdmin && (updatedPositions.length > 0 || positions.length > 0) && !squareOffTriggeredRef.current) {
+                const totalFunds = (prev.credit || 0) + (prev.deposit || 0);
+                const lossThreshold = totalFunds - (totalFunds * marginPercentage / 100);
+
+                const checkValue = squareOffBase === 'equity' ? liveEquity : liveFreeMargin;
+                if (checkValue <= lossThreshold && totalFunds > 0) {
+                    squareOffTriggeredRef.current = true;
+                    handleSquareOffAll();
+                }
+            }
+
             if (prev.m2m === liveM2m && prev.marginUsed === totalMarginUsed && prev.equity === liveEquity && prev.freeMargin === liveFreeMargin) return prev;
 
             localStorage.setItem('m2m', liveM2m.toString());
@@ -211,6 +230,7 @@ const Position: React.FC = () => {
             const response = await TradeService.squareOffAll();
             showToast(response.message || 'All positions squared off successfully', 'success');
             fetchPositions();
+            fetchTrades();
         } catch (error: any) {
             showToast(error.message || 'Failed to square off positions', 'error');
         } finally {
@@ -373,7 +393,10 @@ const Position: React.FC = () => {
                         quote={selectedQuote}
                         isOpen={!!selectedQuote}
                         onClose={() => setSelectedQuoteId(null)}
-                        onSuccess={fetchPositions}
+                        onSuccess={() => {
+                            fetchPositions();
+                            fetchTrades();
+                        }}
                     />
                 )}
 

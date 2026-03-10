@@ -3,6 +3,7 @@ import { API_BASE_URL } from './config';
 export interface TradeOrder {
     id?: number;
     name: string;
+    exchange_name: string;
     symbol: string;
     symbol_instrument?: string;
     symbol_expiry?: string;
@@ -17,6 +18,7 @@ export interface TradeOrder {
     brokerage_amount?: number;
     status?: string;
     square?: number;
+    square_id?: number;
     duration?: string;
     device?: string;
     order_time?: string;

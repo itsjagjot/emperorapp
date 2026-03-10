@@ -5,8 +5,8 @@ import {
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import {
-    personCircleOutline, personOutline, lockClosedOutline, globeOutline,
-    settingsOutline, addCircleOutline, keyOutline, trendingUpOutline,
+    personCircleOutline, personOutline, globeOutline,
+    settingsOutline, keyOutline, trendingUpOutline,
     shieldCheckmarkOutline, chevronDownOutline
 } from 'ionicons/icons';
 import { getMasterData } from '../../../services/scriptService';
@@ -29,6 +29,7 @@ const CreateUser: React.FC = () => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [selectAll, setSelectAll] = useState(false);
 
     const userStr = localStorage.getItem('user');
     const currentUser = userStr ? JSON.parse(userStr) : null;
@@ -47,12 +48,12 @@ const CreateUser: React.FC = () => {
                 const initialExchanges = result.Data.map((ex: any) => ({
                     id: ex.id,
                     name: ex.name,
-                    enabled: false, // Don't default enable, let user choose
+                    enabled: false,
                     turnover: true,
                     lot: false,
                     group: ex.groups && ex.groups.length > 0 ? ex.groups[0].name : 'Default',
                     groupId: ex.groups && ex.groups.length > 0 ? ex.groups[0].id : null,
-                    groups: ex.groups || [] // Store available groups here
+                    groups: ex.groups || []
                 }));
                 setExchanges(initialExchanges);
             }
@@ -62,8 +63,6 @@ const CreateUser: React.FC = () => {
             setLoading(false);
         }
     };
-
-
 
     useIonViewWillEnter(() => {
         fetchMasterData();
@@ -86,6 +85,21 @@ const CreateUser: React.FC = () => {
             newExchanges[index] = { ...newExchanges[index], [field]: value };
         }
         setExchanges(newExchanges);
+
+        // Update selectAll status if all individual checkboxes are changed
+        if (field === 'enabled') {
+            if (!value) {
+                setSelectAll(false);
+            } else {
+                const allEnabled = newExchanges.every(ex => ex.enabled);
+                if (allEnabled) setSelectAll(true);
+            }
+        }
+    };
+
+    const handleSelectAllChange = (checked: boolean) => {
+        setSelectAll(checked);
+        setExchanges(prev => prev.map(ex => ({ ...ex, enabled: checked })));
     };
 
     const handleSubmit = async () => {
@@ -130,15 +144,13 @@ const CreateUser: React.FC = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('accessToken');
-            const userStr = localStorage.getItem('user');
-            const user = userStr ? JSON.parse(userStr) : null;
 
             if (!token) {
-                present({
-                    message: 'You are not logged in.',
-                    duration: 2000,
-                    color: 'danger'
-                });
+                // present({
+                //     message: 'You are not logged in.',
+                //     duration: 2000,
+                //     color: 'danger'
+                // });
                 return;
             }
 
@@ -179,39 +191,24 @@ const CreateUser: React.FC = () => {
             const data = await response.json();
 
             if (response.ok) {
-                present({
-                    message: 'User created successfully!',
-                    duration: 2000,
-                    color: 'success'
+                present({ message: 'User created successfully!', duration: 2000, color: 'success' });
+                setFormData({
+                    username: '',
+                    fullName: '',
+                    password: '',
+                    credit: '',
+                    deposit: '',
+                    contactNumber: ''
                 });
-
                 if (data.userId) {
                     history.push(`/app/user-management/details/${data.userId}`);
-                } else {
-                    // Reset form
-                    setFormData({
-                        username: '',
-                        fullName: '',
-                        password: '',
-                        credit: '',
-                        deposit: '',
-                        contactNumber: ''
-                    });
                 }
             } else {
-                present({
-                    message: data.message || 'Failed to create user',
-                    duration: 3000,
-                    color: 'danger'
-                });
+                present({ message: data.message || 'Failed to create user', duration: 3000, color: 'danger' });
             }
         } catch (error) {
             console.error(error);
-            present({
-                message: 'Network error occurred',
-                duration: 3000,
-                color: 'danger'
-            });
+            present({ message: 'Network error occurred', duration: 3000, color: 'danger' });
         } finally {
             setLoading(false);
         }
@@ -407,7 +404,11 @@ const CreateUser: React.FC = () => {
                             <h3>High Low Between Trade Limit</h3>
                         </div>
                         <div className="select-all-box">
-                            <IonCheckbox mode="md" />
+                            <IonCheckbox
+                                mode="md"
+                                checked={selectAll}
+                                onIonChange={e => handleSelectAllChange(e.detail.checked)}
+                            />
                             <IonLabel>Select All Exchanges</IonLabel>
                         </div>
                     </div>
@@ -421,11 +422,11 @@ const CreateUser: React.FC = () => {
                             <h3>Account Settings</h3>
                         </div>
                         <IonList lines="none" className="minimal-list">
-                            <IonItem>
+                            {/* <IonItem>
                                 <IonIcon icon={addCircleOutline} slot="start" />
                                 <IonLabel>Grant Master Access</IonLabel>
                                 <IonToggle slot="end" mode="ios" />
-                            </IonItem>
+                            </IonItem> */}
                             <IonItem>
                                 <IonIcon icon={keyOutline} slot="start" />
                                 <IonLabel>Force Password Reset</IonLabel>

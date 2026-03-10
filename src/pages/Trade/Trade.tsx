@@ -9,6 +9,7 @@ import CommonHeader from '../../components/CommonHeader';
 import TradeService, { TradeOrder } from '../../services/TradeService';
 import Loader from '../../components/Loader/Loader';
 import FilterModal from '../../components/FilterModal/FilterModal';
+import { useTradeStore } from '../../store/useTradeStore';
 import {
     optionsOutline, briefcaseOutline,
     personOutline, timeOutline, documentTextOutline
@@ -95,8 +96,8 @@ const DetailModal: React.FC<{
 
 const Trade: React.FC = () => {
     const history = useHistory();
+    const { trades: allTrades, fetchTrades, loading: storeLoading } = useTradeStore();
     const [selectedTab, setSelectedTab] = useState('success');
-    const [trades, setTrades] = useState<TradeOrder[]>([]);
     const [showDetail, setShowDetail] = useState(false);
     const [selectedTrade, setSelectedTrade] = useState<TradeOrder | null>(null);
     const [loading, setLoading] = useState(false);
@@ -118,33 +119,33 @@ const Trade: React.FC = () => {
         symbol: ''
     });
 
-    const fetchTrades = async () => {
-        setLoading(true);
-        try {
-            const statusMap: any = {
-                success: 'Success',
-                pending: 'Pending',
-                deals: 'Success'
-            };
+    // Filtering logic from allTrades
+    const getFilteredTrades = () => {
+        return allTrades.filter((trade: TradeOrder) => {
+            // Filter by Tab
+            if (selectedTab === 'success') {
+                if (trade.status !== 'Success') return false;
+            } else if (selectedTab === 'pending') {
+                if (trade.status !== 'Pending') return false;
+            } else if (selectedTab === 'deals') {
+                // For Deals, typically we want orders that resulted in a P&L (square_id is present or square=1)
+                // Or follow what was used before: status: 'Success'
+                // For now, let's filters those that have deals/PnL or are exit trades
+                if (trade.status !== 'Success' || !trade.square_id) return false;
+            }
 
-            const data = await TradeService.getOrders(statusMap[selectedTab], {
-                fromDate: filters.fromDate,
-                toDate: filters.toDate,
-                exchange: filters.exchange,
-                symbol: filters.symbol
-            });
-            setTrades(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error('Failed to fetch trades', error);
-            setTrades([]);
-        } finally {
-            setLoading(false);
-        }
+            // Filter by Search (could be added here if search bar is functional)
+
+            return true;
+        });
     };
 
+    const trades = getFilteredTrades();
+
     useEffect(() => {
-        fetchTrades();
-    }, [filters, selectedTab]);
+        // Fetch All trades (Success, Pending, etc.) in one go
+        fetchTrades(filters);
+    }, [filters]);
 
     const handleTradeClick = (trade: TradeOrder) => {
         setSelectedTrade(trade);
@@ -297,7 +298,7 @@ const Trade: React.FC = () => {
                     <Loader />
                 ) : trades.length > 0 ? (
                     <IonList className="trade-list">
-                        {trades.map((trade) => (
+                        {trades.map((trade: TradeOrder) => (
                             <div key={trade.id} className="trade-card" onClick={() => handleTradeClick(trade)}>
                                 <div className="card-row top">
                                     <span className="symbol-name">{trade.name}</span>

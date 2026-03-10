@@ -14,11 +14,21 @@ import Loader from '../../components/Loader/Loader';
 import TickerBanner from '../../components/TickerBanner/TickerBanner';
 import AddSymbolModal from './AddSymbol/AddSymbolModal';
 import { useRateStore } from '../../store/useRateStore';
+import { useTradeStore } from '../../store/useTradeStore';
+import { useMasterDataStore } from '../../store/useMasterDataStore';
+import TradeService from '../../services/TradeService';
 
 const Quotes: React.FC = () => {
+    const { fetchTrades } = useTradeStore();
     const [searchText, setSearchText] = useState('');
     const [quotes, setQuotes] = useState<any[]>([]);
     const [isAddSymbolOpen, setIsAddSymbolOpen] = useState(false);
+    const { fetchMasterData, getScriptSettings, masterData } = useMasterDataStore();
+
+    useEffect(() => {
+        fetchMasterData();
+        TradeService.getLotSizeMap();
+    }, []);
 
     const userStr = localStorage.getItem('user');
     const userData = userStr ? JSON.parse(userStr) : null;
@@ -112,7 +122,6 @@ const Quotes: React.FC = () => {
 
             // Update ref with the primary price
             prevPricesRef.current[uniqueKey] = currentPrice;
-
             return {
                 id: uniqueKey,
                 name: `${commodity}${formattedDate ? ' ' + formattedDate : ''}`,
@@ -124,11 +133,12 @@ const Quotes: React.FC = () => {
                 open: parseFloat(item.open || '0'),
                 close: askPrice,
                 original: item,
-                tickClass: tickClass
+                tickClass: tickClass,
+                breakupQty: getScriptSettings(commodity.toUpperCase())?.breakup_qty ?? 1.0,
             };
         });
         setQuotes(formattedQuotes);
-    }, [liveRates]);
+    }, [liveRates, masterData]);
 
     // ONLY show quotes that have been selected from the AddSymbolModal
     const watchListQuotes = quotes.filter(q => selectedSymbols.includes(q.id));
@@ -157,7 +167,7 @@ const Quotes: React.FC = () => {
                 window.dispatchEvent(new Event('menuUnlockedChanged'));
                 // Trigger tactile feedback mechanism if available
                 if (navigator.vibrate) navigator.vibrate(200);
-            }, 2500); // 2.5 seconds
+            }, 1000); // 1 seconds
         }
     };
 
@@ -229,7 +239,7 @@ const Quotes: React.FC = () => {
                     quote={selectedQuote}
                     isOpen={!!selectedQuote}
                     onClose={() => setSelectedQuoteId(null)}
-                    onSuccess={() => { /* Market data is live, no extra refresh needed here */ }}
+                    onSuccess={() => { fetchTrades(); }}
                 />
 
                 <AddSymbolModal

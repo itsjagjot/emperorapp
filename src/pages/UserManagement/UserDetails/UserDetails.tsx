@@ -107,6 +107,19 @@ const UserDetailsPage: React.FC = () => {
         }
     }, [id]);
 
+    // Sync state only when modal is NOT open to prevent input focus issues
+    useEffect(() => {
+        if (!showLockModal && user?.lock_timing !== undefined) {
+            setLockTiming(user.lock_timing.toString());
+        }
+    }, [user?.lock_timing, showLockModal]);
+
+    useEffect(() => {
+        if (!showMarginModal && user?.margin_squareoff !== undefined) {
+            setMarginAmount(user.margin_squareoff.toString());
+        }
+    }, [user?.margin_squareoff, showMarginModal]);
+
     const fetchExchanges = async () => {
         try {
             const token = localStorage.getItem('accessToken');
@@ -750,7 +763,7 @@ const UserDetailsPage: React.FC = () => {
                                 <IonInput
                                     type="number"
                                     value={creditAmount}
-                                    onIonChange={e => setCreditAmount(e.detail.value!)}
+                                    onIonInput={e => setCreditAmount(e.detail.value!)}
                                     placeholder="Enter Amount"
                                     className="custom-input"
                                 />
@@ -800,7 +813,7 @@ const UserDetailsPage: React.FC = () => {
                                 <IonInput
                                     type="number"
                                     value={depositAmount}
-                                    onIonChange={e => setDepositAmount(e.detail.value!)}
+                                    onIonInput={e => setDepositAmount(e.detail.value!)}
                                     placeholder="Enter Amount"
                                     className="custom-input"
                                 />
@@ -850,7 +863,7 @@ const UserDetailsPage: React.FC = () => {
                                 <IonInput
                                     type="password"
                                     value={newPassword}
-                                    onIonChange={e => setNewPassword(e.detail.value!)}
+                                    onIonInput={e => setNewPassword(e.detail.value!)}
                                     placeholder="Enter New Password"
                                     className="custom-input"
                                 />
@@ -861,7 +874,7 @@ const UserDetailsPage: React.FC = () => {
                                 <IonInput
                                     type="password"
                                     value={confirmPassword}
-                                    onIonChange={e => setConfirmPassword(e.detail.value!)}
+                                    onIonInput={e => setConfirmPassword(e.detail.value!)}
                                     placeholder="Confirm New Password"
                                     className="custom-input"
                                 />
@@ -885,7 +898,7 @@ const UserDetailsPage: React.FC = () => {
                                 <IonInput
                                     type="number"
                                     value={marginAmount}
-                                    onIonChange={e => setMarginAmount(e.detail.value!)}
+                                    onIonInput={e => setMarginAmount(e.detail.value!)}
                                     placeholder="Please enter Cash Margin"
                                     className="custom-input"
                                 />
@@ -915,7 +928,8 @@ const UserDetailsPage: React.FC = () => {
                                 <IonInput
                                     type="number"
                                     value={lockTiming}
-                                    onIonChange={e => setLockTiming(e.detail.value!)}
+                                    // onIonChange={e => setLockTiming(e.detail.value!)}
+                                    onIonInput={e => setLockTiming(e.detail.value!)}
                                     placeholder="Enter lock timing in seconds"
                                     className="custom-input"
                                 />
