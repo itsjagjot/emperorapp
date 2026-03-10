@@ -176,7 +176,7 @@ const CreateUser: React.FC = () => {
                 Credit: formData.credit ? Math.abs(parseFloat(formData.credit)) : 0,
                 Deposit: formData.deposit ? Math.abs(parseFloat(formData.deposit)) : 0,
                 ContactNumber: formData.contactNumber,
-                Exchanges: exchangesObj
+                exchanges: exchangesObj
             };
 
             const response = await fetch(`${API_BASE_URL}/User`, {
@@ -189,9 +189,10 @@ const CreateUser: React.FC = () => {
             });
 
             const data = await response.json();
+            console.log("Create user response:", data);
 
             if (response.ok) {
-                present({ message: 'User created successfully!', duration: 2000, color: 'success' });
+                present({ message: data.message || 'User created successfully!', duration: 2000, color: 'success' });
                 setFormData({
                     username: '',
                     fullName: '',
@@ -204,11 +205,22 @@ const CreateUser: React.FC = () => {
                     history.push(`/app/user-management/details/${data.userId}`);
                 }
             } else {
-                present({ message: data.message || 'Failed to create user', duration: 3000, color: 'danger' });
+                // Handle Laravel validation errors (422 Unprocessable Entity)
+                if (response.status === 422 && data.errors) {
+                    const firstErrorKey = Object.keys(data.errors)[0];
+                    const errorMessage = data.errors[firstErrorKey][0];
+                    present({ message: errorMessage, duration: 4000, color: 'danger' });
+                } else {
+                    present({ message: data.message || 'Failed to create user', duration: 3000, color: 'danger' });
+                }
             }
-        } catch (error) {
-            console.error(error);
-            present({ message: 'Network error occurred', duration: 3000, color: 'danger' });
+        } catch (error: any) {
+            console.error('Error in handleSubmit:', error);
+            present({
+                message: error.message || 'Network error occurred. Please check your connection.',
+                duration: 4000,
+                color: 'danger'
+            });
         } finally {
             setLoading(false);
         }
