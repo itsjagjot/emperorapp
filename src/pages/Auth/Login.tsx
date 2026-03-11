@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonContent, IonPage, IonInput, IonIcon, IonList, IonItem, IonLabel, IonAvatar } from '@ionic/react';
-import { personOutline, eyeOutline, searchOutline, chevronForwardOutline, swapHorizontalOutline } from 'ionicons/icons';
+import { personOutline, eyeOutline, searchOutline, chevronForwardOutline, swapHorizontalOutline, trashOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { loginUser, fetchServers } from '../../services/authService';
 import './Login.css';
@@ -40,6 +40,14 @@ const Login: React.FC = () => {
         localStorage.setItem('user', JSON.stringify(account.user));
         history.push('/app/quotes');
         window.location.reload();
+    };
+
+    const handleRemoveAccount = (e: React.MouseEvent, index: number) => {
+        e.stopPropagation(); // Prevent handleQuickSwitch from firing
+        const updatedAccounts = [...savedAccounts];
+        updatedAccounts.splice(index, 1);
+        setSavedAccounts(updatedAccounts);
+        localStorage.setItem('multi_accounts', JSON.stringify(updatedAccounts));
     };
 
     useEffect(() => {
@@ -259,7 +267,14 @@ const Login: React.FC = () => {
                                                             <span className="saved-acc-server">{acc.serverName}</span>
                                                         )}
                                                     </div>
-                                                    <IonIcon icon={swapHorizontalOutline} className="saved-acc-arrow" />
+                                                    <div className="saved-acc-actions">
+                                                        {/* <IonIcon icon={swapHorizontalOutline} className="saved-acc-arrow" /> */}
+                                                        <IonIcon
+                                                            icon={trashOutline}
+                                                            className="saved-acc-delete"
+                                                            onClick={(e) => handleRemoveAccount(e, idx)}
+                                                        />
+                                                    </div>
                                                 </div>
                                             );
                                         })}

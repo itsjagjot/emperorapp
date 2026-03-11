@@ -132,6 +132,8 @@ const Quotes: React.FC = () => {
                 changePercent: parseFloat(item.change_percent || '0'),
                 open: parseFloat(item.open || '0'),
                 close: askPrice,
+                bid: bidPrice,
+                ask: askPrice,
                 original: item,
                 tickClass: tickClass,
                 breakupQty: getScriptSettings(commodity.toUpperCase())?.breakup_qty ?? 1.0,

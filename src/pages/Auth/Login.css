@@ -322,3 +322,23 @@ ion-input {
     color: #3b82f6;
     flex-shrink: 0;
 }
+
+.saved-acc-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.saved-acc-delete {
+    font-size: 18px;
+    color: #ef4444;
+    flex-shrink: 0;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.saved-acc-delete:hover {
+    background-color: #fee2e2;
+}

@@ -42,7 +42,9 @@ const DEV_DATA = [
         "change": "50.00",
         "change_percent": "0.07",
         "volume": "1500",
-        "oi": "2000"
+        "oi": "2000",
+        "bid": 71450,
+        "ask": 71460
     },
     {
         "instrument": "FUTCOM",
@@ -56,7 +58,9 @@ const DEV_DATA = [
         "change": "50.00",
         "change_percent": "0.06",
         "volume": "3500",
-        "oi": "4000"
+        "oi": "4000",
+        "bid": 83150,
+        "ask": 83160
     },
     {
         "instrument": "FUTCOM",
@@ -70,7 +74,9 @@ const DEV_DATA = [
         "change": "-970.00",
         "change_percent": "-0.63",
         "volume": "23475",
-        "oi": "42567"
+        "oi": "42567",
+        "bid": 152901,
+        "ask": 152910
     },
     {
         "instrument": "FUTCOM",
@@ -84,7 +90,9 @@ const DEV_DATA = [
         "change": "-7071.00",
         "change_percent": "-2.83",
         "volume": "19822",
-        "oi": "10220"
+        "oi": "10220",
+        "bid": 242509,
+        "ask": 242520
     },
     {
         "instrument": "FUTCOM",
@@ -98,7 +106,9 @@ const DEV_DATA = [
         "change": "-11.50",
         "change_percent": "-0.95",
         "volume": "6883",
-        "oi": "16204"
+        "oi": "16204",
+        "bid": 1198.00,
+        "ask": 1198.50
     },
     {
         "instrument": "FUTCOM",
@@ -112,7 +122,9 @@ const DEV_DATA = [
         "change": "52.00",
         "change_percent": "0.91",
         "volume": "12324",
-        "oi": "7280"
+        "oi": "7280",
+        "bid": 5775,
+        "ask": 5776
     }
 ];
 
@@ -202,10 +214,15 @@ class LiveRateService {
             // Simulate socket behavior with static data
             this.devInterval = setInterval(() => {
                 // Simulate price movement for testing aggregation
-                const simulatedData = DEV_DATA.map(d => ({
-                    ...d,
-                    ltp: (parseFloat(d.ltp) + (Math.random() * 10 - 5)).toFixed(2)
-                }));
+                const simulatedData = DEV_DATA.map(d => {
+                    const jitter = (Math.random() * 10 - 5);
+                    return {
+                        ...d,
+                        ltp: (parseFloat(d.ltp) + jitter).toFixed(2),
+                        bid: (d.bid + jitter),
+                        ask: (d.ask + jitter)
+                    };
+                });
                 this.notifyListeners(simulatedData);
                 this.processIntradayData(simulatedData);
             }, 1000);

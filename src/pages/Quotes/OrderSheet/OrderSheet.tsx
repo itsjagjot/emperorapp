@@ -201,7 +201,9 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
             }
         }
 
-        const orderPrice = action == 'Buy' ? quote.close : quote.price; /* Close: AskPrice || Price: BidPrice */
+        // const orderPrice = action == 'Buy' ? quote.close : quote.price; /* Close: AskPrice || Price: BidPrice */
+        const orderPrice = action === 'Buy' ? (quote.ask || quote.close) : (quote.bid || quote.price); /* AskPrice for Buy || BidPrice for Sell */
+
 
         setProcessing(true);
         try {
@@ -258,9 +260,10 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                             {/* Nawa Rate Section (Dono rates de naal) */}
                             <div className="price-details-wrapper">
                                 <div className="rate-boxes">
-                                    <span className={`rate-box ${quote.tickClass}`}>{safefix(quote.price)}</span>
-                                    {/* Using Close as the second price to match list view */}
-                                    <span className={`rate-box ${quote.tickClass}`}>{quote.close ? safefix(quote.close) : safefix(quote.price)}</span>
+                                    {/* <span className={`rate-box ${quote.tickClass}`}>{safefix(quote.price)}</span>
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.close ? safefix(quote.close) : safefix(quote.price)}</span> */}
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.bid ? safefix(quote.bid) : safefix(quote.price)}</span>
+                                    <span className={`rate-box ${quote.tickClass}`}>{quote.ask ? safefix(quote.ask) : (quote.close ? safefix(quote.close) : safefix(quote.price))}</span>
                                 </div>
                                 <div className="hl-info">
                                     L: {safefix(quote.low)} H: {safefix(quote.high)}

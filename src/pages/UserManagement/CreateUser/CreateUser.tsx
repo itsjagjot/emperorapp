@@ -176,7 +176,7 @@ const CreateUser: React.FC = () => {
                 Credit: formData.credit ? Math.abs(parseFloat(formData.credit)) : 0,
                 Deposit: formData.deposit ? Math.abs(parseFloat(formData.deposit)) : 0,
                 ContactNumber: formData.contactNumber,
-                exchanges: exchangesObj
+                Exchanges: exchangesObj
             };
 
             const response = await fetch(`${API_BASE_URL}/User`, {

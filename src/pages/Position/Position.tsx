@@ -103,8 +103,6 @@ const Position: React.FC = () => {
             setPositions([]);
         } finally {
             setLoading(false);
-            // Reset triggered ref when positions are refreshed
-            squareOffTriggeredRef.current = false;
         }
     };
 
@@ -180,7 +178,7 @@ const Position: React.FC = () => {
             const liveFreeMargin = liveEquity - totalMarginUsed;
 
             // Auto Square Off Logic
-            if (!isAdmin && (updatedPositions.length > 0 || positions.length > 0) && !squareOffTriggeredRef.current) {
+            if (!isAdmin && updatedPositions.length > 0 && !squareOffTriggeredRef.current && !loading) {
                 const totalFunds = (prev.credit || 0) + (prev.deposit || 0);
                 const lossThreshold = totalFunds - (totalFunds * marginPercentage / 100);
 
@@ -189,6 +187,11 @@ const Position: React.FC = () => {
                     squareOffTriggeredRef.current = true;
                     handleSquareOffAll();
                 }
+            }
+
+            // Safety Reset: Reset the trigger if specifically confirmed that no positions remain
+            if (updatedPositions.length === 0 && squareOffTriggeredRef.current) {
+                squareOffTriggeredRef.current = false;
             }
 
             if (prev.m2m === liveM2m && prev.marginUsed === totalMarginUsed && prev.equity === liveEquity && prev.freeMargin === liveFreeMargin) return prev;
@@ -248,16 +251,20 @@ const Position: React.FC = () => {
             const month = rate.expiry.substring(2, 5); // APR
             formattedDate = `${month.charAt(0).toUpperCase() + month.slice(1).toLowerCase()} ${day}`;
         }
+        const bidPrice = parseFloat(`${rate.bid || rate.ltp || '0'}`);
+        const askPrice = parseFloat(`${rate.ask || rate.close || rate.ltp || '0'}`);
         return {
             id: rate.commodity,
             name: `${rate.commodity}${formattedDate ? ' ' + formattedDate : ''}`,
-            price: parseFloat(rate.ltp || '0'),
+            price: bidPrice,
             high: parseFloat(rate.high || '0'),
             low: parseFloat(rate.low || '0'),
             change: parseFloat(rate.change || '0'),
             changePercent: parseFloat(rate.change_percent || '0'),
             open: parseFloat(rate.open || '0'),
-            close: parseFloat(rate.close || '0'),
+            close: askPrice,
+            bid: bidPrice,
+            ask: askPrice,
             original: rate,
             tickClass: ''
         };
