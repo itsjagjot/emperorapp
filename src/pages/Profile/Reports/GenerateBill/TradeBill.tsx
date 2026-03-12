@@ -27,8 +27,12 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
         );
     }
 
-    // Group trades by script name
-    const groupedTrades = trades.reduce((acc: any, trade) => {
+    // Separate trades into settled and running
+    const settledTrades = trades.filter(t => !t.is_running);
+    const runningTrades = trades.filter(t => t.is_running);
+
+    // Group settled trades by script name for the main report
+    const groupedTrades = settledTrades.reduce((acc: any, trade) => {
         if (!acc[trade.name]) {
             acc[trade.name] = [];
         }
@@ -221,6 +225,40 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                         </tbody>
                     </table>
                 </div>
+
+                {runningTrades.length > 0 && (
+                    <div className="final-summary-section running-trades-section">
+                        <h3>Running Trades</h3>
+                        <table className="grand-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Script</th>
+                                    <th>Side</th>
+                                    <th className="ion-text-right">Qty</th>
+                                    <th className="ion-text-right">Price</th>
+                                    <th className="ion-text-right">Vol.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {runningTrades.map((t, idx) => (
+                                    <tr key={idx}>
+                                        <td>{formatDate(t.order_time)}</td>
+                                        <td>{t.name}</td>
+                                        <td className={t.action.toLowerCase() === 'buy' ? 'text-success' : 'text-danger'}>
+                                            {t.action.toUpperCase()}
+                                        </td>
+                                        <td className="ion-text-right">{Number(t.quantity).toFixed(2)}</td>
+                                        <td className="ion-text-right">{formatCurrency(t.price)}</td>
+                                        <td className="ion-text-right">
+                                            {formatCurrency(Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 {/* <div className="carry-forward">
                     <div className="script-title">Carry Forward</div>

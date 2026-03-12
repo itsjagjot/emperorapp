@@ -355,17 +355,17 @@ class LiveRateV2Service {
                 change: 0
             };
 
-            try {
-                await fetch(`${API_BASE_URL}/market-data`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-            } catch (error) {
-                console.error('[V2] Failed to store intraday data for', candle.symbol, error);
-            }
+            // try {
+            //     await fetch(`${API_BASE_URL}/market-data`, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json'
+            //         },
+            //         body: JSON.stringify(payload)
+            //     });
+            // } catch (error) {
+            //     console.error('[V2] Failed to store intraday data for', candle.symbol, error);
+            // }
         }
     }
 }

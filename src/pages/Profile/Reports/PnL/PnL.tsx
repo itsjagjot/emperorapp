@@ -42,7 +42,8 @@ const PnL: React.FC = () => {
 
     const formatValue = (val: number) => {
         const num = Number(val || 0);
-        return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return num.toFixed(2);
+        // return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
     const getColorClass = (val: number) => {

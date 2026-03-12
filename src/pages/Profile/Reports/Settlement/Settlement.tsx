@@ -48,7 +48,12 @@ const SettlementsReport: React.FC = () => {
         setLoading(true);
 
         try {
-            const allTrades = await TradeService.getOrders('Success');
+            // Pass filters to backend for efficiency
+            const allTrades = await TradeService.getSettlementReport('Success', {
+                user_id: selectedUser,
+                fromDate: dateRange.start,
+                toDate: dateRange.end
+            });
 
             if (!allTrades || !Array.isArray(allTrades)) {
                 setSettlementData({ profitUsers: [], lossUsers: [], totalNetPL: 0 });
@@ -56,7 +61,7 @@ const SettlementsReport: React.FC = () => {
                 return;
             }
 
-            // 1. Filter by User
+            // 1. Filter by User (Frontend filter still kept for extra safety/logic if needed, but backend already did it)
             let filtered = allTrades;
             if (selectedUser && selectedUser !== 'all' && selectedUser !== 'self') {
                 filtered = filtered.filter(t =>
@@ -65,7 +70,7 @@ const SettlementsReport: React.FC = () => {
                 );
             }
 
-            // Filter by Date Range
+            // Filter by Date Range (Backend already did this, but keeping logic consistent)
             if (dateRange.start && dateRange.end) {
                 const startDate = new Date(dateRange.start);
                 const endDate = new Date(dateRange.end);
@@ -208,6 +213,7 @@ const SettlementsReport: React.FC = () => {
                         value={selectedUser}
                         onUserChange={setSelectedUser}
                         includeSelf
+                        includeAll
                         label="Select User"
                     />
 

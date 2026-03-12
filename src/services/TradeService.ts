@@ -13,6 +13,8 @@ export interface TradeOrder {
     lot_size?: number;
     price: number;
     username: string;
+    user_id?: number | string;
+    is_running?: boolean;
     deals?: number;
     brokerage?: number;
     brokerage_amount?: number;
@@ -87,6 +89,35 @@ class TradeService {
         }
     }
 
+    async getSettlementReport(status?: string, filters?: { fromDate?: string | null, toDate?: string | null, exchange?: string | null, symbol?: string | null, user_id?: string | number }) {
+        try {
+            const baseUrlExchange = this.getExchange();
+            let url = `${API_BASE_URL}/${baseUrlExchange}/orders/settlement-report`;
+            const params = new URLSearchParams();
+
+            if (status) params.append('status', status);
+            if (filters?.fromDate) params.append('from_date', filters.fromDate);
+            if (filters?.toDate) params.append('to_date', filters.toDate);
+            if (filters?.exchange) params.append('exchange_name', filters.exchange);
+            if (filters?.symbol) params.append('symbol', filters.symbol);
+            if (filters?.user_id) params.append('user_id', String(filters.user_id));
+
+            const queryString = params.toString();
+            if (queryString) {
+                url += `?${queryString}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching settlement report:', error);
+            throw error;
+        }
+    }
+
     async getPositions() {
         try {
             const exchange = this.getExchange();
@@ -123,10 +154,17 @@ class TradeService {
         }
     }
 
-    async getAccountSummary() {
+    async getAccountSummary(filters?: { username?: string, user_id?: string | number }) {
         try {
             const exchange = this.getExchange();
-            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/account-summary`, {
+            const params = new URLSearchParams();
+            if (filters?.username) params.append('username', filters.username);
+            if (filters?.user_id) params.append('user_id', String(filters.user_id));
+
+            const queryString = params.toString();
+            const url = `${API_BASE_URL}/${exchange}/orders/account-summary${queryString ? '?' + queryString : ''}`;
+
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: this.getHeaders()
             });

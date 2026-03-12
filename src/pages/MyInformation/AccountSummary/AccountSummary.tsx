@@ -41,7 +41,11 @@ const AccountSummary: React.FC = () => {
     const fetchLedger = async () => {
         try {
             setLoading(true);
-            const data = await TradeService.getAccountSummary();
+            // const data = await TradeService.getAccountSummary();
+            // If selectedUser is 'self', we don't pass a username (backend defaults to current user)
+            // Otherwise, pass the username to filter
+            const filters = selectedUser !== 'self' ? { username: selectedUser } : {};
+            const data = await TradeService.getAccountSummary(filters);
             setLedger(data.ledger || []);
             setOpeningBalance(data.summary?.opening_balance || 0);
         } catch (error) {
@@ -62,16 +66,20 @@ const AccountSummary: React.FC = () => {
     const filteredLedger = ledger.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(searchText.toLowerCase()) ||
             item.symbol.toLowerCase().includes(searchText.toLowerCase());
+        // // Fix: If selectedUser is 'self', we show everything for now or match with 'Unknown' 
+        // // because the dummy records often have 'Unknown' or the actual username.
+        // // In a real app, 'self' would match the logged-in user's username.
+        // let matchesUser = true;
+        // if (selectedUser && selectedUser !== 'self') {
+        //     matchesUser = item.username === selectedUser;
+        // }
 
-        // Fix: If selectedUser is 'self', we show everything for now or match with 'Unknown' 
-        // because the dummy records often have 'Unknown' or the actual username.
-        // In a real app, 'self' would match the logged-in user's username.
-        let matchesUser = true;
-        if (selectedUser && selectedUser !== 'self') {
-            matchesUser = item.username === selectedUser;
-        }
+        // return matchesSearch && matchesUser;
 
-        return matchesSearch && matchesUser;
+        // Since we are now filtering on the backend, we don't strictly need to filter by user here
+        // unless we want to be extra sure or handle case-insensitivity issues. 
+        // Let's keep it simple and rely on backend for correct user data.
+        return matchesSearch;
     });
 
     const formatTimestamp = (ts: string) => {

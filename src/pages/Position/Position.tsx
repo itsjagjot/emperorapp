@@ -174,7 +174,7 @@ const Position: React.FC = () => {
             const baseEquity = Number(prev.baseEquity) || 0;
 
             const liveM2m = baseM2m + runningPnl;
-            const liveEquity = baseEquity + runningPnl;
+            const liveEquity = isAdmin ? baseEquity : (baseEquity + runningPnl);
             const liveFreeMargin = liveEquity - totalMarginUsed;
 
             // Auto Square Off Logic
