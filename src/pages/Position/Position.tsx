@@ -185,7 +185,7 @@ const Position: React.FC = () => {
                 const checkValue = squareOffBase === 'equity' ? liveEquity : liveFreeMargin;
                 if (checkValue <= lossThreshold && totalFunds > 0) {
                     squareOffTriggeredRef.current = true;
-                    handleSquareOffAll();
+                    handleSquareOffAll(true); // Pass true for auto square off
                 }
             }
 
@@ -222,7 +222,7 @@ const Position: React.FC = () => {
         setSelectedQuoteId(pos.symbol);
     };
 
-    const handleSquareOffAll = async () => {
+    const handleSquareOffAll = async (isAuto: boolean = false) => {
         // if (!marketTimingService.isMarketOpen()) {
         //     showToast('Market is currently closed. You cannot square off positions at this time.', 'error');
         //     return;
@@ -230,7 +230,7 @@ const Position: React.FC = () => {
 
         try {
             setLoading(true);
-            const response = await TradeService.squareOffAll();
+            const response = await TradeService.squareOffAll(isAuto);
             showToast(response.message || 'All positions squared off successfully', 'success');
             fetchPositions();
             fetchTrades();

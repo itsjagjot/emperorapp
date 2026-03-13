@@ -175,10 +175,10 @@ class TradeService {
         }
     }
 
-    async squareOffAll() {
+    async squareOffAll(isAuto: boolean = false) {
         try {
             const exchange = this.getExchange();
-            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/square-off`, {
+            const response = await fetch(`${API_BASE_URL}/${exchange}/orders/square-off?auto=${isAuto ? 1 : 0}`, {
                 method: 'POST',
                 headers: this.getHeaders()
             });
