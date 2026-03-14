@@ -275,23 +275,12 @@ class LiveRateService {
     private processIntradayData(data: any) {
         if (!Array.isArray(data)) return;
 
+        const isMarketOpen = marketTimingService.isMarketOpen();
         const now = new Date();
         const currentMinute = now.getMinutes();
-        const currentHour = now.getHours();
-        const currentTimeMinutes = currentHour * 60 + currentMinute;
-
-        const startMinutes = this.timingConfig ? marketTimingService.timeToMinutes(this.timingConfig.start_time) : 240; // Default 04:00
-        const endMinutes = this.timingConfig ? marketTimingService.timeToMinutes(this.timingConfig.end_time) : 930; // Default 15:30
-
-        const isMarketOpen = currentTimeMinutes >= startMinutes && currentTimeMinutes <= endMinutes;
-
-        // console.log('Market Status:', isMarketOpen, currentTimeMinutes, startMinutes, endMinutes);
 
         if (!isMarketOpen) {
-            // Uncomment to strictly enforce market hours
-            // return;
-            // User requested strict rule previously, but also asked for 4AM test.
-            // If timingConfig is loaded, we respect it.
+            // Respect timingConfig if loaded, otherwise allow (initial load case)
             if (this.timingConfig) return;
         }
 

@@ -267,25 +267,13 @@ class LiveRateV2Service {
     private processIntradayData(data: any[]) {
         if (!Array.isArray(data)) return;
 
+        const isMarketOpen = marketTimingService.isMarketOpen();
         const now = new Date();
         const currentMinute = now.getMinutes();
-        const currentHour = now.getHours();
-        const currentTimeMinutes = currentHour * 60 + currentMinute;
-
-        // Use MarketTimingService
-        const startMinutes = this.timingConfig ? marketTimingService.timeToMinutes(this.timingConfig.start_time) : 540; // Default 04:00
-        const endMinutes = this.timingConfig ? marketTimingService.timeToMinutes(this.timingConfig.end_time) : 930; // Default 15:30
-
-        const isMarketOpen = currentTimeMinutes >= startMinutes && currentTimeMinutes <= endMinutes;
 
         if (!isMarketOpen) {
             // Respect dynamic timing config if loaded
             if (this.timingConfig) return;
-
-            // Fallback hard check if config not yet loaded (though init calls it proactively)
-            if (currentHour >= 16 || (currentHour === 15 && currentMinute > 30) || currentHour < 4) {
-                // return; 
-            }
         }
 
         // Detect new minute
