@@ -50,9 +50,18 @@ const FilterModal: React.FC<FilterModalProps> = ({
     const [filteredScripts, setFilteredScripts] = useState<string[]>([]);
 
     useEffect(() => {
+        const handleUpdate = () => {
+            if (showExchangeFilter || showScriptFilter) {
+                loadMasterData();
+            }
+        };
+
         if (showExchangeFilter || showScriptFilter) {
             loadMasterData();
         }
+
+        window.addEventListener('master_data_updated', handleUpdate);
+        return () => window.removeEventListener('master_data_updated', handleUpdate);
     }, [showExchangeFilter, showScriptFilter]);
 
     useEffect(() => {

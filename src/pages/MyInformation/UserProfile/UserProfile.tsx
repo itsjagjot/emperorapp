@@ -74,7 +74,7 @@ const UserProfile: React.FC = () => {
                         </div>
                         <div className="stat-content">
                             <label>Available Balance</label>
-                            <p>{userData?.Credit ? userData.Balance : '0'}</p>
+                            <p>{userData?.Balance !== undefined ? userData.Balance.toLocaleString('en-IN') : '0'}</p>
                         </div>
                     </div>
                 </div>

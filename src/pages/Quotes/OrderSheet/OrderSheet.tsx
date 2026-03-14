@@ -138,14 +138,27 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
 
     // const incrementQty = () => setQuantity((prev) => prev + 1);
     // const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
-    const incrementQty = () => setQuantity((prev) => prev + breakupQty);
-    const decrementQty = () => setQuantity((prev) => Math.max(breakupQty, prev - breakupQty));
+    const incrementQty = () => setQuantity((prev) => {
+        const step = Number(breakupQty) > 0 ? Number(breakupQty) : 1;
+        const current = Number(prev) || 0;
+        return current + step;
+    });
+    const decrementQty = () => setQuantity((prev) => {
+        const step = Number(breakupQty) > 0 ? Number(breakupQty) : 1;
+        const current = Number(prev) || step;
+        return Math.max(step, current - step);
+    });
 
 
     const handleTrade = async (action: 'Buy' | 'Sell') => {
         // 🕒 Check Market Status first
         if (!marketTimingService.isMarketOpen()) {
             showToast('Market closed.', 'error');
+            return;
+        }
+
+        if (quantity <= 0 || isNaN(quantity)) {
+            showToast('Quantity must be greater than 0', 'error');
             return;
         }
 
@@ -360,11 +373,11 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                         <button
                             className="minimal-btn sell"
                             onClick={() => handleTrade('Sell')}
-                            disabled={!isInitialized || processing || isCheckingProfit || lockCountdown > 0}
+                            disabled={!isInitialized || processing || isCheckingProfit || lockCountdown > 0 || quantity <= 0 || isNaN(quantity)}
                         >
                             {lockCountdown > 0 ? `WAIT (${lockCountdown})` : 'SELL'}
                         </button>
-                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={!isInitialized || processing || isCheckingProfit}>BUY</button>
+                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={!isInitialized || processing || isCheckingProfit || quantity <= 0 || isNaN(quantity)}>BUY</button>
                     </div>
 
                     {/* Utility Row */}

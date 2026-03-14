@@ -98,12 +98,25 @@ const UserDetailsPage: React.FC = () => {
     const [scripts, setScripts] = useState<any[]>([]);
     const [brokerageSettings, setBrokerageSettings] = useState<any[]>([]);
     const [selectedScripts, setSelectedScripts] = useState<string[]>([]);
+    const [showScriptModal, setShowScriptModal] = useState(false);
+    const [scriptSettings, setScriptSettings] = useState<any[]>([]);
+    const [maxLot, setMaxLot] = useState('');
+    const [breakupLot, setBreakupLot] = useState('');
+
+    const [showTradeSettingModal, setShowTradeSettingModal] = useState(false);
+    const [tradeMarginSettings, setTradeMarginSettings] = useState<any[]>([]);
+    const [marginTypeInput, setMarginTypeInput] = useState<'Percentage' | 'Amount'>('Amount');
+    const [marginAmountInput, setMarginAmountInput] = useState('');
+    const [lotSizeMap, setLotSizeMap] = useState<any>({});
 
     useEffect(() => {
         if (id) {
             fetchUserDetails();
             fetchExchanges();
             fetchBrokerageSettings();
+            fetchScriptSettings();
+            fetchTradeMarginSettings();
+            fetchLotSizeMap();
         }
     }, [id]);
 
@@ -147,6 +160,51 @@ const UserDetailsPage: React.FC = () => {
             }
         } catch (error) {
             console.error('Failed to fetch brokerage settings', error);
+        }
+    };
+
+    const fetchScriptSettings = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/script-settings`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setScriptSettings(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch script settings', error);
+        }
+    };
+
+    const fetchTradeMarginSettings = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/trade-margin-settings`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTradeMarginSettings(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch trade margin settings', error);
+        }
+    };
+
+    const fetchLotSizeMap = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/lot-size-map`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setLotSizeMap(data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch lot size map', error);
         }
     };
 
@@ -263,6 +321,111 @@ const UserDetailsPage: React.FC = () => {
         } catch (error) {
             console.error('Error updating brokerage settings', error);
         }
+    };
+
+    const handleUpdateScriptSettings = async () => {
+        if (!selectedExchangeId) {
+            present({ message: 'Select an exchange first', duration: 2000, color: 'danger' });
+            return;
+        }
+        if (selectedScripts.length === 0) {
+            present({ message: 'Select at least one script', duration: 2000, color: 'danger' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${id}/script-settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    exchange_id: selectedExchangeId,
+                    symbols: selectedScripts,
+                    max_lot: Number(maxLot) || 0,
+                    breakup_lot: Number(breakupLot) || 0
+                })
+            });
+
+            if (response.ok) {
+                present('Script settings updated successfully', 2000);
+                setMaxLot('');
+                setBreakupLot('');
+                setSelectedScripts([]);
+                fetchScriptSettings();
+            } else {
+                present('Failed to update script settings', 2000);
+            }
+        } catch (error) {
+            console.error('Error updating script settings', error);
+        }
+    };
+
+    const handleUpdateTradeMarginSettings = async (toAll: boolean = false) => {
+        if (!selectedExchangeId) {
+            present({ message: 'Select an exchange first', duration: 2000, color: 'danger' });
+            return;
+        }
+        if (selectedScripts.length === 0) {
+            present({ message: 'Select at least one script', duration: 2000, color: 'danger' });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('accessToken');
+            const url = toAll
+                ? `${API_BASE_URL}/User/trade-margin-settings/bulk`
+                : `${API_BASE_URL}/User/${id}/trade-margin-settings`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    exchange_id: selectedExchangeId,
+                    symbols: selectedScripts,
+                    margin_type: marginTypeInput,
+                    margin_value: Number(marginAmountInput) || 0
+                })
+            });
+
+            if (response.ok) {
+                present(toAll ? 'Trade margin settings updated for all users' : 'Trade margin settings updated successfully', 2000);
+                setMarginAmountInput('');
+                setSelectedScripts([]);
+                fetchTradeMarginSettings();
+            } else {
+                present('Failed to update trade margin settings', 2000);
+            }
+        } catch (error) {
+            console.error('Error updating trade margin settings', error);
+        }
+    };
+
+    const getScriptSettingValue = (symbol: string, type: 'max' | 'break' | 'date') => {
+        const setting = scriptSettings.find(s => s.symbol === symbol && s.exchange_id === selectedExchangeId);
+        if (setting) {
+            if (type === 'date') return setting.updated_at ? new Date(setting.updated_at).toLocaleDateString() : '-';
+            return type === 'max' ? setting.max_lot : setting.breakup_lot;
+        }
+        // Fallback to group setting
+        const exchange = exchanges.find(ex => ex.id === selectedExchangeId);
+        if (exchange) {
+            const userEx = user?.UserExchanges?.find((ue: any) => ue.exchange_id === selectedExchangeId);
+            const group = exchange.groups.find((g: any) => g.id === userEx?.exchange_group_id || g.name === userEx?.group_name);
+            const gSetting = group?.settings.find((s: any) => s.symbol === symbol);
+            if (gSetting) {
+                if (type === 'date') return '-';
+                return type === 'max' ? gSetting.max_qty : gSetting.breakup_qty;
+            }
+        }
+        return type === 'date' ? '-' : '0';
+    };
+
+    const getTradeMarginValue = (symbol: string) => {
+        const setting = tradeMarginSettings.find(s => s.symbol === symbol && s.exchange_id === selectedExchangeId);
+        if (setting) {
+            return `${setting.margin_value}${setting.margin_type === 'Percentage' ? '%' : ''}`;
+        }
+        return '0.00';
     };
 
     const fetchUserDetails = async () => {
@@ -529,15 +692,15 @@ const UserDetailsPage: React.FC = () => {
                                         <h2>{user.Username}</h2>
                                         <p className="balance-text">
                                             <IonIcon icon={walletOutline} className="red-icon" />
-                                            <span className="red-text">Balance: {user.Balance}</span>
+                                            <span className="red-text">Balance: {user.Balance !== undefined ? user.Balance : '0'}</span>
                                         </p>
                                         <p className="credit-text">
                                             <IonIcon icon={documentTextOutline} className="green-icon" />
-                                            <span className="green-text">Credit: {user?.Credit}</span>
+                                            <span className="green-text">Credit: {user?.Credit !== undefined ? user.Credit : '0'}</span>
                                         </p>
                                         <p className="credit-text">
                                             <IonIcon icon={layersOutline} className="green-icon" />
-                                            <span className="green-text">Deposit: {user?.Deposit}</span>
+                                            <span className="green-text">Deposit: {user?.Deposit !== undefined ? user.Deposit : '0'}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -648,21 +811,21 @@ const UserDetailsPage: React.FC = () => {
                                 <small>{user.lock_timing || 0} Sec</small>
                             </div>
 
-                            {/* <div className="action-item">
+                            <div className="action-item" onClick={() => setShowScriptModal(true)}>
                                 <div className="icon-wrapper orange">
                                     <IonIcon icon={receiptOutline} />
                                 </div>
                                 <span>Script Quantity Setting</span>
                             </div>
 
-                            <div className="action-item">
+                            {/* <div className="action-item">
                                 <div className="icon-wrapper indigo">
                                     <IonIcon icon={swapHorizontalOutline} />
                                 </div>
                                 <span>Intraday SquareOff</span>
-                            </div>
+                            </div> */}
 
-                            <div className="action-item">
+                            <div className="action-item" onClick={() => setShowTradeSettingModal(true)}>
                                 <div className="icon-wrapper teal">
                                     <IonIcon icon={barChartOutline} />
                                 </div>
@@ -674,7 +837,7 @@ const UserDetailsPage: React.FC = () => {
                                     <IonIcon icon={shareSocialOutline} />
                                 </div>
                                 <span>Sharing Details</span>
-                            </div> */}
+                            </div>
                         </div>
                     </div>
                 )}
@@ -1017,6 +1180,135 @@ const UserDetailsPage: React.FC = () => {
 
                             {scripts.length === 0 && selectedExchangeId && (
                                 <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>No scripts found for this exchange.</p>
+                            )}
+                        </div>
+                    </IonContent>
+                </IonModal>
+
+                {/* Script Quantity Setting Modal */}
+                <IonModal isOpen={showScriptModal} onDidDismiss={() => setShowScriptModal(false)}>
+                    <CommonHeader title="Script Qty Setting" backLink="none" onBack={() => setShowScriptModal(false)} />
+
+                    <IonContent className="ion-padding details-content">
+                        <div className="brk-modal-container">
+                            {/* Filters Row */}
+                            <div className="brk-filters-row">
+                                <select className="brk-select" value={selectedExchangeId || ''} onChange={(e) => handleExchangeChange({ detail: { value: e.target.value } })}>
+                                    <option value="" disabled>Select Exchange</option>
+                                    {exchanges.filter(ex => {
+                                        const userEx = user?.UserExchanges?.find((ue: any) => ue.exchange_id === ex.id || ue.exchange_type === ex.name);
+                                        return userEx && userEx.is_enabled;
+                                    }).map(ex => (
+                                        <option key={ex.id} value={ex.id}>{ex.name}</option>
+                                    ))}
+                                </select>
+                                <input type="number" placeholder="Max Lot" className="brk-input" value={maxLot} onChange={e => setMaxLot(e.target.value)} onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }} step="1" style={{ width: '80px' }} />
+                                <input type="number" placeholder="Break..." className="brk-input" value={breakupLot} onChange={e => setBreakupLot(e.target.value)} onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }} step="1" style={{ width: '80px' }} />
+                            </div>
+
+                            <div className="brk-filters-row" style={{ justifyContent: 'space-around' }}>
+                                <button className="brk-btn-apply" onClick={handleUpdateScriptSettings} style={{ width: '45%' }}>Apply</button>
+                                <button className="brk-btn-clear" onClick={() => { setMaxLot(''); setBreakupLot(''); setSelectedScripts([]); }} style={{ width: '45%' }}>Clear</button>
+                            </div>
+
+                            {/* Scripts Table */}
+                            {scripts.length > 0 && (
+                                <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+                                    <div className="brk-table" style={{ minWidth: '600px' }}>
+                                        <div className="brk-table-header" style={{ gridTemplateColumns: '40px 140px 100px 100px 110px 120px', fontSize: '11px' }}>
+                                            <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} />
+                                            <span>Script Name</span>
+                                            {/* <span>Lot Size</span> */}
+                                            <span>Max Lot</span>
+                                            <span>Breakup Lot</span>
+                                            <span>Last Updated Date</span>
+                                        </div>
+                                        <div className="brk-table-body">
+                                            {scripts.map((script, idx) => (
+                                                <div key={idx} className="brk-table-row" style={{ gridTemplateColumns: '40px 140px 100px 100px 110px 120px', fontSize: '11px', padding: '10px 5px' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedScripts.includes(script.symbol)}
+                                                        onChange={() => toggleScriptSelection(script.symbol)}
+                                                    />
+                                                    <span className="brk-script-name" style={{ fontWeight: '600' }}>{script.symbol}</span>
+                                                    {/* <span>{lotSizeMap[script.symbol] || '-'}</span> */}
+                                                    <span>{getScriptSettingValue(script.symbol, 'max')}</span>
+                                                    <span>{getScriptSettingValue(script.symbol, 'break')}</span>
+                                                    <span style={{ fontSize: '10px', color: '#666' }}>{getScriptSettingValue(script.symbol, 'date')}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </IonContent>
+                </IonModal>
+
+                {/* Trade Margin Setting Modal */}
+                <IonModal isOpen={showTradeSettingModal} onDidDismiss={() => setShowTradeSettingModal(false)}>
+                    <CommonHeader title="Trade Margin Setting" backLink="none" onBack={() => setShowTradeSettingModal(false)} />
+
+                    <IonContent className="ion-padding details-content">
+                        <div className="brk-modal-container">
+                            {/* Filters Row */}
+                            <div className="brk-filters-row">
+                                <select className="brk-select" value={selectedExchangeId || ''} onChange={(e) => handleExchangeChange({ detail: { value: e.target.value } })}>
+                                    <option value="" disabled>Select Exchange</option>
+                                    {exchanges.filter(ex => {
+                                        const userEx = user?.UserExchanges?.find((ue: any) => ue.exchange_id === ex.id || ue.exchange_type === ex.name);
+                                        return userEx && userEx.is_enabled;
+                                    }).map(ex => (
+                                        <option key={ex.id} value={ex.id}>{ex.name}</option>
+                                    ))}
+                                </select>
+                                <select className="brk-select" value={marginTypeInput} onChange={(e) => setMarginTypeInput(e.target.value as any)}>
+                                    {/* <option value="Percentage">Percentage</option> */}
+                                    <option value="Amount">Amount</option>
+                                </select>
+                            </div>
+
+                            <div className="brk-filters-row">
+                                <input type="number" placeholder="Amount" className="brk-input" value={marginAmountInput} onChange={e => setMarginAmountInput(e.target.value)} onKeyDown={(e) => { if (['.', 'e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }} step="1" style={{ width: '49%', flex: 'none' }} />
+                                <button className="brk-btn-apply" onClick={() => handleUpdateTradeMarginSettings(false)} style={{ width: '80px' }}>Apply</button>
+                                <button className="brk-btn-apply" onClick={() => {
+                                    setSelectedExchangeId(null);
+                                    setMarginTypeInput('Amount');
+                                    setMarginAmountInput('');
+                                    setScripts([]);
+                                    setSelectedScripts([]);
+                                }} style={{ width: '80px', background: '#072146' }}>Reset</button>
+                            </div>
+
+                            <button className="brk-btn-apply" onClick={() => handleUpdateTradeMarginSettings(true)} style={{ width: '100%', marginTop: '10px', background: '#072146' }}>
+                                Update To All Users
+                            </button>
+
+                            {/* Scripts Table */}
+                            {scripts.length > 0 && (
+                                <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+                                    <div className="brk-table" style={{ minWidth: '400px' }}>
+                                        <div className="brk-table-header" style={{ gridTemplateColumns: '40px 0.8fr 120px' }}>
+                                            <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} />
+                                            <span>Script Name</span>
+                                            <span>Trade Margin</span>
+                                        </div>
+                                        <div className="brk-table-body">
+                                            {scripts.map((script, idx) => (
+                                                <div key={idx} className="brk-table-row" style={{ gridTemplateColumns: '40px 0.7fr 120px' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedScripts.includes(script.symbol)}
+                                                        onChange={() => toggleScriptSelection(script.symbol)}
+                                                    />
+                                                    <span className="brk-script-name">{script.symbol}</span>
+                                                    <span className="brk-amount">{getTradeMarginValue(script.symbol)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </IonContent>

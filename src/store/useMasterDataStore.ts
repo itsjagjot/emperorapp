@@ -64,3 +64,9 @@ export const useMasterDataStore = create<MasterDataStore>((set, get) => ({
         return null;
     }
 }));
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('master_data_updated', () => {
+        useMasterDataStore.getState().fetchMasterData(true);
+    });
+}

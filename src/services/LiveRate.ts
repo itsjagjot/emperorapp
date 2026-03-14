@@ -175,6 +175,32 @@ class LiveRateService {
                 this.processIntradayData(data);
             });
 
+            this.socket.on("quantities_updated", (res: any) => {
+                if (res && res.userId && res.quantities) {
+                    const userStr = localStorage.getItem('user');
+                    if (userStr) {
+                        try {
+                            const user = JSON.parse(userStr);
+                            if (user.UserId === res.userId || user.user_id === res.userId) {
+                                window.dispatchEvent(new CustomEvent('user_quantities_updated', { detail: res.quantities }));
+                            }
+                        } catch (e) { }
+                    }
+                }
+            });
+
+            this.socket.on("master_data_updated", () => {
+                console.log('📢 Master data updated, notifying app...');
+                // Import dynamically to avoid circular dependency if any
+                import('./scriptService').then(m => {
+                    m.clearMasterDataCache();
+                    // Fetch fresh data immediately to update the cache
+                    m.getMasterData(true).then(() => {
+                        window.dispatchEvent(new CustomEvent('master_data_updated'));
+                    });
+                });
+            });
+
             // 🚨 Listen for margin square-off event (user blocked)
             this.socket.on('margin_squareoff', (data: any) => {
                 // Check if this event is for the current logged-in user
