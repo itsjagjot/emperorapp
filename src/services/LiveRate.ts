@@ -251,6 +251,7 @@ class LiveRateService {
             });
 
             this.socket.on('rates', (data: any) => {
+                // if (!marketTimingService.isMarketOpen()) return;
                 // Handle alternate event name if any
                 this.notifyListeners(data);
                 this.processIntradayData(data);
@@ -260,6 +261,7 @@ class LiveRateService {
             console.log('Initializing LiveRate Service (DEV) with static data');
             // Simulate socket behavior with static data
             this.devInterval = setInterval(() => {
+                // if (!marketTimingService.isMarketOpen()) return;
                 // Simulate price movement for testing aggregation
                 const simulatedData = DEV_DATA.map(d => {
                     const jitter = (Math.random() * 10 - 5);

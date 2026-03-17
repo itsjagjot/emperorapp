@@ -131,6 +131,9 @@ class LiveRateV2Service {
 
 
     private simulateFluctuation() {
+        if (!marketTimingService.isMarketOpen()) {
+            return;
+        }
         if (this.rateStore.size === 0) {
             // If no data yet, initialize with config defaults
             Object.entries(this.commodityConfig).forEach(([key, config]) => {
