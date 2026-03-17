@@ -25,6 +25,7 @@ export interface TradeOrder {
     device?: string;
     order_time?: string;
     execution_time?: string;
+    temp_p_l?: number | null;
 }
 
 class TradeService {

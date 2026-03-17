@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    IonContent, IonHeader, IonPage, IonToolbar, IonIcon, useIonRouter, useIonToast, isPlatform
+    IonContent, IonHeader, IonPage, IonToolbar, IonIcon, useIonRouter, useIonToast, isPlatform, useIonViewWillEnter
 } from '@ionic/react';
 import {
     personAddOutline, listOutline, searchOutline, personOutline,
@@ -17,6 +17,7 @@ import {
     globeOutline
 } from 'ionicons/icons';
 import { logoutUser } from '../../services/authService';
+import userService from '../../services/userService';
 import Loader from '../../components/Loader/Loader';
 import TickerBanner from '../../components/TickerBanner/TickerBanner';
 import { ANDROID_INVITE_LINK, IOS_INVITE_LINK } from '../../services/config';
@@ -136,9 +137,45 @@ const Profile: React.FC = () => {
         const handleStorageChange = () => {
             setIsUnlocked(localStorage.getItem('menuUnlocked') === 'true');
         };
+        const handleRefetched = (event: any) => {
+            setUserData(event.detail);
+        };
         window.addEventListener('menuUnlockedChanged', handleStorageChange);
-        return () => window.removeEventListener('menuUnlockedChanged', handleStorageChange);
+        window.addEventListener('user_data_refetched', handleRefetched as EventListener);
+        return () => {
+            window.removeEventListener('menuUnlockedChanged', handleStorageChange);
+            window.removeEventListener('user_data_refetched', handleRefetched as EventListener);
+        };
     }, []);
+
+    const refetchUserData = async () => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                const userId = user.UserId || user.user_id;
+                if (userId) {
+                    const freshUser = await userService.getProfile(userId);
+                    if (freshUser) {
+                        const updatedUser = {
+                            ...user,
+                            ...freshUser,
+                            UserId: freshUser.UserId || freshUser.user_id,
+                            IsActive: freshUser.IsActive ?? freshUser.is_active
+                        };
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
+                        setUserData(updatedUser);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to refetch profile on enter:', err);
+            }
+        }
+    };
+
+    useIonViewWillEnter(() => {
+        refetchUserData();
+    });
 
     const showAllFeatures = !isAdmin || isUnlocked;
 

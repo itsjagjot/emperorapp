@@ -184,7 +184,7 @@ export const logoutUser = async (exchange: string = DEFAULT_EXCHANGE) => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
     localStorage.removeItem('menuUnlocked');
-    localStorage.removeItem('market_timing_data');
+    localStorage.removeItem('all_market_timings');
     localStorage.clear();
 
     if (savedSymbols) {

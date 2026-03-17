@@ -55,7 +55,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 const mappedLot = backendMap[symbol.toUpperCase()] || quote.lotSize || quote.original?.lot_size || 100;
                 setLotSize(mappedLot);
 
-                // Fetch Master Data for Breakup Qty (if not already passed)
+                // Fetch Master Data for Breakup Qty
                 let brkQty = quote.breakupQty;
                 if (!brkQty) {
                     await fetchMasterData();
@@ -63,7 +63,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                     brkQty = settings?.breakup_qty ? Number(settings.breakup_qty) : 1.0;
                 }
                 setBreakupQty(brkQty);
-                setQuantity(brkQty); // Default quantity should be breakup lot size
+                setQuantity(brkQty);
 
                 // Fetch dynamic quantities
                 try {
@@ -86,13 +86,8 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 setLotOptions(e.detail.map(Number));
             }
         };
-
         window.addEventListener('user_quantities_updated', handleQuantitiesUpdate);
-
-        return () => {
-            window.removeEventListener('user_quantities_updated', handleQuantitiesUpdate);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        return () => window.removeEventListener('user_quantities_updated', handleQuantitiesUpdate);
     }, [isOpen]);
 
     // Timer to update time every 2 seconds
@@ -100,7 +95,6 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
         const intervalId = setInterval(() => {
             setCurrentTime(new Date().toLocaleTimeString());
         }, 2000);
-
         return () => clearInterval(intervalId);
     }, []);
 
@@ -108,19 +102,6 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
         const n = Number(val);
         return isNaN(n) ? '0' : n.toFixed(decimals);
     };
-
-    const [lockCountdown, setLockCountdown] = useState<number>(0);
-    const [isCheckingProfit, setIsCheckingProfit] = useState(false);
-
-    useEffect(() => {
-        let timer: any;
-        if (lockCountdown > 0) {
-            timer = setInterval(() => {
-                setLockCountdown(prev => prev - 1);
-            }, 1000);
-        }
-        return () => clearInterval(timer);
-    }, [lockCountdown]);
 
     if (!quote) return null;
 
@@ -163,58 +144,6 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
         }
 
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const lockTimingValue = Number(user.lock_timing || 0);
-
-        if (action === 'Sell' && lockTimingValue > 0 && lockCountdown === 0) {
-            setIsCheckingProfit(true);
-            try {
-                // Fetch positions to check profit
-                const response = await TradeService.getPositions();
-
-                if (response) {
-                    const realised = response.summary?.realised_pnl || 0;
-                    const baseM2m = response.summary?.m2m || 0;
-                    let m2m = 0;
-
-                    // Calculate M2M for all open positions
-                    if (Array.isArray(response.positions)) {
-                        for (const pos of response.positions) {
-                            let cmp = 0;
-                            // Check if this position is the same as the current quote
-                            if (pos.symbol === (quote.original?.commodity || quote.symbol)) {
-                                cmp = quote.price;
-                            } else {
-                                // Fallback to ATP if we don't have live rate for other symbols
-                                cmp = pos.atp;
-                            }
-
-                            const Buydiff = cmp - pos.atp;
-                            const SellDiff = pos.atp - cmp;
-                            const pnl = pos.action === 'Buy'
-                                ? (Buydiff) * pos.quantity * pos.lot_size
-                                : (SellDiff) * pos.quantity * pos.lot_size;
-                            m2m += pnl;
-                        }
-                    }
-
-                    const totalPnL = realised + m2m;
-                    // const totalPnL = baseM2m + m2m;
-
-                    if (totalPnL > 0) {
-                        setLockCountdown(lockTimingValue);
-                        showToast(`Profit Lock: Wait ${lockTimingValue}s to sell.`, 'error');
-                        setIsCheckingProfit(false);
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.error('Error checking profit status', err);
-            } finally {
-                setIsCheckingProfit(false);
-            }
-        }
-
-        // const orderPrice = action == 'Buy' ? quote.close : quote.price; /* Close: AskPrice || Price: BidPrice */
         const orderPrice = action === 'Buy' ? (quote.ask || quote.close) : (quote.bid || quote.price); /* AskPrice for Buy || BidPrice for Sell */
 
 
@@ -231,14 +160,17 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                 quantity: quantity,
                 lot_size: lotSize,
                 price: activeTab === 'Market' ? orderPrice : price,
+                temp_p_l: quote.current_pnl ?? null,
                 username: user.userName || user.Username || 'Unknown',
                 device: 'Mobile',
             });
             showToast('Order placed successfully!', 'success');
-            setLockCountdown(0); // Reset lock
             if (onSuccess) onSuccess();
             onClose();
         } catch (error: any) {
+            console.log("Place Order: ");
+            console.log(error);
+            // Backend will return "Please wait Xs..." if lock timing is active
             showToast(error.message || 'Failed to place order.', 'error');
         } finally {
             setProcessing(false);
@@ -402,11 +334,11 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                         <button
                             className="minimal-btn sell"
                             onClick={() => handleTrade('Sell')}
-                            disabled={!isInitialized || processing || isCheckingProfit || lockCountdown > 0 || quantity <= 0 || isNaN(quantity)}
+                            disabled={!isInitialized || processing || quantity <= 0 || isNaN(quantity)}
                         >
-                            {lockCountdown > 0 ? `WAIT (${lockCountdown})` : 'SELL'}
+                            SELL
                         </button>
-                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={!isInitialized || processing || isCheckingProfit || quantity <= 0 || isNaN(quantity)}>BUY</button>
+                        <button className="premium-btn buy" onClick={() => handleTrade('Buy')} disabled={!isInitialized || processing || quantity <= 0 || isNaN(quantity)}>BUY</button>
                     </div>
 
                     {/* Utility Row */}

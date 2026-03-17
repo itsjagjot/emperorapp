@@ -7,7 +7,8 @@ import {
     IonGrid,
     IonRow,
     IonCol,
-    IonRippleEffect
+    IonRippleEffect,
+    useIonViewWillEnter
 } from '@ionic/react';
 import {
     person,
@@ -20,6 +21,7 @@ import {
     idCard
 } from 'ionicons/icons';
 import CommonHeader from '../../../components/CommonHeader';
+import userService from '../../../services/userService';
 import './UserProfile.css';
 
 const UserProfile: React.FC = () => {
@@ -35,7 +37,42 @@ const UserProfile: React.FC = () => {
                 console.error("Error parsing user data");
             }
         }
+
+        const handleRefetched = (event: any) => {
+            setUserData(event.detail);
+        };
+        window.addEventListener('user_data_refetched', handleRefetched as EventListener);
+        return () => window.removeEventListener('user_data_refetched', handleRefetched as EventListener);
     }, []);
+
+    const refetchUserData = async () => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                const userId = user.UserId || user.user_id;
+                if (userId) {
+                    const freshUser = await userService.getProfile(userId);
+                    if (freshUser) {
+                        const updatedUser = {
+                            ...user,
+                            ...freshUser,
+                            UserId: freshUser.UserId || freshUser.user_id,
+                            IsActive: freshUser.IsActive ?? freshUser.is_active
+                        };
+                        localStorage.setItem('user', JSON.stringify(updatedUser));
+                        setUserData(updatedUser);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to refetch user profile on enter:', err);
+            }
+        }
+    };
+
+    useIonViewWillEnter(() => {
+        refetchUserData();
+    });
 
     const getInitials = (firstName: string, lastName: string) => {
         return ((firstName?.charAt(0) || '') + (lastName?.charAt(0) || '')).toUpperCase() || 'U';

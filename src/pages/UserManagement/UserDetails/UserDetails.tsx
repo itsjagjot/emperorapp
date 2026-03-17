@@ -271,7 +271,7 @@ const UserDetailsPage: React.FC = () => {
     };
 
     const selectAllScripts = (e: any) => {
-        if (e.detail.checked) {
+        if (e.target.checked) {
             setSelectedScripts(scripts.map(s => s.symbol));
         } else {
             setSelectedScripts([]);
@@ -1159,7 +1159,9 @@ const UserDetailsPage: React.FC = () => {
                             {scripts.length > 0 && (
                                 <div className="brk-table">
                                     <div className="brk-table-header">
-                                        <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} />
+                                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%', height: '100%' }}>
+                                            <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} style={{ cursor: 'pointer' }} />
+                                        </label>
                                         <span>Script Name</span>
                                         <span>Brk</span>
                                     </div>
@@ -1217,7 +1219,9 @@ const UserDetailsPage: React.FC = () => {
                                 <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
                                     <div className="brk-table" style={{ minWidth: '600px' }}>
                                         <div className="brk-table-header" style={{ gridTemplateColumns: '40px 140px 100px 100px 110px 120px', fontSize: '11px' }}>
-                                            <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} />
+                                            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%', height: '100%' }}>
+                                                <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} style={{ cursor: 'pointer' }} />
+                                            </label>
                                             <span>Script Name</span>
                                             {/* <span>Lot Size</span> */}
                                             <span>Max Lot</span>
@@ -1291,7 +1295,9 @@ const UserDetailsPage: React.FC = () => {
                                 <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
                                     <div className="brk-table" style={{ minWidth: '400px' }}>
                                         <div className="brk-table-header" style={{ gridTemplateColumns: '40px 0.8fr 120px' }}>
-                                            <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} />
+                                            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', width: '100%', height: '100%' }}>
+                                                <input type="checkbox" onChange={selectAllScripts} checked={selectedScripts.length === scripts.length && scripts.length > 0} style={{ cursor: 'pointer' }} />
+                                            </label>
                                             <span>Script Name</span>
                                             <span>Trade Margin</span>
                                         </div>

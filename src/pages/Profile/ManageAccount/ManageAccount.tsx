@@ -77,7 +77,7 @@ const ManageAccount: React.FC = () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         localStorage.removeItem('menuUnlocked');
-        localStorage.removeItem('market_timing_data');
+        localStorage.removeItem('all_market_timings');
         localStorage.clear();
         window.location.href = '/login';
     };

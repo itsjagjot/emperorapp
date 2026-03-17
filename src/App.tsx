@@ -72,7 +72,6 @@ const App: React.FC = () => {
     // Global listener for live rates
     // Clear account switching flag (set during account switch to prevent apiInterceptor)
     sessionStorage.removeItem('account_switching');
-    console.log('App initialized. Subscribing to LiveRateV2 service...');
 
     liveRateV2Service.onMarketData((data) => {
       if (Array.isArray(data)) {
@@ -109,6 +108,7 @@ const App: React.FC = () => {
                     console.warn('User account deactivated, redirecting to login...');
                     localStorage.removeItem('isAuthenticated');
                     localStorage.removeItem('accessToken');
+                    localStorage.removeItem('all_market_timings');
                     localStorage.removeItem('user');
                     window.location.href = '/login';
                   }

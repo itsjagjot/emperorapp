@@ -32,6 +32,7 @@ interface PositionData {
     atp: number;
     cmp?: number;
     pnl?: number;
+    trade_margin?: number;
 }
 
 const Position: React.FC = () => {
@@ -49,7 +50,7 @@ const Position: React.FC = () => {
         marginUsed: 0,
         freeMargin: 0,
         baseM2m: 0,
-        baseEquity: 0
+        baseEquity: 0,
     });
     const [marginPercentage, setMarginPercentage] = useState(1); // Dynamic margin requirement
     const { showToast } = useToast();
@@ -129,12 +130,22 @@ const Position: React.FC = () => {
             const rate = liveRates.find(r => r.commodity == pos.symbol);
             const posQty = Number(pos.quantity) || 0;
             const posLotSize = Number(pos.lot_size) || 0;
-
             const posAtp = Number(pos.atp) || 0;
 
             let cmp = pos.cmp || 0;
             let pnl = pos.pnl || 0;
 
+            // 1. Calculate Margin Used (Specific Trade Margin or Percentage Fallback)
+            if (pos.trade_margin && pos.trade_margin > 0) {
+                totalMarginUsed += Number(pos.trade_margin);
+            } else {
+                const currentCmpForMargin = rate ? (pos.action === 'Buy' ? Number(rate.bid) : Number(rate.ask)) : posAtp;
+                const tradeValue = currentCmpForMargin * posQty * posLotSize;
+                const margin = tradeValue * (marginPercentage / 100) / posLotSize;
+                totalMarginUsed += margin;
+            }
+
+            // 2. Calculate Live P&L
             if (rate) {
                 const currentCmp = pos.action === 'Buy' ? Number(rate.bid) : Number(rate.ask);
                 if (!isNaN(currentCmp)) {
@@ -145,23 +156,22 @@ const Position: React.FC = () => {
                         ? (Buydiff) * posQty * posLotSize
                         : (SellDiff) * posQty * posLotSize;
 
-                    // Margin calculation with live CMP
-                    const tradeValue = cmp * posQty * posLotSize;
-                    const margin = tradeValue * (marginPercentage / 100) / posLotSize;
-                    totalMarginUsed += margin;
+                    // // Margin calculation with live CMP
+                    // const tradeValue = cmp * posQty * posLotSize;
+                    // const margin = tradeValue * (marginPercentage / 100) / posLotSize;
+                    // totalMarginUsed += margin;
 
                     // if (pos.cmp !== cmp || pos.pnl !== pnl) {
                     if (pos.cmp !== cmp || Math.abs((pos.pnl || 0) - pnl) > 0.01) {
                         hasChanges = true;
                     }
                 }
-            } else {
-                const estValue = posAtp * posQty;
-                totalMarginUsed += (estValue * (marginPercentage / 100));
+                // } else {
+                //     const estValue = posAtp * posQty;
+                //     totalMarginUsed += (estValue * (marginPercentage / 100));
             }
 
             runningPnl += pnl;
-
             return hasChanges ? { ...pos, cmp, pnl } : pos;
         });
 
@@ -255,6 +265,10 @@ const Position: React.FC = () => {
         }
         const bidPrice = parseFloat(`${rate.bid || rate.ltp || '0'}`);
         const askPrice = parseFloat(`${rate.ask || rate.close || rate.ltp || '0'}`);
+
+        // Find existing pnl for this symbol from positions
+        const existingPos = positions.find(p => p.symbol === selectedQuoteId);
+
         return {
             id: rate.commodity,
             name: `${rate.commodity}${formattedDate ? ' ' + formattedDate : ''}`,
@@ -268,7 +282,8 @@ const Position: React.FC = () => {
             bid: bidPrice,
             ask: askPrice,
             original: rate,
-            tickClass: ''
+            tickClass: '',
+            current_pnl: existingPos ? existingPos.pnl : null
         };
     };
 
