@@ -7,6 +7,7 @@ interface MasterDataStore {
     error: string | null;
     fetchMasterData: (forceRefresh?: boolean) => Promise<void>;
     getScriptSettings: (symbol: string) => { breakup_qty?: number, max_qty?: number } | null;
+    getTradeMargin: (symbol: string) => { margin_type: string, margin_value: number } | null;
 }
 
 export const useMasterDataStore = create<MasterDataStore>((set, get) => ({
@@ -58,6 +59,24 @@ export const useMasterDataStore = create<MasterDataStore>((set, get) => ({
                             };
                         }
                     }
+                }
+            }
+        }
+        return null;
+    },
+
+    getTradeMargin: (symbol: string) => {
+        const { masterData } = get();
+        if (!masterData || !Array.isArray(masterData)) return null;
+
+        for (const exchange of masterData) {
+            if (exchange.trade_margins && Array.isArray(exchange.trade_margins)) {
+                const margin = exchange.trade_margins.find((m: any) => m.symbol === symbol);
+                if (margin) {
+                    return {
+                        margin_type: margin.margin_type,
+                        margin_value: margin.margin_value
+                    };
                 }
             }
         }

@@ -96,6 +96,28 @@ class LiveRateV2Service {
             }
         });
 
+        this.socket.on("market_timing_updated", (res: any) => {
+            if (res) {
+                marketTimingService.updateTiming(res);
+                if (res.timing) this.timingConfig = res.timing;
+            }
+        });
+
+        this.socket.on("user_data_updated", (res: any) => {
+            if (res && res.userId) {
+                const userStr = localStorage.getItem('user');
+                if (userStr) {
+                    try {
+                        const user = JSON.parse(userStr);
+                        if (user.UserId === res.userId || user.user_id === res.userId) {
+                            console.log('📢 Current user data updated, dispatching event');
+                            window.dispatchEvent(new CustomEvent('user_data_updated', { detail: res }));
+                        }
+                    } catch (e) { }
+                }
+            }
+        });
+
         // Start fluctuation simulator to keep UI alive
         setInterval(() => {
             this.simulateFluctuation();

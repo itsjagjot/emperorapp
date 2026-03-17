@@ -22,6 +22,20 @@ class UserService {
             throw error;
         }
     }
+
+    async getProfile(userId: number | string) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/User/${userId}`, {
+                method: 'GET',
+                headers: this.getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to fetch user profile');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            throw error;
+        }
+    }
 }
 
 export default new UserService();

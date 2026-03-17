@@ -31,7 +31,7 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
     const [isInitialized, setIsInitialized] = useState(false);
 
     // Using Master Data Zustand Store
-    const { fetchMasterData, getScriptSettings } = useMasterDataStore();
+    const { fetchMasterData, getScriptSettings, getTradeMargin } = useMasterDataStore();
     const [lotOptions, setLotOptions] = useState<number[]>([1, 5, 10, 15, 50, 100, 500, 1000]);
 
     // Update state immediately when quote changes or modal opens
@@ -367,6 +367,35 @@ const OrderSheet: React.FC<OrderSheetProps> = ({ quote, isOpen, onClose, onSucce
                             </div>
                         )}
                     </div>
+
+                    {/* Trade Info - Margin Details */}
+                    {/* <div className="trade-info-summary" style={{ marginBottom: '16px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748b' }}>
+                            <span>Margin Required</span>
+                            <span style={{ fontWeight: 600, color: '#1a202c' }}>
+                                ₹{(
+                                    (() => {
+                                        const tm = getTradeMargin(quote.original?.commodity || quote.symbol || '');
+                                        if (tm) {
+                                            if (tm.margin_type === 'Amount') {
+                                                return (tm.margin_value * (quantity)).toFixed(2);
+                                            } else {
+                                                const val = (activeTab === 'Market' ? quote.price : price) * quantity * lotSize;
+                                                return (val * (tm.margin_value / 100)).toFixed(2);
+                                            }
+                                        }
+                                        return ((activeTab === 'Market' ? quote.price : price) * quantity * lotSize).toFixed(2);
+                                    })()
+                                )}
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+                            <span>Your Free Margin</span>
+                            <span style={{ fontWeight: 600, color: '#1a202c' }}>
+                                ₹{(Number(localStorage.getItem('freeMargin')) || 0).toFixed(2)}
+                            </span>
+                        </div>
+                    </div> */}
 
                     {/* Trade Actions - Buy uses your premium gradient */}
                     <div className="button-group">

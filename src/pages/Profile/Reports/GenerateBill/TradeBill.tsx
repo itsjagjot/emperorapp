@@ -63,6 +63,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
         return '';
     };
 
+    const isMultiUser = Array.from(new Set(trades.map(t => t.username))).filter(Boolean).length > 1;
     let totalNetPL = 0;
     let totalBrokerage = 0;
 
@@ -208,7 +209,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
 
                                 return (
                                     <tr key={scriptName}>
-                                        <td>MCX</td>
+                                        <td>{scriptTrades[0]?.exchange_name || 'MCX'}</td>
                                         <td>{scriptName}</td>
                                         <td className={`ion-text-right ${getColorClass(total)}`}>{formatCurrency(total)}</td>
                                         <td className="ion-text-right text-danger" >- {formatCurrency(brk)}</td>
@@ -226,12 +227,73 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                     </table>
                 </div>
 
+                {/* Multi-user Summary Section */}
+                {isMultiUser && (
+                    <div className="final-summary-section" style={{ marginTop: '30px' }}>
+                        <h3 style={{ color: '#4a6fa5' }}>User Wise Summary</h3>
+                        <table className="grand-table">
+                            <thead>
+                                <tr style={{ background: '#e1e8ef' }}>
+                                    <th>Username</th>
+                                    <th className="ion-text-right">Gross P&L</th>
+                                    <th className="ion-text-right">Brokerage</th>
+                                    <th className="ion-text-right">Net P&L</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {(() => {
+                                    const userGroups: { [key: string]: any[] } = settledTrades.reduce((acc: any, t) => {
+                                        const uname = t.username || 'Unknown';
+                                        if (!acc[uname]) acc[uname] = [];
+                                        acc[uname].push(t);
+                                        return acc;
+                                    }, {});
+
+                                    return Object.keys(userGroups).sort().map(uname => {
+                                        const userTrades = userGroups[uname];
+                                        const scriptGroups = userTrades.reduce((acc: any, t) => {
+                                            if (!acc[t.name]) acc[t.name] = [];
+                                            acc[t.name].push(t);
+                                            return acc;
+                                        }, {});
+
+                                        let userGross = 0;
+                                        let userBrk = 0;
+                                        Object.values(scriptGroups).forEach((st: any) => {
+                                            const bVol = st.filter((t: any) => t.action.toLowerCase() === 'buy').reduce((s: number, t: any) => s + (Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100), 0);
+                                            const sVol = st.filter((t: any) => t.action.toLowerCase() === 'sell').reduce((s: number, t: any) => s + (Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100), 0);
+                                            userGross += (sVol - bVol);
+                                            userBrk += st.reduce((s: number, t: any) => s + Number(t.brokerage_amount || 0), 0) / 100;
+                                        });
+
+                                        return (
+                                            <tr key={uname}>
+                                                <td style={{ fontWeight: '600' }}>{uname}</td>
+                                                <td className={`ion-text-right ${getColorClass(userGross)}`}>{formatCurrency(userGross)}</td>
+                                                <td className="ion-text-right text-danger">- {formatCurrency(userBrk)}</td>
+                                                <td className={`ion-text-right ${getColorClass(userGross - userBrk)}`}>{formatCurrency(userGross - userBrk)}</td>
+                                            </tr>
+                                        );
+                                    });
+                                })()}
+                                <tr className="total-row">
+                                    <td>GRAND TOTAL</td>
+                                    <td className={`ion-text-right ${getColorClass(totalNetPL)}`}>{formatCurrency(totalNetPL)}</td>
+                                    <td className="ion-text-right text-danger">- {formatCurrency(totalBrokerage)}</td>
+                                    <td className={`ion-text-right ${getColorClass(totalNetPL - totalBrokerage)}`}>{formatCurrency(totalNetPL - totalBrokerage)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
                 {runningTrades.length > 0 && (
                     <div className="final-summary-section running-trades-section">
                         <h3>Running Trades</h3>
                         <table className="grand-table">
                             <thead>
                                 <tr>
+                                    {isMultiUser && <th>User</th>}
                                     <th>Date</th>
                                     <th>Script</th>
                                     <th>Side</th>
@@ -243,6 +305,7 @@ const TradeBill: React.FC<TradeBillProps> = ({ trades, userId, startDate, endDat
                             <tbody>
                                 {runningTrades.map((t, idx) => (
                                     <tr key={idx}>
+                                        {isMultiUser && <td style={{ fontWeight: '600' }}>{t.username}</td>}
                                         <td>{formatDate(t.order_time)}</td>
                                         <td>{t.name}</td>
                                         <td className={t.action.toLowerCase() === 'buy' ? 'text-success' : 'text-danger'}>

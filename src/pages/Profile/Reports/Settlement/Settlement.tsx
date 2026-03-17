@@ -10,6 +10,11 @@ import DateFilter from '../../../../components/DateFilter';
 import UserFilter from '../../../../components/UserFilter';
 import TradeService, { TradeOrder } from '../../../../services/TradeService';
 import TradeBill from '../GenerateBill/TradeBill';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 import './Settlement.css';
 
 interface SettlementItem {
@@ -162,12 +167,111 @@ const SettlementsReport: React.FC = () => {
     const handleDownload = () => {
         // Show TradeBill view
         setShowBill(true);
-        // Auto print after short delay
-        setTimeout(() => {
-            if (window.innerWidth > 768) {
-                // window.print();
+    };
+
+    const handleDownloadPDF = async () => {
+        const reportElement = document.querySelector('.bill-paper') as HTMLElement;
+        if (!reportElement) return;
+
+        setLoading(true);
+        const originalStyle = reportElement.style.cssText;
+
+        try {
+            reportElement.style.width = '210mm';
+            reportElement.style.position = 'absolute';
+            reportElement.style.left = '0';
+            reportElement.style.top = '0';
+            reportElement.style.margin = '0';
+
+            const canvas = await html2canvas(reportElement, {
+                scale: 1.5,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                width: 794,
+                windowWidth: 794,
+                imageTimeout: 0
+            });
+
+            reportElement.style.cssText = originalStyle;
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.85);
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const imgWidth = 210;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
             }
-        }, 500);
+
+            const fileName = `Settlement_Report_${selectedUser}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+            if (Capacitor.isNativePlatform()) {
+                // Request permissions if not granted
+                const perm = await Filesystem.checkPermissions();
+                if (perm.publicStorage !== 'granted') {
+                    const status = await Filesystem.requestPermissions();
+                    if (status.publicStorage !== 'granted') {
+                        alert('Storage permission is required to save the PDF. Please enable it in settings.');
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                const pdfBase64 = pdf.output('datauristring').split(',')[1];
+                
+                try {
+                    // Write file to Documents directory (Standard for downloads)
+                    const result = await Filesystem.writeFile({
+                        path: fileName,
+                        data: pdfBase64,
+                        directory: Directory.Documents,
+                        recursive: true
+                    });
+
+                    await Share.share({
+                        title: 'Settlement Report',
+                        text: 'Settlement report PDF from Emperor App',
+                        url: result.uri,
+                    });
+                } catch (writeError) {
+                    console.error('Error writing file', writeError);
+                    // Fallback to Cache
+                    const result = await Filesystem.writeFile({
+                        path: fileName,
+                        data: pdfBase64,
+                        directory: Directory.Cache,
+                        recursive: true
+                    });
+                    
+                    await Share.share({
+                        title: 'Settlement Report',
+                        text: 'Settlement report PDF from Emperor App',
+                        url: result.uri,
+                    });
+                }
+            } else {
+                pdf.save(fileName);
+            }
+        } catch (error) {
+            console.error('Failed to generate PDF', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (showBill) {
@@ -176,7 +280,7 @@ const SettlementsReport: React.FC = () => {
                 <CommonHeader
                     title="View Report"
                     backLink={undefined}
-                    onAction={() => window.print()}
+                    onAction={handleDownloadPDF}
                     actionIcon={downloadOutline}
                 />
                 <IonContent>

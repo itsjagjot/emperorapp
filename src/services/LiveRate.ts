@@ -201,6 +201,27 @@ class LiveRateService {
                 });
             });
 
+            this.socket.on("market_timing_updated", (res: any) => {
+                if (res) {
+                    marketTimingService.updateTiming(res);
+                    if (res.timing) this.timingConfig = res.timing;
+                }
+            });
+            this.socket.on("user_data_updated", (res: any) => {
+                if (res && res.userId) {
+                    const userStr = localStorage.getItem('user');
+                    if (userStr) {
+                        try {
+                            const user = JSON.parse(userStr);
+                            if (user.UserId === res.userId || user.user_id === res.userId) {
+                                console.log('📢 Current user data updated, notifying app...');
+                                window.dispatchEvent(new CustomEvent('user_data_updated', { detail: res }));
+                            }
+                        } catch (e) { }
+                    }
+                }
+            });
+
             // 🚨 Listen for margin square-off event (user blocked)
             this.socket.on('margin_squareoff', (data: any) => {
                 // Check if this event is for the current logged-in user

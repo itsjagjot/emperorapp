@@ -1,40 +1,52 @@
 import { API_BASE_URL } from './config';
 
 export interface MarketTiming {
+    day_name?: string;
     start_time: string; // Format "HH:mm"
     end_time: string;   // Format "HH:mm"
     is_market_open: boolean;
+    is_closed?: boolean;
     date: string;       // To track which day this config belongs to
 }
 
 const STORAGE_KEY = 'market_timing_data';
+const ALL_TIMINGS_KEY = 'all_market_timings';
 
 class MarketTimingService {
     private timing: MarketTiming | null = null;
+    private allTimings: MarketTiming[] | null = null;
 
     /**
-     * Get market timing.
-     * Checks local storage first. If expired or missing, fetches from API.
+     * Get market timing for today.
      */
     async getTiming(): Promise<MarketTiming> {
-        // 1. Check Memory Cache
-        if (this.timing && this.isToday(this.timing.date)) {
-            return this.timing;
+        // Find today in allTimings if already loaded
+        const todayName = new Date().toLocaleString('en-US', { weekday: 'long' });
+        if (this.allTimings) {
+            const todayTiming = this.allTimings.find(t => t.day_name === todayName);
+            if (todayTiming) return todayTiming;
         }
 
-        // 2. Check Local Storage
-        const storedData = localStorage.getItem(STORAGE_KEY);
-        // if (storedData) {
+        // If not loaded, fetch everything and return today
+        const all = await this.getAllTimings();
+        const todayTiming = all.find(t => t.day_name === todayName);
+        return todayTiming || {
+            start_time: '09:00', end_time: '23:55', is_market_open: true, date: new Date().toDateString()
+        };
+    }
 
-        //     const parsed: MarketTiming = JSON.parse(storedData);
-        //     if (this.isToday(parsed.date)) {
-        //         this.timing = parsed;
-        //         return parsed;
-        //     }
-        // }
+    /**
+     * Get all market timings (7 days)
+     */
+    async getAllTimings(): Promise<MarketTiming[]> {
+        if (this.allTimings) return this.allTimings;
 
-        // 3. Fetch from API
-        return await this.fetchFromApi();
+        const stored = localStorage.getItem(ALL_TIMINGS_KEY);
+        if (stored) {
+            this.allTimings = JSON.parse(stored);
+        }
+
+        return await this.fetchAllFromApi();
     }
 
     private isToday(dateString: string): boolean {
@@ -42,85 +54,56 @@ class MarketTimingService {
         return dateString === today;
     }
 
-    private async fetchFromApi(): Promise<MarketTiming> {
+    private async fetchAllFromApi(): Promise<MarketTiming[]> {
         try {
-            const response = await fetch(`${API_BASE_URL}/market-timing`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch market timing');
-            }
+            const response = await fetch(`${API_BASE_URL}/market-timings`);
+            if (!response.ok) throw new Error('Failed to fetch all market timings');
             const data = await response.json();
 
-            // Backend returns { start_time: "HH:mm", end_time: "HH:mm", is_market_open: bool }
-            const timingResult: MarketTiming = {
-                start_time: data.start_time,
-                end_time: data.end_time,
-                is_market_open: data.is_market_open,
+            const results = data.map((t: any) => ({
+                day_name: t.day_name,
+                start_time: t.open_time,
+                end_time: t.close_time,
+                is_closed: !!t.is_closed,
+                is_market_open: !t.is_closed,
                 date: new Date().toDateString()
-            };
+            }));
 
-            // Retrieve existing storage to prevent overwriting other keys if we change structure later
-            // But here we own this key.
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(timingResult));
-            this.timing = timingResult;
-
-            console.log('Fetched and stored market timing:', timingResult);
-            return timingResult;
-
+            localStorage.setItem(ALL_TIMINGS_KEY, JSON.stringify(results));
+            this.allTimings = results;
+            return results;
         } catch (error) {
-            console.error('Error fetching market timing:', error);
-            // Fallback default
-            return {
-                start_time: '09:00',
-                end_time: '23:55',
-                is_market_open: true,
-                date: new Date().toDateString()
-            };
+            console.error(error);
+            return [];
         }
     }
 
-    /**
-     * Helper to parse "HH:mm" to minutes from start of day for easy comparison
-     */
     public timeToMinutes(timeStr: string): number {
         const [hours, minutes] = timeStr.split(':').map(Number);
         return hours * 60 + minutes;
     }
 
-    /**
-     * Synchronously check if the market is currently open.
-     * Considers: Weekends, Backend Override (Force Close), and Current Schedule.
-     */
     public isMarketOpen(): boolean {
         try {
-            const today = new Date();
-            const storedData = localStorage.getItem(STORAGE_KEY);
+            const todayName = new Date().toLocaleString('en-US', { weekday: 'long' });
+            let timing: MarketTiming | undefined;
 
-            if (storedData) {
-                const parsed: MarketTiming = JSON.parse(storedData);
-                // 1. Phela check backend status (for today)
-                if (this.isToday(parsed.date)) {
-                    if (parsed.is_market_open === false) {
-                        return false; // Backend says closed (e.g. Holiday)
-                    }
+            if (this.allTimings) {
+                timing = this.allTimings.find(t => t.day_name === todayName);
+            } else {
+                const stored = localStorage.getItem(ALL_TIMINGS_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    timing = parsed.find((t: any) => t.day_name === todayName);
                 }
             }
 
-            const dayOfWeek = today.getDay(); // 0 is Sunday, 6 is Saturday
+            if (!timing) return true;
+            if (timing.is_closed) return false;
 
-            // 1. Check Weekends
-            if (dayOfWeek === 0 || dayOfWeek === 6) {
-                return false;
-            }
-
-            if (!storedData) return true; // Default to open if no timing data yet
-
-            const parsed: MarketTiming = JSON.parse(storedData);
-
-            // 3. Check Current Time against Schedule
-            const now = today;
-            const start = parsed.start_time;
-            const end = parsed.end_time;
-
+            const now = new Date();
+            const start = timing.start_time;
+            const end = timing.end_time;
             if (!start || !end) return true;
 
             const currentMins = now.getHours() * 60 + now.getMinutes();
@@ -130,13 +113,50 @@ class MarketTimingService {
             if (startMins <= endMins) {
                 return currentMins >= startMins && currentMins <= endMins;
             } else {
-                // Crosses midnight (e.g. 09:00 to 02:00 next day)
                 return currentMins >= startMins || currentMins <= endMins;
             }
         } catch (e) {
-            console.error('Error in isMarketOpen:', e);
             return true;
         }
+    }
+
+    public updateTiming(data: any) {
+        // If we received bulk timings
+        if (data.all_timings) {
+            const results = data.all_timings.map((t: any) => ({
+                day_name: t.day_name,
+                start_time: t.start_time,
+                end_time: t.end_time,
+                is_closed: !!t.is_closed,
+                is_market_open: !t.is_closed,
+                date: new Date().toDateString()
+            }));
+            localStorage.setItem(ALL_TIMINGS_KEY, JSON.stringify(results));
+            this.allTimings = results;
+        } else if (data.timing && data.timing.day) {
+            // Update single day if that's what we got
+            if (!this.allTimings) {
+                const stored = localStorage.getItem(ALL_TIMINGS_KEY);
+                if (stored) this.allTimings = JSON.parse(stored);
+            }
+
+            if (this.allTimings) {
+                const index = this.allTimings.findIndex(t => t.day_name === data.timing.day);
+                if (index !== -1) {
+                    this.allTimings[index] = {
+                        ...this.allTimings[index],
+                        start_time: data.timing.start_time,
+                        end_time: data.timing.end_time,
+                        is_closed: data.timing.is_closed,
+                        is_market_open: data.timing.is_market_open
+                    };
+                    localStorage.setItem(ALL_TIMINGS_KEY, JSON.stringify(this.allTimings));
+                }
+            }
+        }
+
+        console.log('Real-time market timings updated via socket');
+        window.dispatchEvent(new CustomEvent('market_timing_updated', { detail: data }));
     }
 }
 

@@ -202,6 +202,8 @@ const Position: React.FC = () => {
             localStorage.setItem('marginUsed', totalMarginUsed.toString());
             localStorage.setItem('freeMargin', liveFreeMargin.toString());
 
+            window.dispatchEvent(new CustomEvent('account_summary_updated'));
+
             return {
                 ...prev,
                 m2m: liveM2m,
@@ -308,26 +310,30 @@ const Position: React.FC = () => {
                                 <span>Realised P&L</span>
                                 <span className={(summary.realised || 0) >= 0 ? 'up' : 'down'}>{(summary.realised || 0).toFixed(0)}</span>
                             </div>
-                            <div className="detail-row">
-                                <span>Credit</span>
-                                <strong>{(summary.credit || 0).toFixed(0)}</strong>
-                            </div>
-                            <div className="detail-row">
-                                <span>Deposit</span>
-                                <strong>{(summary.deposit || 0).toFixed(0)}</strong>
-                            </div>
-                            <div className="detail-row">
-                                <span>Equity</span>
-                                <strong>{(summary.equity || 0).toFixed(0)}</strong>
-                            </div>
-                            <div className="detail-row">
-                                <span>Margin Used</span>
-                                <strong>{(summary.marginUsed || 0).toFixed(0)}</strong>
-                            </div>
-                            <div className="detail-row">
-                                <span>Free Margin</span>
-                                <strong>{(summary.freeMargin || 0).toFixed(0)}</strong>
-                            </div>
+                            {!isAdmin && (
+                                <>
+                                    <div className="detail-row">
+                                        <span>Credit</span>
+                                        <strong>{(summary.credit || 0).toFixed(0)}</strong>
+                                    </div>
+                                    <div className="detail-row">
+                                        <span>Deposit</span>
+                                        <strong>{(summary.deposit || 0).toFixed(0)}</strong>
+                                    </div>
+                                    <div className="detail-row">
+                                        <span>Equity</span>
+                                        <strong>{(summary.equity || 0).toFixed(0)}</strong>
+                                    </div>
+                                    <div className="detail-row">
+                                        <span>Margin Used</span>
+                                        <strong>{(summary.marginUsed || 0).toFixed(0)}</strong>
+                                    </div>
+                                    <div className="detail-row">
+                                        <span>Free Margin</span>
+                                        <strong>{(summary.freeMargin || 0).toFixed(0)}</strong>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>

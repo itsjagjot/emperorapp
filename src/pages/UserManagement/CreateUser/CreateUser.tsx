@@ -246,7 +246,7 @@ const CreateUser: React.FC = () => {
                         </IonItem>
                         <div className="custom-dropdown">
                             <IonSelect value="SuperAdmin" interface="popover" disabled>
-                                <IonSelectOption value="SuperAdmin">SuperAdmin (Master)</IonSelectOption>
+                                <IonSelectOption value="SuperAdmin">Admin</IonSelectOption>
                             </IonSelect>
                         </div>
                         <div className="info-tag">

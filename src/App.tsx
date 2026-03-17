@@ -80,7 +80,54 @@ const App: React.FC = () => {
       }
     });
 
+    const handleUserUpdate = async (event: any) => {
+      console.log('User data update received:', event.detail);
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          const userId = user.UserId || user.user_id;
+          if (userId) {
+            import('./services/userService').then(async (m) => {
+              try {
+                const freshUser = await m.default.getProfile(userId);
+                if (freshUser) {
+                  // Keep the existing accessToken
+                  const updatedUser = {
+                    ...user,
+                    ...freshUser,
+                    // Map backend fields to frontend expectations if necessary
+                    UserId: freshUser.UserId || freshUser.user_id,
+                    IsActive: freshUser.IsActive ?? freshUser.is_active
+                  };
+                  localStorage.setItem('user', JSON.stringify(updatedUser));
+                  console.log('✅ Local user data updated');
+                  window.dispatchEvent(new CustomEvent('user_data_refetched', { detail: updatedUser }));
+
+                  // Handle deactivation
+                  if (updatedUser.IsActive === false || updatedUser.is_active === false) {
+                    console.warn('User account deactivated, redirecting to login...');
+                    localStorage.removeItem('isAuthenticated');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                  }
+                }
+              } catch (err) {
+                console.error('Failed to refetch user profile:', err);
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error handling user update event:', e);
+        }
+      }
+    };
+
+    window.addEventListener('user_data_updated', handleUserUpdate as EventListener);
+
     return () => {
+      window.removeEventListener('user_data_updated', handleUserUpdate as EventListener);
       // Optional: clean up if App unmounts (rare in Ionic Apps)
       // liveRateV2Service.disconnect();
     };

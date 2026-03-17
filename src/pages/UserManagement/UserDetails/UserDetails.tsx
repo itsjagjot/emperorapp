@@ -392,6 +392,7 @@ const UserDetailsPage: React.FC = () => {
                 setMarginAmountInput('');
                 setSelectedScripts([]);
                 fetchTradeMarginSettings();
+                fetchUserDetails();
             } else {
                 present('Failed to update trade margin settings', 2000);
             }
