@@ -139,7 +139,7 @@
 }
 
 .table-min-width {
-    min-width: 650px;
+    min-width: 750px;
 }
 
 .table-header-row {
@@ -155,12 +155,59 @@
     align-items: center;
 }
 
+.td-item {
+    color: #475569;
+}
+
 .th-item,
 .td-item {
     flex: 1;
-    font-size: 12px;
+    min-width: 80px;
+    font-size: 11px;
     text-align: center;
-    padding: 0 5px;
+    padding: 0 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Specific column weights */
+.col-script {
+    flex: 1.5;
+    min-width: 150px;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.col-user {
+    flex: 1;
+    min-width: 80px;
+}
+
+.col-action {
+    flex: 0.8;
+    min-width: 60px;
+}
+
+.col-qty {
+    flex: 0.8;
+    min-width: 60px;
+}
+
+.col-price {
+    flex: 1;
+    min-width: 90px;
+}
+
+.col-reason {
+    flex: 2;
+    min-width: 150px;
+    text-align: left;
+}
+
+.col-time {
+    flex: 1.2;
+    min-width: 110px;
 }
 
 .th-item {
@@ -168,19 +215,27 @@
     color: #00263e;
 }
 
-.td-item {
-    color: #475569;
-}
-
-.desc-col {
-    flex: 1.5;
-    text-align: left;
-    padding-left: 10px;
-}
-
 .script-name {
     font-weight: 700;
     color: #4f46e5;
+}
+
+/* Badge Styles */
+.type-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.type-badge.buy {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.type-badge.sell {
+    background: #ffebee;
+    color: #c62828;
 }
 
 /* Rejection Info */
@@ -214,4 +269,13 @@
     padding: 40px;
     text-align: center;
     color: #94a3b8;
+}
+
+.pnl-searchbar {
+    --border-radius: 4px;
+    padding: 0;
+}
+
+.pnl-searchbar .searchbar-input-container input {
+    height: 45px !important;
 }

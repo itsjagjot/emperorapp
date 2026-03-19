@@ -29,6 +29,7 @@ const DeleteTrade: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [masterData, setMasterData] = useState<any[]>([]);
     const [availableScripts, setAvailableScripts] = useState<string[]>([]);
+    const [dates, setDates] = useState<{ start: string | null, end: string | null }>({ start: null, end: null });
 
     const fetchMasterData = async () => {
         try {
@@ -79,6 +80,8 @@ const DeleteTrade: React.FC = () => {
             });
             if (selectedScript !== 'All') params.append('symbol', selectedScript);
             if (selectedUser) params.append('user_id', selectedUser);
+            if (dates.start) params.append('from_date', dates.start);
+            if (dates.end) params.append('to_date', dates.end);
 
             const response = await fetch(`${API_BASE_URL}/${selectedExchange}/orders?${params.toString()}`, {
                 headers: {
@@ -99,15 +102,48 @@ const DeleteTrade: React.FC = () => {
         }
     };
 
+    const handleDateChange = (start: string | null, end: string | null) => {
+        setDates({ start, end });
+        fetchTradesInner(start, end, selectedUser);
+    };
+
+    const fetchTradesInner = async (start = dates.start, end = dates.end, user = selectedUser) => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('accessToken');
+            const urlParams = new URLSearchParams({ status: 'Cancelled' });
+            if (selectedScript !== 'All') urlParams.append('symbol', selectedScript);
+            if (user) urlParams.append('user_id', user);
+            if (start) urlParams.append('from_date', start);
+            if (end) urlParams.append('to_date', end);
+
+            const response = await fetch(`${API_BASE_URL}/${selectedExchange}/orders?${urlParams.toString()}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTrades(data);
+            }
+        } catch (error) {
+            console.error('Error fetching deleted trades:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        fetchTrades();
+        fetchTradesInner();
     }, [selectedExchange]);
 
     const handleReset = () => {
         setSelectedScript('All');
         setSelectedUser(null);
         setSearchQuery('');
-        fetchTrades();
+        fetchTradesInner(null, null, null);
     };
 
     const filteredTrades = trades.filter(trade =>
@@ -171,7 +207,7 @@ const DeleteTrade: React.FC = () => {
 
                     {/* Row 2: Date Filter (Custom Component) */}
                     <div className="full-width">
-                        <DateFilter />
+                        <DateFilter onDateChange={handleDateChange} />
                     </div>
 
                     {/* Row 3: All User Select & Buttons */}
@@ -194,14 +230,12 @@ const DeleteTrade: React.FC = () => {
                     </div>
 
                     {/* Row 5: Search Bar */}
-                    <div className="search-container">
-                        <IonSearchbar
-                            value={searchQuery}
-                            onIonInput={e => setSearchQuery(e.detail.value!)}
-                            placeholder="Search exchange or script"
-                            className="pnl-searchbar"
-                        />
-                    </div>
+                    <IonSearchbar
+                        value={searchQuery}
+                        onIonInput={e => setSearchQuery(e.detail.value!)}
+                        placeholder="Search exchange or script"
+                        className="pnl-searchbar"
+                    />
 
                     {/* Table Section */}
                     <div className="scrollable-table-container">

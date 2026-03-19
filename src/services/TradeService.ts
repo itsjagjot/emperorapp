@@ -155,12 +155,14 @@ class TradeService {
         }
     }
 
-    async getAccountSummary(filters?: { username?: string, user_id?: string | number }) {
+    async getAccountSummary(filters?: { username?: string, user_id?: string | number, from_date?: string | null, to_date?: string | null }) {
         try {
             const exchange = this.getExchange();
             const params = new URLSearchParams();
             if (filters?.username) params.append('username', filters.username);
             if (filters?.user_id) params.append('user_id', String(filters.user_id));
+            if (filters?.from_date) params.append('from_date', filters.from_date);
+            if (filters?.to_date) params.append('to_date', filters.to_date);
 
             const queryString = params.toString();
             const url = `${API_BASE_URL}/${exchange}/orders/account-summary${queryString ? '?' + queryString : ''}`;

@@ -11,13 +11,15 @@ import { API_BASE_URL, DEFAULT_EXCHANGE } from '../../../../services/config';
 
 interface RejectionLog {
     id: number;
-    name: string;
+    script_name: string;
+    symbol: string;
     username: string;
-    quantity: number;
+    qty: number;
     price: number;
-    rejection_reason: string;
-    rejected_by: string;
-    order_time: string;
+    action: string;
+    reason: string;
+    created_at: string;
+    order_time?: string; // fallback
 }
 
 const RejectionLogHistory: React.FC = () => {
@@ -29,6 +31,7 @@ const RejectionLogHistory: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [masterData, setMasterData] = useState<any[]>([]);
     const [availableScripts, setAvailableScripts] = useState<string[]>([]);
+    const [dates, setDates] = useState<{ start: string | null, end: string | null }>({ start: null, end: null });
 
     const fetchMasterData = async () => {
         try {
@@ -79,8 +82,10 @@ const RejectionLogHistory: React.FC = () => {
             });
             if (selectedScript !== 'All') params.append('symbol', selectedScript);
             if (selectedUser) params.append('user_id', selectedUser);
+            if (dates.start) params.append('from_date', dates.start);
+            if (dates.end) params.append('to_date', dates.end);
 
-            const response = await fetch(`${API_BASE_URL}/${selectedExchange}/orders?${params.toString()}`, {
+            const response = await fetch(`${API_BASE_URL}/${selectedExchange}/orders/rejection-log?${params.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json',
@@ -99,23 +104,60 @@ const RejectionLogHistory: React.FC = () => {
         }
     };
 
+    const handleDateChange = (start: string | null, end: string | null) => {
+        setDates({ start, end });
+        // Initial hit will be through onDateChange if we want
+        // But let's trigger it manually to be sure it matches user expectation 'aunde sar'
+        fetchLogsInner(start, end, selectedUser);
+    };
+
+    // Helper to fetch with explicit params
+    const fetchLogsInner = async (start = dates.start, end = dates.end, user = selectedUser) => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('accessToken');
+            const urlParams = new URLSearchParams({ status: 'Reject' });
+            if (selectedScript !== 'All') urlParams.append('symbol', selectedScript);
+            if (user) urlParams.append('user_id', user);
+            if (start) urlParams.append('from_date', start);
+            if (end) urlParams.append('to_date', end);
+
+            const response = await fetch(`${API_BASE_URL}/${selectedExchange}/orders/rejection-log?${urlParams.toString()}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setLogs(data);
+            }
+        } catch (error) {
+            console.error('Error fetching rejection logs:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        fetchLogs();
+        fetchLogsInner();
     }, [selectedExchange]);
 
     const handleReset = () => {
         setSelectedScript('All');
         setSelectedUser(null);
         setSearchQuery('');
-        fetchLogs();
+        fetchLogsInner(null, null, null);
     };
 
     const filteredLogs = logs.filter(log =>
-        log.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.script_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         log.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const formatTime = (timeStr: string) => {
+        if (!timeStr) return 'N/A';
         return new Date(timeStr).toLocaleString('en-IN', {
             hour: '2-digit',
             minute: '2-digit',
@@ -159,19 +201,19 @@ const RejectionLogHistory: React.FC = () => {
                                 {availableScripts.map(script => (
                                     <IonSelectOption key={script} value={script}>{script}</IonSelectOption>
                                 ))}
-                                {availableScripts.length === 0 && (
+                                {/* {availableScripts.length === 0 && (
                                     <>
                                         <IonSelectOption value="GOLD">GOLD</IonSelectOption>
                                         <IonSelectOption value="SILVER">SILVER</IonSelectOption>
                                     </>
-                                )}
+                                )} */}
                             </IonSelect>
                         </div>
                     </div>
 
                     {/* Row 2: Date Filter (Custom Component) */}
                     <div className="full-width">
-                        <DateFilter />
+                        <DateFilter onDateChange={handleDateChange} />
                     </div>
 
                     {/* Row 3: All User Select & Buttons */}
@@ -194,25 +236,24 @@ const RejectionLogHistory: React.FC = () => {
                     </div>
 
                     {/* Row 5: Search Bar */}
-                    <div className="search-container">
-                        <IonSearchbar
-                            value={searchQuery}
-                            onIonInput={e => setSearchQuery(e.detail.value!)}
-                            placeholder="Search exchange or script"
-                            className="pnl-searchbar"
-                        />
-                    </div>
+                    <IonSearchbar
+                        value={searchQuery}
+                        onIonInput={e => setSearchQuery(e.detail.value!)}
+                        placeholder="Search exchange or script"
+                        className="pnl-searchbar"
+                    />
 
                     {/* Table Section - Horizontal Scrollable */}
                     <div className="scrollable-table-container">
                         <div className="table-min-width">
                             <div className="table-header-row">
-                                <div className="th-item desc-col">Script ↑</div>
-                                <div className="th-item">User</div>
-                                <div className="th-item">Qty</div>
-                                <div className="th-item">Price</div>
-                                <div className="th-item">Reason</div>
-                                <div className="th-item">Time</div>
+                                <div className="th-item col-script">Script ↑</div>
+                                <div className="th-item col-user">User</div>
+                                <div className="th-item col-action">Action</div>
+                                <div className="th-item col-qty">Qty</div>
+                                <div className="th-item col-price">Price</div>
+                                <div className="th-item col-reason">Reason</div>
+                                <div className="th-item col-time">Time</div>
                             </div>
 
                             {loading ? (
@@ -223,19 +264,21 @@ const RejectionLogHistory: React.FC = () => {
                             ) : filteredLogs.length > 0 ? (
                                 filteredLogs.map(log => (
                                     <div className="table-data-row" key={log.id}>
-                                        <div className="td-item desc-col">
-                                            <span className="script-name">{log.name}</span>
+                                        <div className="td-item col-script">
+                                            <span className="script-name">{log.script_name}</span>
                                         </div>
-                                        <div className="td-item">{log.username}</div>
-                                        <div className="td-item">{log.quantity}</div>
-                                        <div className="td-item">₹{log.price}</div>
-                                        <div className="td-item">
-                                            <div className="rejection-info">
-                                                <span className="reason-text">{log.rejection_reason}</span>
-                                                {/* <span className="by-text">By: {log.rejected_by}</span> */}
-                                            </div>
+                                        <div className="td-item col-user">{log.username}</div>
+                                        <div className="td-item col-action">
+                                            <span className={`type-badge ${log.action === 'Buy' ? 'buy' : 'sell'}`}>
+                                                {log.action?.toUpperCase()}
+                                            </span>
                                         </div>
-                                        <div className="td-item">{formatTime(log.order_time)}</div>
+                                        <div className="td-item col-qty">{log.qty}</div>
+                                        <div className="td-item col-price">₹{log.price}</div>
+                                        <div className="td-item col-reason">
+                                            <span className="reason-text">{log.reason}</span>
+                                        </div>
+                                        <div className="td-item col-time">{formatTime(log.created_at || log.order_time || '')}</div>
                                     </div>
                                 ))
                             ) : (

@@ -37,14 +37,20 @@ const AccountSummary: React.FC = () => {
     const [ledger, setLedger] = useState<LedgerItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [openingBalance, setOpeningBalance] = useState(0);
+    const [dates, setDates] = useState<{ start: string | null, end: string | null }>({ start: null, end: null });
 
-    const fetchLedger = async () => {
+    const fetchLedger = async (selectedUserParam = selectedUser, startDate = dates.start, endDate = dates.end) => {
         try {
             setLoading(true);
-            // const data = await TradeService.getAccountSummary();
             // If selectedUser is 'self', we don't pass a username (backend defaults to current user)
             // Otherwise, pass the username to filter
-            const filters = selectedUser !== 'self' ? { username: selectedUser } : {};
+            const filters: any = {};
+            if (selectedUserParam !== 'self') {
+                filters.username = selectedUserParam;
+            }
+            if (startDate) filters.from_date = startDate;
+            if (endDate) filters.to_date = endDate;
+
             const data = await TradeService.getAccountSummary(filters);
             setLedger(data.ledger || []);
             setOpeningBalance(data.summary?.opening_balance || 0);
@@ -55,12 +61,21 @@ const AccountSummary: React.FC = () => {
         }
     };
 
+    const handleDateChange = (start: string | null, end: string | null) => {
+        setDates({ start, end });
+    };
+
+    const handleUserChange = (user: string) => {
+        setSelectedUser(user);
+    };
+
     useEffect(() => {
         fetchLedger();
+        // Initial fetch is handled by DateFilter triggering on mount (onDateChange)
     }, []);
 
     const handleRefresh = (event: CustomEvent) => {
-        fetchLedger().finally(() => event.detail.complete());
+        fetchLedger(selectedUser, dates.start, dates.end).finally(() => event.detail.complete());
     };
 
     const filteredLedger = ledger.filter(item => {
@@ -99,11 +114,11 @@ const AccountSummary: React.FC = () => {
                 </IonRefresher>
 
                 <div className="mb-12">
-                    <DateFilter />
+                    <DateFilter onDateChange={handleDateChange} />
                 </div>
 
                 <UserFilter
-                    onUserChange={setSelectedUser}
+                    onUserChange={handleUserChange}
                     includeSelf
                     label="Select User"
                 />
@@ -114,10 +129,10 @@ const AccountSummary: React.FC = () => {
                         onChange={setSearchText}
                         placeholder="Search exchange or script"
                     />
-                    <div className="filter-box" onClick={fetchLedger}>
+                    <div className="filter-box" onClick={() => fetchLedger(selectedUser, dates.start, dates.end)}>
                         <IonIcon icon={searchOutline} />
                     </div>
-                    <div className="reset-icon-box" onClick={() => { setSearchText(''); setSelectedUser('self'); }}>
+                    <div className="reset-icon-box" onClick={() => { setSearchText(''); setSelectedUser('self'); fetchLedger('self', null, null); }}>
                         <IonIcon icon={refreshOutline} />
                     </div>
                 </div>

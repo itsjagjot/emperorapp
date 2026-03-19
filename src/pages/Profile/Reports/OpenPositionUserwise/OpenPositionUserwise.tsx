@@ -175,14 +175,12 @@ const OpenPositionUserwise: React.FC = () => {
                     </div>
 
                     {/* Row 3: Search Bar */}
-                    <div className="search-container">
-                        <IonSearchbar
-                            value={searchTerm}
-                            onIonInput={e => setSearchTerm(e.detail.value!)}
-                            placeholder="Search exchange or script"
-                            className="pnl-searchbar"
-                        />
-                    </div>
+                    <IonSearchbar
+                        value={searchTerm}
+                        onIonInput={e => setSearchTerm(e.detail.value!)}
+                        placeholder="Search exchange or script"
+                        className="pnl-searchbar"
+                    />
 
                     {/* Table Section */}
                     <div className="scrollable-table-container">

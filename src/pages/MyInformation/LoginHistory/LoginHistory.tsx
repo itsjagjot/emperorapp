@@ -28,8 +28,7 @@ const LoginHistory: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [searchText, setSearchText] = useState('');
     const [dates, setDates] = useState<{ start: string | null, end: string | null }>({ start: null, end: null });
-
-    const fetchHistory = async (startDate: string | null = dates.start, endDate: string | null = dates.end) => {
+    const fetchHistory = async (startDate = dates.start, endDate = dates.end) => {
         setLoading(true);
         try {
             const response = await getLoginHistory(1, 40, startDate || undefined, endDate || undefined);
@@ -49,7 +48,7 @@ const LoginHistory: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchHistory();
+        // fetchHistory();
     }, []);
 
     const filteredHistory = history.filter(item =>
@@ -92,6 +91,7 @@ const LoginHistory: React.FC = () => {
                     <DateFilter onDateChange={handleDateChange} />
                 </div>
 
+
                 <div className="action-row-compact mb-12">
                     {/* 4. Grey Search Bar */}
                     <CommonSearch
@@ -105,7 +105,7 @@ const LoginHistory: React.FC = () => {
                     </div>
 
                     {/* Clear/Reset Icon Button */}
-                    <div className="reset-icon-box" onClick={() => setSearchText('')}>
+                    <div className="reset-icon-box" onClick={() => { setSearchText(''); fetchHistory(null, null); }}>
                         <IonIcon icon={refreshOutline} />
                     </div>
                 </div>
