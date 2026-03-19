@@ -9,6 +9,7 @@ import UserFilter from '../../../../components/UserFilter';
 import TradeService, { TradeOrder } from '../../../../services/TradeService';
 import TradeBill from './TradeBill';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
@@ -96,116 +97,181 @@ const GenerateBill: React.FC = () => {
         window.print();
     };
 
+    // const handleDownloadPDF = async () => {
+    //     const reportElement = document.querySelector('.bill-paper') as HTMLElement;
+    //     if (!reportElement) return;
+
+    //     setLoading(true);
+    //     // Save original styles
+    //     const originalStyle = reportElement.style.cssText;
+
+    //     try {
+    //         // Temporarily fix width and position for clean capture
+    //         reportElement.style.width = '210mm';
+    //         reportElement.style.position = 'absolute';
+    //         reportElement.style.left = '0';
+    //         reportElement.style.top = '0';
+    //         reportElement.style.margin = '0';
+
+    //         const canvas = await html2canvas(reportElement, {
+    //             scale: 1, // Reduced from 2 for better speed
+    //             logging: false,
+    //             useCORS: true,
+    //             allowTaint: true,
+    //             width: 794, // Approx 210mm in pixels at 96dpi
+    //             windowWidth: 794,
+    //             imageTimeout: 0, // Prevent timeout on large reports
+    //             ignoreElements: (el) => el.tagName === 'BUTTON',
+    //         });
+
+    //         // Restore original styles
+    //         reportElement.style.cssText = originalStyle;
+
+    //         const imgData = canvas.toDataURL('image/jpeg', 0.85); // JPEG is much faster/smaller than PNG
+    //         const pdf = new jsPDF({
+    //             orientation: 'portrait',
+    //             unit: 'mm',
+    //             format: 'a4'
+    //         });
+
+    //         const imgWidth = 210; // A4 width in mm
+    //         const pageHeight = 297; // A4 height in mm
+    //         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    //         let heightLeft = imgHeight;
+    //         let position = 0;
+
+    //         pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    //         heightLeft -= pageHeight;
+
+    //         while (heightLeft >= 0) {
+    //             position = heightLeft - imgHeight;
+    //             pdf.addPage();
+    //             pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    //             heightLeft -= pageHeight;
+    //         }
+
+    //         const displayUserName = selectedUser === 'self' ? (currentUser?.Username || 'Self') : selectedUser;
+    //         const fileName = `Trade_Bill_${displayUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+    //         if (Capacitor.isNativePlatform()) {
+    //             // Request permissions if not granted
+    //             const perm = await Filesystem.checkPermissions();
+    //             if (perm.publicStorage !== 'granted') {
+    //                 const status = await Filesystem.requestPermissions();
+    //                 if (status.publicStorage !== 'granted') {
+    //                     alert('Storage permission is required to save the PDF. Please enable it in settings.');
+    //                     setLoading(false);
+    //                     return;
+    //                 }
+    //             }
+
+    //             const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
+    //             try {
+    //                 // Write file to Documents directory (Standard for downloads)
+    //                 const result = await Filesystem.writeFile({
+    //                     path: fileName,
+    //                     data: pdfBase64,
+    //                     directory: Directory.Documents,
+    //                     recursive: true
+    //                 });
+
+    //                 // Trigger native share sheet so user can save or send the PDF
+    //                 await Share.share({
+    //                     title: 'Trade Bill',
+    //                     text: 'Trade report PDF from Emperor App',
+    //                     url: result.uri,
+    //                 });
+    //             } catch (writeError) {
+    //                 console.error('Error writing file', writeError);
+    //                 // Fallback to sharing directly from base64 if possible, or try Cache
+    //                 const result = await Filesystem.writeFile({
+    //                     path: fileName,
+    //                     data: pdfBase64,
+    //                     directory: Directory.Cache,
+    //                     recursive: true
+    //                 });
+
+    //                 await Share.share({
+    //                     title: 'Trade Bill',
+    //                     text: 'Trade report PDF from Emperor App',
+    //                     url: result.uri,
+    //                 });
+    //             }
+    //         } else {
+    //             pdf.save(fileName);
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to generate or save PDF', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    const formatCurrency = (val: number) => {
+        return new Intl.NumberFormat('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(val);
+    };
+
+    const formatDate = (dateStr?: string) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+        });
+    };
     const handleDownloadPDF = async () => {
-        const reportElement = document.querySelector('.bill-paper') as HTMLElement;
-        if (!reportElement) return;
-
         setLoading(true);
-        // Save original styles
-        const originalStyle = reportElement.style.cssText;
-
         try {
-            // Temporarily fix width and position for clean capture
-            reportElement.style.width = '210mm';
-            reportElement.style.position = 'absolute';
-            reportElement.style.left = '0';
-            reportElement.style.top = '0';
-            reportElement.style.margin = '0';
-
-            const canvas = await html2canvas(reportElement, {
-                scale: 1.5, // Reduced from 2 for better speed
-                logging: false,
-                useCORS: true,
-                allowTaint: true,
-                width: 794, // Approx 210mm in pixels at 96dpi
-                windowWidth: 794,
-                imageTimeout: 0 // Prevent timeout on large reports
-            });
-
-            // Restore original styles
-            reportElement.style.cssText = originalStyle;
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.85); // JPEG is much faster/smaller than PNG
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-
+            const doc = new jsPDF();
             const displayUserName = selectedUser === 'self' ? (currentUser?.Username || 'Self') : selectedUser;
-            const fileName = `Trade_Bill_${displayUserName}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+            // Header
+            doc.setFontSize(18);
+            doc.text(displayUserName.toUpperCase(), 14, 20);
+            doc.setFontSize(10);
+            doc.text(`General Summary From ${dateRange.start || '-'} To ${dateRange.end || '-'}`, 14, 28);
+
+            // Trades Table
+            const tableColumn = ["Date", "Script", "Action", "Qty", "Price", "Total"];
+            const tableRows = trades.map(t => [
+                formatDate(t.order_time),
+                t.name,
+                t.action.toUpperCase(),
+                Number(t.quantity).toFixed(2),
+                formatCurrency(t.price),
+                formatCurrency(Number(t.quantity) * Number(t.price) * (Number(t.lot_size) || 1) / 100)
+            ]);
+
+            autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: 35,
+                theme: 'striped',
+                headStyles: { fillColor: [74, 111, 165] }
+            });
+
+            const fileName = `Trade_Bill_${displayUserName}.pdf`;
 
             if (Capacitor.isNativePlatform()) {
-                // Request permissions if not granted
-                const perm = await Filesystem.checkPermissions();
-                if (perm.publicStorage !== 'granted') {
-                    const status = await Filesystem.requestPermissions();
-                    if (status.publicStorage !== 'granted') {
-                        alert('Storage permission is required to save the PDF. Please enable it in settings.');
-                        setLoading(false);
-                        return;
-                    }
-                }
-
-                const pdfBase64 = pdf.output('datauristring').split(',')[1];
-
-                try {
-                    // Write file to Documents directory (Standard for downloads)
-                    const result = await Filesystem.writeFile({
-                        path: fileName,
-                        data: pdfBase64,
-                        directory: Directory.Documents,
-                        recursive: true
-                    });
-
-                    // Trigger native share sheet so user can save or send the PDF
-                    await Share.share({
-                        title: 'Trade Bill',
-                        text: 'Trade report PDF from Emperor App',
-                        url: result.uri,
-                    });
-                } catch (writeError) {
-                    console.error('Error writing file', writeError);
-                    // Fallback to sharing directly from base64 if possible, or try Cache
-                    const result = await Filesystem.writeFile({
-                        path: fileName,
-                        data: pdfBase64,
-                        directory: Directory.Cache,
-                        recursive: true
-                    });
-                    
-                    await Share.share({
-                        title: 'Trade Bill',
-                        text: 'Trade report PDF from Emperor App',
-                        url: result.uri,
-                    });
-                }
+                const pdfBase64 = doc.output('datauristring').split(',')[1];
+                const result = await Filesystem.writeFile({
+                    path: fileName,
+                    data: pdfBase64,
+                    directory: Directory.Cache // Cache is faster for sharing
+                });
+                await Share.share({ url: result.uri });
             } else {
-                pdf.save(fileName);
+                doc.save(fileName);
             }
         } catch (error) {
-            console.error('Failed to generate or save PDF', error);
+            console.error('Fast PDF Error:', error);
         } finally {
             setLoading(false);
         }
     };
-
     const handleShare = async () => {
         if (navigator.share) {
             try {
