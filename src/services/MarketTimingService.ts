@@ -3,6 +3,7 @@ import { API_BASE_URL } from './config';
 export interface MarketTiming {
     day_name?: string;
     start_time: string; // Format "HH:mm"
+    close_time: string; // Format "HH:mm"
     end_time: string;   // Format "HH:mm"
     is_market_open: boolean;
     is_closed?: boolean;
@@ -31,7 +32,7 @@ class MarketTimingService {
         const all = await this.getAllTimings();
         const todayTiming = all.find(t => t.day_name === todayName);
         return todayTiming || {
-            start_time: '09:00', end_time: '23:55', is_market_open: true, date: new Date().toDateString()
+            start_time: '09:00', close_time: '23:55', end_time: '23:55', is_market_open: true, date: new Date().toDateString()
         };
     }
 
@@ -62,8 +63,9 @@ class MarketTimingService {
 
             const results = data.map((t: any) => ({
                 day_name: t.day_name,
-                start_time: t.open_time,
-                end_time: t.close_time,
+                start_time: t.start_time,
+                close_time: t.close_time,
+                end_time: t.end_time || t.close_time,
                 is_closed: !!t.is_closed,
                 is_market_open: !t.is_closed,
                 date: new Date().toDateString()
@@ -126,7 +128,8 @@ class MarketTimingService {
             const results = data.all_timings.map((t: any) => ({
                 day_name: t.day_name,
                 start_time: t.start_time,
-                end_time: t.end_time,
+                close_time: t.close_time,
+                end_time: t.end_time || t.close_time,
                 is_closed: !!t.is_closed,
                 is_market_open: !t.is_closed,
                 date: new Date().toDateString()
@@ -146,7 +149,8 @@ class MarketTimingService {
                     this.allTimings[index] = {
                         ...this.allTimings[index],
                         start_time: data.timing.start_time,
-                        end_time: data.timing.end_time,
+                        close_time: data.timing.close_time || data.timing.end_time,
+                        end_time: data.timing.end_time || data.timing.close_time,
                         is_closed: data.timing.is_closed,
                         is_market_open: data.timing.is_market_open
                     };
