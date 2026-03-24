@@ -9,7 +9,9 @@ import {
     IonRow,
     IonCol,
     useIonViewWillEnter,
-    useIonToast
+    useIonToast,
+    IonToggle,
+    IonAlert
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { funnel } from 'ionicons/icons';
@@ -44,6 +46,8 @@ const UserList: React.FC = () => {
     const [page, setPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [present] = useIonToast();
+    const [showAlert, setShowAlert] = useState(false);
+    const [selectedUserForStatus, setSelectedUserForStatus] = useState<User | null>(null);
 
     const fetchUsers = useCallback(async (search: string = '', pageNum: number = 1, showLoader: boolean = true) => {
         if (showLoader) setLoading(true);
@@ -101,6 +105,36 @@ const UserList: React.FC = () => {
         setSearchText(e.detail.value!);
     };
 
+    const handleToggleStatus = async (user: User) => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('accessToken');
+            const response = await fetch(`${API_BASE_URL}/User/${user.UserId}/admin-update-user-status`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ is_active: !user.IsActive })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                present(result.message, 2000);
+                // Refresh list
+                fetchUsers(searchText, 1, false);
+            } else {
+                present('Failed to update status', 2000);
+            }
+        } catch (error) {
+            console.error(error);
+            present('Network error', 2000);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <IonPage className="user-list-page">
             <CommonHeader title="User List" />
@@ -149,9 +183,19 @@ const UserList: React.FC = () => {
                                     {/* {user.ServerName && <p className="server-tag">Server: {user.ServerName}</p>} */}
                                 </div>
                             </div>
-                            <IonBadge color={user.IsActive ? 'success' : 'medium'} className="status-badge">
-                                {user.IsActive ? 'Active' : 'Inactive'}
-                            </IonBadge>
+                             <div className="status-toggle-wrapper" onClick={(e) => e.stopPropagation()}>
+                                <IonToggle
+                                    checked={user.IsActive}
+                                    onIonChange={(e) => {
+                                        // Prevents double-triggering if state hasn't updated yet
+                                        if (e.detail.checked !== user.IsActive) {
+                                            setSelectedUserForStatus(user);
+                                            setShowAlert(true);
+                                        }
+                                    }}
+                                    color="success"
+                                />
+                            </div>
                         </div>
 
                         <IonGrid className="card-details">
@@ -159,7 +203,7 @@ const UserList: React.FC = () => {
                                 <IonCol size="4" className="detail-col border-right">
                                     <p className="label">Balance</p>
                                     {/* Placeholder logic for Balance */}
-                                    <p className={`value ${(user.Balance ?? 0) > (user.Credit ?? 0) ? 'red' : 'green'}`}>{user.Balance ?? 0}</p>
+                                    <p className={`value ${(user.Balance ?? 0) < (user.Credit ?? 0) ? 'red' : 'green'}`}>{user.Balance ?? 0}</p>
                                 </IonCol>
                                 <IonCol size="4" className="detail-col border-right">
                                     <p className="label">Credit</p>
@@ -173,6 +217,30 @@ const UserList: React.FC = () => {
                         </IonGrid>
                     </div>
                 ))}
+                <IonAlert
+                    isOpen={showAlert}
+                    onDidDismiss={() => setShowAlert(false)}
+                    header="Confirm Status Change"
+                    message={`Are you sure you want to ${selectedUserForStatus?.IsActive ? 'deactivate' : 'activate'} user: ${selectedUserForStatus?.FirstName} ${selectedUserForStatus?.LastName}?`}
+                    buttons={[
+                        {
+                            text: 'Cancel',
+                            role: 'cancel',
+                            handler: () => {
+                                // Re-fetch to reset toggle state if cancelled? Or just do nothing.
+                                // The toggle might have moved visually, but since we refresh on success, it's fine.
+                            }
+                        },
+                        {
+                            text: 'Confirm',
+                            handler: () => {
+                                if (selectedUserForStatus) {
+                                    handleToggleStatus(selectedUserForStatus);
+                                }
+                            }
+                        }
+                    ]}
+                />
             </IonContent>
         </IonPage>
     );

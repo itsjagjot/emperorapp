@@ -20,6 +20,7 @@ import CommonHeader from '../../components/CommonHeader';
 import Loader from '../../components/Loader/Loader';
 import { useRateStore } from '../../store/useRateStore';
 import { useTradeStore } from '../../store/useTradeStore';
+import { logoutUser } from '../../services/authService';
 
 interface PositionData {
     name: string;
@@ -188,15 +189,17 @@ const Position: React.FC = () => {
             const liveFreeMargin = liveEquity - totalMarginUsed;
 
             // Auto Square Off Logic
-            if (!isAdmin && updatedPositions.length > 0 && !squareOffTriggeredRef.current && !loading) {
-                const totalFunds = (prev.credit || 0) + (prev.deposit || 0);
-                const lossThreshold = totalFunds - (totalFunds * marginPercentage / 100);
+            const totalFunds = (prev.credit || 0) + (prev.deposit || 0);
+            const lossThreshold = totalFunds - (totalFunds * marginPercentage / 100);
+            const checkValue = squareOffBase === 'equity' ? liveEquity : liveFreeMargin;
 
-                const checkValue = squareOffBase === 'equity' ? liveEquity : liveFreeMargin;
-                if (checkValue <= lossThreshold && totalFunds > 0) {
-                    squareOffTriggeredRef.current = true;
-                    handleSquareOffAll(true); // Pass true for auto square off
-                }
+            const shouldSquareOff = !isAdmin && updatedPositions.length > 0 && !squareOffTriggeredRef.current && !loading &&
+                ((totalFunds > 0 && checkValue <= lossThreshold) || (checkValue <= 0));
+            console.log("should SquareOFF? ", shouldSquareOff ? 'true' : 'false');
+            if (shouldSquareOff) {
+                console.log(`[Margin Breach] TotalFunds: ${totalFunds}, Threshold: ${lossThreshold}, Value: ${checkValue}, Base: ${squareOffBase}`);
+                squareOffTriggeredRef.current = true;
+                setTimeout(() => handleSquareOffAll(true), 0);
             }
 
             // Safety Reset: Reset the trigger if specifically confirmed that no positions remain
@@ -235,17 +238,22 @@ const Position: React.FC = () => {
     };
 
     const handleSquareOffAll = async (isAuto: boolean = false) => {
-        // if (!marketTimingService.isMarketOpen()) {
-        //     showToast('Market is currently closed. You cannot square off positions at this time.', 'error');
-        //     return;
-        // }
-
         try {
             setLoading(true);
             const response = await TradeService.squareOffAll(isAuto);
-            showToast(response.message || 'All positions squared off successfully', 'success');
+            showToast(response.message || 'All positions squared off successfully', (isAuto ? 'error' : 'success'));
+
+            // if (isAuto) {
+            //     // If it was an auto square-off, the account is likely deactivated
+            //     // Wait for the user to see the toast, then log out
+            //     setTimeout(async () => {
+            //         await logoutUser();
+            //         window.location.href = '/login';
+            //     }, 5000); // 3-second delay
+            // } else {
             fetchPositions();
             fetchTrades();
+            // }
         } catch (error: any) {
             showToast(error.message || 'Failed to square off positions', 'error');
         } finally {

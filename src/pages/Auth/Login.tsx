@@ -246,7 +246,7 @@ const Login: React.FC = () => {
                             </div>
 
                             {/* Saved Accounts Quick Switch */}
-                            {savedAccounts.length > 0 && (
+                            {/* {savedAccounts.length > 0 && (
                                 <div className="saved-accounts-section">
                                     <p className="saved-accounts-label">Switch to Saved Account</p>
                                     <div className="saved-accounts-list">
@@ -268,7 +268,6 @@ const Login: React.FC = () => {
                                                         )}
                                                     </div>
                                                     <div className="saved-acc-actions">
-                                                        {/* <IonIcon icon={swapHorizontalOutline} className="saved-acc-arrow" /> */}
                                                         <IonIcon
                                                             icon={trashOutline}
                                                             className="saved-acc-delete"
@@ -280,7 +279,7 @@ const Login: React.FC = () => {
                                         })}
                                     </div>
                                 </div>
-                            )}
+                            )} */}
                         </div>
                     </main>
                     <footer className="footer-version">Version 1.0.0</footer>

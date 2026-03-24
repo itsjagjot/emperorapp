@@ -233,7 +233,7 @@ const SettlementsReport: React.FC = () => {
                 }
 
                 const pdfBase64 = pdf.output('datauristring').split(',')[1];
-                
+
                 try {
                     // Write file to Documents directory (Standard for downloads)
                     const result = await Filesystem.writeFile({
@@ -257,7 +257,7 @@ const SettlementsReport: React.FC = () => {
                         directory: Directory.Cache,
                         recursive: true
                     });
-                    
+
                     await Share.share({
                         title: 'Settlement Report',
                         text: 'Settlement report PDF from Emperor App',

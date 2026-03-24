@@ -97,17 +97,29 @@
 
 .summary-body {
     display: flex;
-    justify-content: space-between;
-    /* Space items evenly */
+    justify-content: flex-start;
     align-items: flex-start;
+    overflow-x: auto;
+    gap: 0px;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+}
+
+.summary-body::-webkit-scrollbar {
+    height: 3px;
+}
+
+.summary-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
 }
 
 .summary-item {
     display: flex;
     flex-direction: column;
-    text-align: left;
-    flex: 1;
-    /* Equal width for all items */
+    text-align: center;
+    min-width: 100px;
+    flex: 0 0 auto;
 }
 
 .summary-label {
@@ -202,10 +214,10 @@
 /* User Card Premium */
 .user-report-card-premium {
     background: white;
-    margin: 10px 12px;
+    margin: 15px 12px;
     border-radius: 12px;
-    padding: 14px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .user-header-flex {

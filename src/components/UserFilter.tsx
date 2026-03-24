@@ -115,7 +115,7 @@ const UserFilter: React.FC<UserFilterProps> = ({
                 disabled={loading}
             >
                 {includeAll && <IonSelectOption value="all">All User</IonSelectOption>}
-                {includeSelf && (
+                {includeSelf && currentUser?.UserRoleName !== 'Admin' && (
                     <IonSelectOption value="self">
                         Self {currentUser?.UserRoleName ? `(${currentUser.UserRoleName})` : ''}
                     </IonSelectOption>
