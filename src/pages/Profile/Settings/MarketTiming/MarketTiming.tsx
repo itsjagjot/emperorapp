@@ -51,7 +51,12 @@ const MarketTiming: React.FC = () => {
         return `${h.toString().padStart(2, '0')}:${m} ${ampm}`;
     };
 
+    const prevMonthDays = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    const startDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+    const totalGrids = startDay + daysInMonth;
+    const nextMonthDaysNeeded = (7 - (totalGrids % 7)) % 7;
+
     const monthName = currentDate.toLocaleString('default', { month: 'long' });
     const year = currentDate.getFullYear();
     const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -113,6 +118,12 @@ const MarketTiming: React.FC = () => {
                         </div>
 
                         <div className="calendar-grid days">
+                            {Array.from({ length: startDay }, (_, i) => prevMonthDays - startDay + 1 + i).map((day) => (
+                                <div key={`prev-${day}`} className="grid-item disabled-grid">
+                                    <span className="day-num text-mono disabled-day-num">{day}</span>
+                                </div>
+                            ))}
+
                             {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
                                 const dayTiming = getDayTiming(day);
                                 const isClosed = dayTiming ? dayTiming.is_closed : false;
@@ -127,6 +138,12 @@ const MarketTiming: React.FC = () => {
                                     </div>
                                 );
                             })}
+
+                            {Array.from({ length: nextMonthDaysNeeded }, (_, i) => i + 1).map((day) => (
+                                <div key={`next-${day}`} className="grid-item disabled-grid">
+                                    <span className="day-num text-mono disabled-day-num">{day}</span>
+                                </div>
+                            ))}
                         </div>
 
                         <div className="timing-footer">

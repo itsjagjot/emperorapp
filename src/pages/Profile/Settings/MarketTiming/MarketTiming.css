@@ -168,3 +168,17 @@
 .grid-item:active {
     background: #ececec;
 }
+
+/* Disabled Days styling for previous/next month padding */
+.grid-item.disabled-grid {
+    cursor: default;
+    background: #fcfcfc;
+}
+
+.grid-item.disabled-grid:active {
+    background: #fcfcfc;
+}
+
+.disabled-day-num {
+    color: #cbd5e1;
+}
